@@ -4,7 +4,8 @@ service cloud.firestore {
 
     function signedIn() { return request.auth != null; }
     function isMe(uid) { return signedIn() && request.auth.uid == uid; }
-    function validNick(n) { return n is string && n.matches('^[\\p{L}\\p{N}][\\p{L}\\p{N}_.-]{2,19}$'); }
+    function validNick(n) { return n is string && n.matches('[a-zA-Z0-9а-яА-ЯёЁіІїЇєЄґҐ][a-zA-Z0-9а-яА-ЯёЁіІїЇєЄґҐ_.-]{2,19}'); }
+    function validLow(l) { return l is string && l.matches('[a-z0-9а-яёіїєґ][a-z0-9а-яёіїєґ_.-]{2,19}'); }
 
     // Публичный профиль: только ник
     match /users/{uid} {
@@ -12,7 +13,7 @@ service cloud.firestore {
       allow create, update: if isMe(uid)
         && request.resource.data.keys().hasOnly(['nick', 'nickLower', 'updatedAt'])
         && validNick(request.resource.data.nick)
-        && request.resource.data.nickLower == request.resource.data.nick.lower()
+        && validLow(request.resource.data.nickLower)
         && request.resource.data.updatedAt == request.time
         && getAfter(/databases/$(database)/documents/nicks/$(request.resource.data.nickLower)).data.uid == uid;
       allow delete: if false;
