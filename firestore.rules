@@ -1,0 +1,64 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function isMe(uid) { return signedIn() && request.auth.uid == uid; }
+    function validNick(n) { return n is string && n.matches('^[\\p{L}\\p{N}][\\p{L}\\p{N}_.-]{2,19}$'); }
+
+    // Публичный профиль: только ник
+    match /users/{uid} {
+      allow read: if true;
+      allow create, update: if isMe(uid)
+        && request.resource.data.keys().hasOnly(['nick', 'nickLower', 'updatedAt'])
+        && validNick(request.resource.data.nick)
+        && request.resource.data.nickLower == request.resource.data.nick.lower()
+        && request.resource.data.updatedAt == request.time
+        && getAfter(/databases/$(database)/documents/nicks/$(request.resource.data.nickLower)).data.uid == uid;
+      allow delete: if false;
+
+      // Личное: коллекция — видит и меняет только владелец
+      match /private/{docId} {
+        allow read: if isMe(uid);
+        allow write: if isMe(uid) && docId == 'coll'
+          && request.resource.data.keys().hasOnly(['c', 'updatedAt'])
+          && request.resource.data.c is map
+          && request.resource.data.c.size() <= 500;
+      }
+    }
+
+    // Занятые ники (для уникальности)
+    match /nicks/{nickLower} {
+      allow read: if true;
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['uid'])
+        && request.resource.data.uid == request.auth.uid
+        && getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.nickLower == nickLower;
+      allow delete: if signedIn()
+        && resource.data.uid == request.auth.uid
+        && getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.nickLower != nickLower;
+      allow update: if false;
+    }
+
+    // Комментарии к персонажам
+    match /comments/{charId}/items/{commentId} {
+      allow read: if true;
+      allow create: if signedIn()
+        && charId.size() <= 60
+        && request.resource.data.keys().hasOnly(['uid', 'nick', 'text', 'createdAt'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.nick == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.nick
+        && request.resource.data.text is string
+        && request.resource.data.text.size() >= 1
+        && request.resource.data.text.size() <= 500
+        && request.resource.data.createdAt == request.time;
+      allow delete: if signedIn() && resource.data.uid == request.auth.uid;
+      allow update: if false;
+    }
+
+    // Всё остальное закрыто
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

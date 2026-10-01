@@ -1695,7 +1695,7 @@ html.v-map .mapv{display:flex}
   // моя коллекция (хранится в браузере)
   const COLL_KEY = 'hv_coll_v1';
   let COLL = {}; try{ COLL = JSON.parse(localStorage.getItem(COLL_KEY) || '{}') || {}; }catch(e){ COLL = {}; }
-  const saveColl = () => { try{ localStorage.setItem(COLL_KEY, JSON.stringify(COLL)); }catch(e){} };
+  const saveColl = quiet => { try{ localStorage.setItem(COLL_KEY, JSON.stringify(COLL)); }catch(e){} if (!quiet && window.onCollChange) window.onCollChange(COLL); };   // onCollChange — синхронизация с аккаунтом
   const ST = {
     want:{label:'Хочу вайфу / краша', ic:'♡', c:'#FF8FC7'},
     got: {label:'Выбил(а) вайфу / краша', ic:'✓', c:'#7EE08A'},
@@ -2156,8 +2156,10 @@ html.v-map .mapv{display:flex}
         ${sec('Нужные статы', ch.st)}
         ${sec('Артефакты', ch.ar)}
         <div class="sec"><h3>Навыки</h3>${skills}</div>
+        <div class="sec cmt" id="cmt"></div>
       </div>`;
     $('overlay').hidden = false;
+    window.dispatchEvent(new CustomEvent('hv:sheet', {detail:{name: ch.n}}));   // комментарии (модуль аккаунтов)
     fitNames($('sheet'));
     $('close').focus();
   }
@@ -2180,7 +2182,10 @@ html.v-map .mapv{display:flex}
   let resetArm = 0;
   $('myreset').addEventListener('click', ()=>{ if (Date.now()-resetArm > 3000){ resetArm = Date.now(); msg('Нажми ещё раз, чтобы стереть все отметки'); return; }
     COLL = {}; saveColl(); $('mycode').value = enc(COLL); render(); msg('Отметки сброшены'); });
-  function closeSheet(){ $('overlay').hidden = true; $('overlay').classList.remove('onrp'); if (lastFocus) lastFocus.focus(); }
+  function closeSheet(){ window.dispatchEvent(new Event('hv:sheetclose')); $('overlay').hidden = true; $('overlay').classList.remove('onrp'); if (lastFocus) lastFocus.focus(); }
+  // коллекция для модуля аккаунтов (Firebase): прочитать / заменить целиком
+  window.collApi = { get: () => ({...COLL}), set: o => { COLL = {...o}; saveColl(true); render();
+    const nm = !$('overlay').hidden && $('sheet-name'); if (nm){ const ch = CHARS.find(c=>c.n===nm.textContent); if (ch) $('sheet').querySelectorAll('.mypb').forEach(x=>x.setAttribute('aria-pressed', String(x.dataset.st===stOf(ch)))); } } };
   // открыть карточку персонажа из другого места (плашка региона на глобусе)
   window.openChar = (name, from) => { const i = CHARS.findIndex(c => c.n === name); if (i < 0) return false;
     sfx(SFX_OPEN); openSheet(i, from || document.activeElement); $('overlay').classList.add('onrp'); return true; };
@@ -3414,4 +3419,249 @@ html.v-map .mapv{display:flex}
   addEventListener('scroll', upd, {passive:true}); addEventListener('resize', upd); addEventListener('hashchange', () => setTimeout(upd, 50)); new MutationObserver(() => setTimeout(upd, 30)).observe(document.documentElement, {attributes:true, attributeFilter:['class']}); upd(); })();
 </script>
 
+
+<!-- ===== Аккаунты (Firebase): вход через Google, никнеймы, коллекция в аккаунте, комментарии к персонажам ===== -->
+<button type="button" id="acctBtn" class="acct-btn" aria-label="Аккаунт" title="Аккаунт"><span class="acct-av" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="8.5" r="4.2" fill="currentColor"/><path d="M3.8 21c.6-4.6 4-7.4 8.2-7.4s7.6 2.8 8.2 7.4z" fill="currentColor"/></svg></span></button>
+<div class="overlay acct-ov" id="acctOv" hidden>
+  <div class="acct-sheet" role="dialog" aria-modal="true" aria-labelledby="acctTitle">
+    <button class="close" type="button" id="acctClose" aria-label="Закрыть">×</button>
+    <h2 id="acctTitle">Аккаунт</h2>
+    <div id="acctBody"></div>
+  </div>
+</div>
+<style>
+.acct-btn{position:fixed; right:82px; bottom:18px; z-index:80; appearance:none; cursor:pointer; width:52px; height:52px; padding:4px; border-radius:50%;
+  background:rgb(20 26 44 / .72); border:1px solid rgb(217 178 90 / .55); box-shadow:0 6px 20px rgb(0 0 0 / .4); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px)}
+.acct-av{display:grid; place-items:center; width:42px; height:42px; border-radius:50%; background:linear-gradient(#f7f1e3,#e6dbc2); color:#3b3228; box-shadow:inset 0 0 0 1.5px #d9b25a;
+  font:400 18px/1 var(--display); text-transform:uppercase}
+.acct-btn.in .acct-av{background:linear-gradient(#F3CF73,#d9a93f); color:#2a1c04}
+.acct-btn:hover .acct-av{box-shadow:inset 0 0 0 1.5px #d9b25a, 0 0 14px rgb(255 215 120 / .6)}
+.acct-btn:focus-visible{outline:2px solid #fff; outline-offset:3px}
+@media (max-width:720px){ .acct-btn{right:72px; bottom:12px; background:rgb(20 26 44 / .92)} }
+.acct-ov{z-index:120}
+.acct-sheet{position:relative; width:min(440px,100%); max-height:calc(100vh - 32px); overflow:auto; background:var(--surface); border:1px solid #d9b25a; border-radius:18px;
+  padding:22px 20px 20px; box-shadow:0 30px 80px -20px rgb(0 0 0 / .9); color:var(--text)}
+.acct-sheet h2{margin:0 40px 12px 0; font-family:var(--display); font-weight:400; font-size:22px; color:var(--gold)}
+.acct-sheet p{margin:0 0 12px; color:var(--muted); font-size:14px}
+.acct-sheet p b{color:var(--text); font-weight:400}
+.acct-row{display:flex; gap:8px; flex-wrap:wrap; margin:6px 0 12px}
+.acct-in{flex:1 1 180px; min-width:0; background:var(--bg2); border:1px solid var(--line); color:var(--text); font:inherit; padding:10px 12px; border-radius:10px; outline:none}
+.acct-in:focus-visible{border-color:var(--gold); box-shadow:0 0 0 3px rgb(233 196 106 / .18)}
+.acct-go{appearance:none; border:0; cursor:pointer; font:inherit; font-size:15px; padding:10px 18px; border-radius:10px; background:var(--gold); color:#10131c; display:inline-flex; align-items:center; gap:8px}
+.acct-go:disabled{opacity:.55; cursor:default}
+.acct-go.g{background:#fff; color:#1f1f1f}
+.acct-go.g svg{width:18px; height:18px}
+.acct-lnk{appearance:none; border:0; background:none; color:var(--muted); font:inherit; font-size:14px; cursor:pointer; text-decoration:underline; text-underline-offset:3px; padding:0}
+.acct-lnk:hover{color:var(--text)}
+.acct-msg{min-height:20px; font-size:13px; color:#FF9B8A; margin:0 0 8px}
+.acct-msg.ok{color:#7EE08A}
+.acct-note{font-size:12px !important; color:var(--muted)}
+/* комментарии в карточке персонажа */
+.cmt h3 small{color:var(--text); letter-spacing:0; margin-left:6px}
+.cmt-form{display:grid; gap:8px; margin-bottom:12px}
+.cmt-form textarea{width:100%; min-height:64px; resize:vertical; background:var(--bg2); border:1px solid var(--line); color:var(--text); font:inherit; font-size:14px; padding:10px 12px; border-radius:10px; outline:none}
+.cmt-form textarea:focus-visible{border-color:var(--c, var(--gold))}
+.cmt-fr{display:flex; align-items:center; gap:10px; justify-content:space-between; flex-wrap:wrap}
+.cmt-fr small{color:var(--muted); font-size:12px}
+.cmt-send{appearance:none; border:0; cursor:pointer; font:inherit; font-size:14px; padding:8px 16px; border-radius:9px; background:var(--c, var(--gold)); color:#10131c}
+.cmt-send:disabled{opacity:.5; cursor:default}
+.cmt-login{appearance:none; cursor:pointer; font:inherit; font-size:14px; width:100%; padding:10px; border-radius:10px; border:1px dashed var(--line); background:var(--bg2); color:var(--text); margin-bottom:12px}
+.cmt-login:hover{border-color:var(--c, var(--gold))}
+.cmt-list{list-style:none; margin:0; padding:0; display:grid; gap:8px}
+.cmt-list li{background:var(--bg2); border-radius:10px; padding:9px 12px}
+.cmt-h{display:flex; align-items:baseline; gap:8px; margin-bottom:3px}
+.cmt-h b{font-weight:400; color:var(--c, var(--gold))}
+.cmt-h time{color:var(--muted); font-size:12px}
+.cmt-h .cmt-del{margin-left:auto; appearance:none; border:0; background:none; color:var(--muted); font:inherit; font-size:12px; cursor:pointer; padding:0}
+.cmt-h .cmt-del:hover, .cmt-h .cmt-del.arm{color:#FF9B8A}
+.cmt-t{margin:0; white-space:pre-wrap; word-break:break-word; font-size:14px}
+.cmt-empty{color:var(--muted); font-style:italic; margin:0}
+</style>
+<script type="module">
+const cfg = {
+  apiKey: "AIzaSyCLyGlVTLtZ4rGURm3Ou6RTuOT_0gf5XHk",
+  authDomain: "genshin-memguide.firebaseapp.com",
+  projectId: "genshin-memguide",
+  storageBucket: "genshin-memguide.firebasestorage.app",
+  messagingSenderId: "608891395892",
+  appId: "1:608891395892:web:79ebb1a1a9db1083534f61"
+};
+const V = '10.12.2', G = `https://www.gstatic.com/firebasejs/${V}/`;
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const NICK_RE = /^[\p{L}\p{N}][\p{L}\p{N}_.-]{2,19}$/u;
+const GICON = '<svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>';
+
+let A, F, auth, db, user = null, nick = null, ready = false, loadErr = null;
+const S = { sheetName: null, unsubC: null, unsubColl: null, collTimer: 0, lastCloud: '' };
+
+// ---------- загрузка Firebase ----------
+const boot = (async () => {
+  try {
+    const [app, a, f] = await Promise.all([import(G + 'firebase-app.js'), import(G + 'firebase-auth.js'), import(G + 'firebase-firestore.js')]);
+    A = a; F = f;
+    const fb = app.initializeApp(cfg);
+    auth = a.getAuth(fb); db = f.getFirestore(fb);
+    a.onAuthStateChanged(auth, onUser);
+    ready = true;
+  } catch (e) { loadErr = e; console.warn('[acct] Firebase не загрузился', e); paintBtn(); }
+})();
+
+// ---------- вход / выход ----------
+async function signIn() {
+  await boot; if (!ready) return msg('Не удалось подключиться. Проверь интернет.');
+  const p = new A.GoogleAuthProvider(); p.setCustomParameters({ prompt: 'select_account' });
+  try { await A.signInWithPopup(auth, p); }
+  catch (e) {
+    if (e && (e.code === 'auth/popup-blocked' || e.code === 'auth/operation-not-supported-in-this-environment')) { try { await A.signInWithRedirect(auth, p); } catch (e2) { msg('Вход не удался: ' + (e2.code || e2.message)); } }
+    else if (e && e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request') msg('Вход не удался: ' + (e.code || e.message));
+  }
+}
+async function signOut() { await boot; if (ready) await A.signOut(auth); }
+
+async function onUser(u) {
+  user = u; nick = null;
+  if (S.unsubColl) { S.unsubColl(); S.unsubColl = null; }
+  if (u) {
+    try { const d = await F.getDoc(F.doc(db, 'users', u.uid)); nick = d.exists() ? d.data().nick : null; } catch (e) { console.warn(e); }
+    startCollSync();
+  }
+  paintBtn(); paintAcct(); paintCmtForm();
+  if (u && !nick) openAcct();   // сразу предлагаем выбрать ник
+}
+
+// ---------- кнопка и окно аккаунта ----------
+function paintBtn() {
+  const b = $('acctBtn'), av = b.querySelector('.acct-av');
+  b.classList.toggle('in', !!user);
+  if (user && nick) { av.textContent = [...nick][0]; b.title = b.ariaLabel = 'Аккаунт: ' + nick; }
+  else { av.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="8.5" r="4.2" fill="currentColor"/><path d="M3.8 21c.6-4.6 4-7.4 8.2-7.4s7.6 2.8 8.2 7.4z" fill="currentColor"/></svg>'; b.title = b.ariaLabel = user ? 'Аккаунт: выбери ник' : 'Войти'; }
+}
+let back = null;
+function openAcct() { back = document.activeElement; paintAcct(); $('acctOv').hidden = false; setTimeout(() => { const f = $('acctBody').querySelector('input, button'); f && f.focus(); }, 30); }
+function closeAcct() { if ($('acctOv').hidden) return; window.uiClose && window.uiClose(); $('acctOv').hidden = true; back && back.focus && back.focus(); }
+const msg = (t, ok) => { const m = $('acctMsg'); if (m) { m.textContent = t || ''; m.classList.toggle('ok', !!ok); } };
+
+function paintAcct() {
+  const B = $('acctBody');
+  if (loadErr) { B.innerHTML = `<p>Сервис аккаунтов сейчас недоступен (не загрузился). Попробуй позже или проверь, не блокирует ли что-то сайт.</p>`; return; }
+  if (!user) {
+    B.innerHTML = `<p>Войди, чтобы <b>сохранять «Мою коллекцию» в аккаунте</b> (она будет одинаковой на телефоне и компе) и <b>писать комментарии</b> к персонажам.</p>
+      <div class="acct-row"><button type="button" class="acct-go g" id="acctIn">${GICON}Войти через Google</button></div>
+      <div class="acct-msg" id="acctMsg" aria-live="polite"></div>
+      <p class="acct-note">Пароль сайт не видит — вход проверяет Google. Другим людям виден только твой никнейм.</p>`;
+    $('acctIn').onclick = signIn; return;
+  }
+  B.innerHTML = `${nick ? `<p>Ты вошёл как <b>${esc(nick)}</b>.</p>` : `<p><b>Придумай никнейм</b> — его увидят все в комментариях.</p>`}
+    <label class="acct-note" for="acctNick">${nick ? 'Сменить никнейм' : 'Никнейм'} · 3–20 символов: буквы, цифры, _ . -</label>
+    <div class="acct-row"><input class="acct-in" id="acctNick" maxlength="20" autocomplete="nickname" spellcheck="false" value="${esc(nick || '')}" placeholder="например, Бро"><button type="button" class="acct-go" id="acctSave">Сохранить</button></div>
+    <div class="acct-msg" id="acctMsg" aria-live="polite"></div>
+    <p class="acct-note">«Моя коллекция» сохраняется в аккаунте автоматически.</p>
+    <div class="acct-row"><button type="button" class="acct-lnk" id="acctOut">Выйти из аккаунта</button></div>`;
+  $('acctSave').onclick = saveNick;
+  $('acctNick').addEventListener('keydown', e => { if (e.key === 'Enter') saveNick(); });
+  $('acctOut').onclick = async () => { await signOut(); closeAcct(); };
+}
+
+async function saveNick() {
+  const v = $('acctNick').value.trim();
+  if (!NICK_RE.test(v)) return msg('Ник: 3–20 символов, буквы/цифры, можно _ . - (первый символ — буква или цифра)');
+  if (v === nick) return msg('Это и так твой ник', true);
+  const low = v.toLowerCase(), uid = user.uid, btn = $('acctSave'); btn.disabled = true; msg('Сохраняю…', true);
+  try {
+    await F.runTransaction(db, async tx => {
+      const uref = F.doc(db, 'users', uid), nref = F.doc(db, 'nicks', low);
+      const [ud, nd] = await Promise.all([tx.get(uref), tx.get(nref)]);
+      if (nd.exists() && nd.data().uid !== uid) throw Object.assign(new Error('taken'), { code: 'taken' });
+      const old = ud.exists() ? ud.data().nickLower : null;
+      if (!nd.exists()) tx.set(nref, { uid });
+      tx.set(uref, { nick: v, nickLower: low, updatedAt: F.serverTimestamp() });
+      if (old && old !== low) tx.delete(F.doc(db, 'nicks', old));
+    });
+    nick = v; paintBtn(); paintAcct(); paintCmtForm(); msg('Готово! Теперь ты ' + v, true);
+  } catch (e) {
+    btn.disabled = false;
+    msg(e.code === 'taken' ? 'Этот ник уже занят — попробуй другой' : 'Не получилось сохранить: ' + (e.code || e.message));
+  }
+}
+
+$('acctBtn').addEventListener('click', () => { openAcct(); });
+$('acctOv').addEventListener('click', e => { if (e.target.id === 'acctOv' || e.target.closest('#acctClose')) closeAcct(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('acctOv').hidden) { e.stopImmediatePropagation(); closeAcct(); } }, true);
+
+// ---------- «Моя коллекция» в аккаунте ----------
+const collRef = () => F.doc(db, 'users', user.uid, 'private', 'coll');
+const clean = o => { const r = {}; for (const k in (o || {})) if (['want', 'got', 'main'].includes(o[k])) r[k] = o[k]; return r; };
+async function startCollSync() {
+  const api = window.collApi; if (!api || !user) return;
+  try {
+    const d = await F.getDoc(collRef());
+    const cloud = d.exists() ? clean(d.data().c) : {};
+    const merged = { ...clean(api.get()), ...cloud };          // облако главнее, локальные отметки не теряем
+    api.set(merged);
+    if (JSON.stringify(merged) !== JSON.stringify(cloud)) await pushColl(merged);
+    S.lastCloud = JSON.stringify(merged);
+    S.unsubColl = F.onSnapshot(collRef(), snap => {             // изменения с другого устройства
+      if (!snap.exists() || snap.metadata.hasPendingWrites) return;
+      const c = clean(snap.data().c), j = JSON.stringify(c);
+      if (j !== S.lastCloud && j !== JSON.stringify(clean(api.get()))) { S.lastCloud = j; api.set(c); }
+    });
+  } catch (e) { console.warn('[acct] коллекция', e); }
+}
+const pushColl = c => F.setDoc(collRef(), { c: clean(c), updatedAt: F.serverTimestamp() });
+window.onCollChange = c => {
+  if (!user || !ready) return;
+  clearTimeout(S.collTimer);
+  S.collTimer = setTimeout(() => { S.lastCloud = JSON.stringify(clean(c)); pushColl(c).catch(e => console.warn('[acct] save coll', e)); }, 700);
+};
+
+// ---------- комментарии в карточке персонажа ----------
+const cid = name => name.replace(/\//g, '∕').slice(0, 60);
+const fmt = ts => { if (!ts) return 'только что'; const d = ts.toDate(); return d.toLocaleString('ru-RU', { day: 'numeric', month: 'short', year: d.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined, hour: '2-digit', minute: '2-digit' }); };
+function paintCmtForm() {
+  const box = document.querySelector('#cmt .cmt-fbox'); if (!box) return;
+  if (!user) { box.innerHTML = `<button type="button" class="cmt-login" data-acct="1">Войди, чтобы написать комментарий</button>`; return; }
+  if (!nick) { box.innerHTML = `<button type="button" class="cmt-login" data-acct="1">Выбери никнейм, чтобы писать</button>`; return; }
+  box.innerHTML = `<form class="cmt-form" novalidate><textarea maxlength="500" placeholder="Что думаешь про персонажа, ${esc(nick)}?" aria-label="Комментарий"></textarea>
+    <div class="cmt-fr"><small><span class="cmt-n">0</span> / 500</small><button type="submit" class="cmt-send" disabled>Отправить</button></div></form>`;
+  const f = box.querySelector('form'), ta = f.querySelector('textarea'), sb = f.querySelector('.cmt-send'), n = f.querySelector('.cmt-n');
+  ta.addEventListener('input', () => { n.textContent = ta.value.length; sb.disabled = !ta.value.trim(); });
+  ta.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) f.requestSubmit(); });
+  f.addEventListener('submit', async e => {
+    e.preventDefault(); const t = ta.value.trim(); if (!t || !S.sheetName) return;
+    sb.disabled = true;
+    try { await F.addDoc(F.collection(db, 'comments', cid(S.sheetName), 'items'), { uid: user.uid, nick, text: t.slice(0, 500), createdAt: F.serverTimestamp() }); ta.value = ''; n.textContent = '0'; }
+    catch (err) { sb.disabled = false; alertBox('Не отправилось: ' + (err.code || err.message)); }
+  });
+}
+function alertBox(t) { const l = document.querySelector('#cmt .cmt-list'); if (l) l.insertAdjacentHTML('beforebegin', `<p class="acct-msg">${esc(t)}</p>`); }
+async function openCmts(name) {
+  closeCmts(); S.sheetName = name;
+  const sec = $('cmt'); if (!sec) return;
+  sec.innerHTML = `<h3>Комментарии <small class="cmt-c"></small></h3><div class="cmt-fbox"></div><ul class="cmt-list" aria-live="polite"><li class="cmt-empty">Загрузка…</li></ul>`;
+  paintCmtForm();
+  await boot;
+  if (!ready) { sec.querySelector('.cmt-list').innerHTML = '<li class="cmt-empty">Комментарии сейчас недоступны.</li>'; return; }
+  if (S.sheetName !== name) return;
+  const q = F.query(F.collection(db, 'comments', cid(name), 'items'), F.orderBy('createdAt', 'desc'), F.limit(100));
+  S.unsubC = F.onSnapshot(q, snap => {
+    const L = document.querySelector('#cmt .cmt-list'); if (!L) return;
+    const c = document.querySelector('#cmt .cmt-c'); if (c) c.textContent = snap.size ? snap.size + (snap.size === 100 ? '+' : '') : '';
+    if (snap.empty) { L.innerHTML = '<li class="cmt-empty">Пока никто не написал. Будь первым!</li>'; return; }
+    L.innerHTML = snap.docs.map(d => { const x = d.data(), mine = user && x.uid === user.uid;
+      return `<li data-id="${esc(d.id)}"><div class="cmt-h"><b>${esc(x.nick || '???')}</b><time>${esc(fmt(x.createdAt))}</time>${mine ? '<button type="button" class="cmt-del">удалить</button>' : ''}</div><p class="cmt-t">${esc(x.text || '')}</p></li>`; }).join('');
+  }, err => { const L = document.querySelector('#cmt .cmt-list'); if (L) L.innerHTML = `<li class="cmt-empty">Не удалось загрузить комментарии (${esc(err.code || '')}).</li>`; });
+}
+function closeCmts() { if (S.unsubC) { S.unsubC(); S.unsubC = null; } S.sheetName = null; }
+window.addEventListener('hv:sheet', e => openCmts(e.detail.name));
+window.addEventListener('hv:sheetclose', closeCmts);
+document.addEventListener('click', async e => {
+  if (e.target.closest('#cmt [data-acct]')) { openAcct(); return; }
+  const del = e.target.closest('#cmt .cmt-del'); if (!del) return;
+  if (!del.classList.contains('arm')) { del.classList.add('arm'); del.textContent = 'точно удалить?'; setTimeout(() => { if (del.isConnected) { del.classList.remove('arm'); del.textContent = 'удалить'; } }, 3000); return; }
+  const id = del.closest('li').dataset.id; del.disabled = true;
+  try { await F.deleteDoc(F.doc(db, 'comments', cid(S.sheetName), 'items', id)); } catch (err) { del.disabled = false; del.textContent = 'ошибка'; }
+});
+paintBtn();
+</script>
 </body></html>
