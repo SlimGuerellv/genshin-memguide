@@ -3421,7 +3421,7 @@ html.v-map .mapv{display:flex}
 
 
 <!-- ===== Аккаунты (Firebase): вход через Google, никнеймы, коллекция в аккаунте, комментарии к персонажам ===== -->
-<button type="button" id="acctBtn" class="acct-btn" aria-label="Аккаунт" title="Аккаунт"><span class="acct-av" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="8.5" r="4.2" fill="currentColor"/><path d="M3.8 21c.6-4.6 4-7.4 8.2-7.4s7.6 2.8 8.2 7.4z" fill="currentColor"/></svg></span></button>
+<button type="button" id="acctBtn" class="acct-btn" aria-label="Войти" title="Войти"><span class="acct-av" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="8.5" r="4.2" fill="currentColor"/><path d="M3.8 21c.6-4.6 4-7.4 8.2-7.4s7.6 2.8 8.2 7.4z" fill="currentColor"/></svg></span><span class="acct-lb">Войти</span></button>
 <div class="overlay acct-ov" id="acctOv" hidden>
   <div class="acct-sheet" role="dialog" aria-modal="true" aria-labelledby="acctTitle">
     <button class="close" type="button" id="acctClose" aria-label="Закрыть">×</button>
@@ -3430,14 +3430,21 @@ html.v-map .mapv{display:flex}
   </div>
 </div>
 <style>
-.acct-btn{position:fixed; right:82px; bottom:18px; z-index:80; appearance:none; cursor:pointer; width:52px; height:52px; padding:4px; border-radius:50%;
-  background:rgb(20 26 44 / .72); border:1px solid rgb(217 178 90 / .55); box-shadow:0 6px 20px rgb(0 0 0 / .4); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px)}
-.acct-av{display:grid; place-items:center; width:42px; height:42px; border-radius:50%; background:linear-gradient(#f7f1e3,#e6dbc2); color:#3b3228; box-shadow:inset 0 0 0 1.5px #d9b25a;
+.acct-btn{position:fixed; right:82px; bottom:18px; z-index:80; appearance:none; cursor:pointer; height:52px; padding:4px 18px 4px 4px; border-radius:999px;
+  display:inline-flex; align-items:center; gap:10px; max-width:calc(100vw - 110px); font:400 16px/1 var(--display); color:#2a1c04;
+  background:linear-gradient(180deg,#F7DD8E,#E2B24C); border:1.5px solid #FFF3C4; box-shadow:0 6px 20px rgb(0 0 0 / .45), 0 0 0 1px rgb(120 80 10 / .5), 0 0 18px rgb(255 205 90 / .45)}
+.acct-btn:not(.in){animation:acctGlow 2.4s ease-in-out infinite}
+@keyframes acctGlow{0%,100%{box-shadow:0 6px 20px rgb(0 0 0 / .45), 0 0 0 1px rgb(120 80 10 / .5), 0 0 12px rgb(255 205 90 / .35)} 50%{box-shadow:0 6px 20px rgb(0 0 0 / .45), 0 0 0 1px rgb(120 80 10 / .5), 0 0 26px rgb(255 215 110 / .85)}}
+.acct-lb{white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:14ch}
+.acct-btn.in{background:rgb(20 26 44 / .8); color:var(--text); border:1px solid rgb(217 178 90 / .7); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px)}
+@media (prefers-reduced-motion:reduce){ .acct-btn:not(.in){animation:none} }
+.acct-av{flex:0 0 auto; display:grid; place-items:center; width:42px; height:42px; border-radius:50%; background:linear-gradient(#f7f1e3,#e6dbc2); color:#3b3228; box-shadow:inset 0 0 0 1.5px #d9b25a;
   font:400 18px/1 var(--display); text-transform:uppercase}
 .acct-btn.in .acct-av{background:linear-gradient(#F3CF73,#d9a93f); color:#2a1c04}
-.acct-btn:hover .acct-av{box-shadow:inset 0 0 0 1.5px #d9b25a, 0 0 14px rgb(255 215 120 / .6)}
+.acct-btn:hover{filter:brightness(1.07)}
+.acct-btn.in:hover .acct-av{box-shadow:inset 0 0 0 1.5px #d9b25a, 0 0 14px rgb(255 215 120 / .6)}
 .acct-btn:focus-visible{outline:2px solid #fff; outline-offset:3px}
-@media (max-width:720px){ .acct-btn{right:72px; bottom:12px; background:rgb(20 26 44 / .92)} }
+@media (max-width:720px){ .acct-btn{right:72px; bottom:12px; font-size:15px; padding-right:14px} .acct-btn.in{background:rgb(20 26 44 / .94)} .acct-lb{max-width:9ch} }
 .acct-ov{z-index:120}
 .acct-sheet{position:relative; width:min(440px,100%); max-height:calc(100vh - 32px); overflow:auto; background:var(--surface); border:1px solid #d9b25a; border-radius:18px;
   padding:22px 20px 20px; box-shadow:0 30px 80px -20px rgb(0 0 0 / .9); color:var(--text)}
@@ -3534,8 +3541,10 @@ async function onUser(u) {
 function paintBtn() {
   const b = $('acctBtn'), av = b.querySelector('.acct-av');
   b.classList.toggle('in', !!user);
-  if (user && nick) { av.textContent = [...nick][0]; b.title = b.ariaLabel = 'Аккаунт: ' + nick; }
-  else { av.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="8.5" r="4.2" fill="currentColor"/><path d="M3.8 21c.6-4.6 4-7.4 8.2-7.4s7.6 2.8 8.2 7.4z" fill="currentColor"/></svg>'; b.title = b.ariaLabel = user ? 'Аккаунт: выбери ник' : 'Войти'; }
+  const lb = b.querySelector('.acct-lb');
+  if (user && nick) { av.textContent = [...nick][0]; lb.textContent = nick; b.title = b.ariaLabel = 'Аккаунт: ' + nick; }
+  else { av.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="8.5" r="4.2" fill="currentColor"/><path d="M3.8 21c.6-4.6 4-7.4 8.2-7.4s7.6 2.8 8.2 7.4z" fill="currentColor"/></svg>';
+    lb.textContent = user ? 'Выбери ник' : 'Войти'; b.title = b.ariaLabel = user ? 'Аккаунт: выбери ник' : 'Войти — коллекция и комментарии'; }
 }
 let back = null;
 function openAcct() { back = document.activeElement; paintAcct(); $('acctOv').hidden = false; setTimeout(() => { const f = $('acctBody').querySelector('input, button'); f && f.focus(); }, 30); }
