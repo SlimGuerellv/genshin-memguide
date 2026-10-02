@@ -841,23 +841,37 @@ html.v-home #homeFloat, html.v-map #homeFloat{display:none}
 @media (max-width:380px){ #homeFloat{padding:4px 10px} #homeFloat .hb-tx{display:none} }   /* узкий телефон: только стрелка, чтобы не наезжать на «Войти» */
 
 /* ===== Музыка: кнопка звука с ползунком громкости ===== */
-.snd{position:fixed; right:18px; bottom:18px; z-index:80; display:flex; align-items:center; gap:0; flex-direction:row-reverse;
-  background:rgb(20 26 44 / .72); border:1px solid rgb(217 178 90 / .55); border-radius:999px; padding:4px; backdrop-filter:blur(6px);
-  box-shadow:0 6px 20px rgb(0 0 0 / .45); transition:gap .25s ease}
-.snd button{appearance:none; border:0; cursor:pointer; width:42px; height:42px; border-radius:50%; display:grid; place-items:center;
-  background:linear-gradient(#f7f1e3,#e6dbc2); color:#3b3228; box-shadow:inset 0 0 0 1.5px #d9b25a}
-.snd button:hover{box-shadow:inset 0 0 0 1.5px #d9b25a, 0 0 14px rgb(255 215 120 / .6)}
-.snd button:focus-visible{outline:2px solid #fff; outline-offset:3px}
+.snd{position:fixed; right:18px; bottom:18px; z-index:80; display:flex; align-items:center; gap:2px;
+  background:rgb(20 26 44 / .78); border:1px solid rgb(217 178 90 / .55); border-radius:999px; padding:4px; backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+  box-shadow:0 6px 20px rgb(0 0 0 / .45)}
+.snd button{appearance:none; border:0; cursor:pointer; width:42px; height:42px; border-radius:50%; display:grid; place-items:center; padding:0; font:inherit;
+  background:none; color:#EDE3CC; transition:background .15s, color .15s, box-shadow .15s}
+.snd button:hover{background:rgb(255 255 255 / .08); color:#fff}
+.snd button:focus-visible{outline:2px solid #fff; outline-offset:2px}
+.snd .sp-main, .snd #sndBtn{background:linear-gradient(#f7f1e3,#e6dbc2); color:#3b3228; box-shadow:inset 0 0 0 1.5px #d9b25a}
+.snd .sp-main:hover, .snd #sndBtn:hover, .snd.open #sndBtn{background:linear-gradient(#fbf6ea,#ece2cb); color:#3b3228; box-shadow:inset 0 0 0 1.5px #d9b25a, 0 0 14px rgb(255 215 120 / .6)}
 .snd svg{width:22px; height:22px}
+.snd .sp-sm svg{width:18px; height:18px}
+.snd .ic-pause{display:none} .snd[data-state="play"] .ic-pause{display:block} .snd[data-state="play"] .ic-play{display:none}
 .snd .w1,.snd .w2{transition:opacity .2s}
 .snd[data-level="0"] .w1,.snd[data-level="0"] .w2,.snd[data-level="1"] .w2{opacity:0}
 .snd .x{opacity:0} .snd[data-level="0"] .x{opacity:1}
-.snd input{width:0; opacity:0; margin:0; transition:width .25s ease, opacity .2s ease, margin .25s; accent-color:#d9b25a; cursor:pointer}
-.snd:hover input, .snd:focus-within input{width:110px; opacity:1; margin:0 10px 0 12px}
+.sp-pop{position:absolute; right:0; bottom:calc(100% + 10px); width:236px; padding:12px 12px 10px; border-radius:16px; background:rgb(20 26 44 / .96);
+  border:1px solid rgb(217 178 90 / .5); box-shadow:0 10px 28px rgb(0 0 0 / .55); opacity:0; transform:translateY(6px); pointer-events:none; transition:opacity .2s, transform .2s}
+.sp-pop::after{content:""; position:absolute; left:0; right:0; top:100%; height:12px}
+.snd.open{z-index:82} .snd.open .sp-pop{opacity:1; transform:none; pointer-events:auto}
+@media (hover:hover){ .snd:hover .sp-pop{opacity:1; transform:none; pointer-events:auto} }
+.sp-k{font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted)}
+.sp-t{margin:3px 0 10px; font-size:14px; color:#f1ecdf; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.sp-r{display:flex; align-items:center; gap:8px}
+.sp-r button{width:36px; height:36px; flex:0 0 auto; background:rgb(255 255 255 / .06)}
+.sp-r input{flex:1; min-width:0; margin:0; accent-color:#d9b25a; cursor:pointer}
+.sp-r output{width:30px; text-align:right; font-size:12.5px; color:var(--muted); font-variant-numeric:tabular-nums}
 .snd .tip{position:absolute; right:0; bottom:calc(100% + 8px); white-space:nowrap; font-size:12px; color:#f1ecdf; background:rgb(20 26 44 / .85);
   padding:5px 10px; border-radius:8px; border:1px solid rgb(217 178 90 / .4); opacity:0; transform:translateY(4px); transition:opacity .3s, transform .3s; pointer-events:none}
 .snd.hint .tip{opacity:1; transform:none}
-@media (max-width:720px){ .snd{right:12px; bottom:12px} .snd:hover input, .snd:focus-within input{width:80px} }
+.snd.open .tip, .snd:hover .tip{opacity:0}
+@media (max-width:720px){ .snd{right:12px; bottom:12px; padding:3px; gap:0} .snd button{width:38px; height:38px} .snd svg{width:20px; height:20px} .sp-r button{width:34px; height:34px} }
 
 /* ===== Словарь ===== */
 html:not(.v-dict) #dictv{display:none}
@@ -1570,11 +1584,17 @@ html.v-map .mapv{display:flex}
 <div class="cload" id="cload" role="dialog" aria-label="Загрузка персонажей" aria-live="polite">
   <div class="cbox"><div class="elrow" aria-hidden="true"></div><div class="done">Загрузка завершена, чтобы продолжить нажмите в любом месте</div></div>
 </div>
-<div class="snd hint" id="snd" data-level="2">
+<div class="snd hint" id="snd" data-level="2" data-state="pause">
   <span class="tip">Музыка включится после первого клика</span>
-  <button type="button" id="sndBtn" aria-label="Выключить музыку"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-    <path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path class="w1" d="M16 9.5a3.5 3.5 0 0 1 0 5"/><path class="w2" d="M18.5 7a7 7 0 0 1 0 10"/><path class="x" d="M16.5 9.5l5 5M21.5 9.5l-5 5"/></svg></button>
-  <input type="range" id="sndVol" min="0" max="100" value="40" aria-label="Громкость музыки">
+  <button type="button" id="sndPrev" class="sp-sm" aria-label="Предыдущий трек" title="Предыдущий трек"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h2.4v14H6z" fill="currentColor"/><path d="M19 5.6v12.8L9.4 12z" fill="currentColor"/></svg></button>
+  <button type="button" id="sndPlay" class="sp-main" aria-label="Играть" title="Играть / пауза"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="ic-play" d="M8 5.2v13.6L19 12z" fill="currentColor"/><path class="ic-pause" d="M7 5h3.6v14H7zM13.4 5H17v14h-3.6z" fill="currentColor"/></svg></button>
+  <button type="button" id="sndNext" class="sp-sm" aria-label="Следующий трек" title="Следующий трек"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.6 5H18v14h-2.4z" fill="currentColor"/><path d="M5 5.6v12.8L14.6 12z" fill="currentColor"/></svg></button>
+  <button type="button" id="sndBtn" aria-label="Громкость" title="Громкость" aria-expanded="false" aria-controls="sndPop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path class="w1" d="M16 9.5a3.5 3.5 0 0 1 0 5"/><path class="w2" d="M18.5 7a7 7 0 0 1 0 10"/><path class="x" d="M16.5 9.5l5 5M21.5 9.5l-5 5"/></svg></button>
+  <div class="sp-pop" id="sndPop" role="group" aria-label="Громкость музыки">
+    <div class="sp-k">Сейчас играет</div><div class="sp-t" id="sndTitle">Нажми ▶</div>
+    <div class="sp-r"><button type="button" id="sndMute" aria-label="Выключить музыку" title="Выключить / включить звук"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path class="w1" d="M16 9.5a3.5 3.5 0 0 1 0 5"/><path class="w2" d="M18.5 7a7 7 0 0 1 0 10"/><path class="x" d="M16.5 9.5l5 5M21.5 9.5l-5 5"/></svg></button>
+      <input type="range" id="sndVol" min="0" max="100" value="40" aria-label="Громкость музыки"><output id="sndVal">40</output></div>
+  </div>
 </div>
 <div class="wrap">
   <header class="top">
@@ -3273,7 +3293,14 @@ html.v-map .mapv{display:flex}
     const mapPick = avoid => { if (!mapBag.length) mapBag = shuffle(MAPLIST.slice());   // «мешок»: каждый трек по разу, потом новый
       if (mapBag[0] === avoid && MAPLIST.length > 1){ if (mapBag.length === 1) mapBag.push(...shuffle(MAPLIST.filter(x => x !== avoid))); const j = 1 + (Math.random() * (mapBag.length - 1) | 0); [mapBag[0], mapBag[j]] = [mapBag[j], mapBag[0]]; }
       return mapBag[0]; };
-    const box = document.getElementById('snd'), btn = document.getElementById('sndBtn'), rng = document.getElementById('sndVol'), root = document.documentElement;
+    const box = document.getElementById('snd'), btn = document.getElementById('sndMute'), rng = document.getElementById('sndVol'), root = document.documentElement;
+    const $s = id => document.getElementById(id), volBtn = $s('sndBtn'), playBtn = $s('sndPlay'), titleEl = $s('sndTitle'), valEl = $s('sndVal');
+    const TITLES = {music:'Moonlit Wilderness', theme:'Genshin Impact Main Theme', sweetsmile:'A Sweet Smile', mooncup:"Moon in One's Cup", relaxliyue:'Relaxation in Liyue', liyue:'Liyue',
+      mondafternoon:'Bustling Afternoon in Mondstadt', jellyfish:'Melody of Jellyfish', snowtales:'Snow-Buried Tales', elegance:'Streets of Elegance', sepdream:'Separated Dream', inazuma:'Inazuma',
+      dusk:"Malinalco's Dusk", hymn:"Mountain's Hymn", choosemoon:'We Choose the Moon', fecundity:'Sea of Fecundity', oldlong:'Old Long Since', peptoke:'Peptoke Chrysous Oikos',
+      eightyworlds:'Around the Moon in Eighty Worlds', insidecage:'Inside the Cage', rmus_mond:'Bustling Afternoon in Mondstadt', rmus_mond2:'Say My Name', rmus_mond3:'Knights of Favonius',
+      rmus_mond4:'Gold Waves in Sunlight', rmus_mond5:'Moonlit Wilderness', rmus_mond6:'Stealing Words of the Moon'};
+    let paused = false, curName = null, curLoop = false; const hist = [];
     const LS = k => { try { return localStorage.getItem(k); } catch(e){ return null; } }, SS = (k,v) => { try { localStorage.setItem(k,v); } catch(e){} };
     let vol = +(LS('mvol') ?? 40), muted = LS('mmute') === '1', ctx = null, gain = null, started = false, useEl = false;
     let cur = null, mode = null, token = 0, bag = [], last = null, seq = [];
@@ -3293,7 +3320,9 @@ html.v-map .mapv{display:flex}
     const ext = 'mp3', oggOk = !!(new Audio()).canPlayType('audio/ogg; codecs=opus');   // музыка только .mp3 (играет везде); .ogg — только шум ветра
     let duckK = 1; const target = () => muted ? 0 : Math.pow(vol/100, 2) * .8 * duckK;
     function ui(){ const v = muted ? 0 : vol; box.dataset.level = v === 0 ? 0 : v < 45 ? 1 : 2;
-      btn.setAttribute('aria-label', muted || vol === 0 ? 'Включить музыку' : 'Выключить музыку'); }
+      btn.setAttribute('aria-label', muted || vol === 0 ? 'Включить музыку' : 'Выключить музыку'); valEl.textContent = v;
+      const on = started && !paused; box.dataset.state = on ? 'play' : 'pause'; playBtn.setAttribute('aria-label', on ? 'Пауза' : 'Играть');
+      titleEl.textContent = curName ? (TITLES[curName] || curName) : 'Нажми ▶'; }
     function apply(){ ui(); if (gain) gain.gain.setTargetAtTime(target(), ctx.currentTime, .08); else { if (cur && cur.el) cur.el.volume = target(); if (wind && wind.el) wind.el.volume = target() * WIND_LVL; } }
     function load(name){ return bufs[name] || (bufs[name] = fetch(name + '.' + ext).then(r => r.arrayBuffer()).then(a => ctx.decodeAudioData(a))); }
     // держим в памяти только главную тему, текущий и следующий трек (чтобы телефон не захлебнулся)
@@ -3301,8 +3330,9 @@ html.v-map .mapv{display:flex}
     function fadeOut(t){ if (!t) return;
       if (t.g){ t.g.gain.setTargetAtTime(0, ctx.currentTime, .35); t.s.onended = null; setTimeout(()=>{ try { t.s.stop(); } catch(e){} }, 1800); }
       else if (t.el){ const el = t.el; el.onended = null; let v = el.volume; const iv = setInterval(()=>{ v -= .05; if (v <= 0){ clearInterval(iv); el.pause(); } else el.volume = v; }, 60); } }
-    async function play(name, loop){
-      const my = ++token, old = cur; cur = null;
+    async function play(name, loop, noHist){
+      const my = ++token, old = cur; cur = null; curName = name; curLoop = loop; ui();
+      if (!noHist && hist[hist.length - 1] !== name){ hist.push(name); if (hist.length > 40) hist.shift(); }
       if (!useEl){
         try {
           const buf = await load(name); if (my !== token) return;
@@ -3310,11 +3340,11 @@ html.v-map .mapv{display:flex}
           const s = ctx.createBufferSource(), g = ctx.createGain(); s.buffer = buf; s.loop = loop;
           g.gain.value = 0; s.connect(g); g.connect(gain); s.start(); g.gain.setTargetAtTime(1, ctx.currentTime, .5);
           if (!loop) s.onended = () => { if (cur && cur.s === s) next(); };
-          cur = {s, g}; return;
+          cur = {s, g, t0: ctx.currentTime}; return;
         } catch(e){ useEl = true; }
       }
       fadeOut(old);
-      const el = new Audio(name + '.' + ext); el.loop = loop; el.volume = target(); el.play().catch(()=>{});
+      const el = new Audio(name + '.' + ext); el.loop = loop; el.volume = target(); if (!paused) el.play().catch(()=>{});
       if (!loop) el.onended = () => { if (cur && cur.el === el) next(); };
       cur = {el};
     }
@@ -3349,7 +3379,7 @@ html.v-map .mapv{display:flex}
         wind.g.gain.setTargetAtTime(on ? WIND_LVL : 0, ctx.currentTime, on ? .8 : .35);
       } else {
         if (!wind){ wind = {el: new Audio('wind.' + wext)}; wind.el.loop = true; }
-        wind.el.volume = target() * WIND_LVL; on ? wind.el.play().catch(()=>{}) : wind.el.pause();
+        wind.el.volume = target() * WIND_LVL; on && !paused ? wind.el.play().catch(()=>{}) : wind.el.pause();
       }
     }
     window.gMusic = {
@@ -3365,19 +3395,35 @@ html.v-map .mapv{display:flex}
       if (m === mode) return; mode = m;
       if (m === 'home') play(HOME, true); else if (m.startsWith('reg:')) next(); else if (m === 'map') next(); else { if (!seq.length) last = HOME; next(); } }   // из главной не начинаем снова с главной темы
     async function start(){
-      if (started) return; started = true; box.classList.remove('hint');
+      if (started) return; started = true; box.classList.remove('hint'); removeEventListener('pointerdown', first, true); removeEventListener('keydown', first, true);
       try { ctx = new (window.AudioContext || window.webkitAudioContext)(); gain = ctx.createGain(); gain.gain.value = target(); gain.connect(ctx.destination); }
       catch(e){ ctx = gain = null; useEl = true; }
-      route();
+      route(); ui();
     }
     // смена экрана (главная ↔ разделы); класс v-home ставит роутер
     new MutationObserver(route).observe(root, {attributes:true, attributeFilter:['class']});
     if (RP) new MutationObserver(route).observe(RP, {attributes:true, attributeFilter:['hidden', 'data-region']});
-    const first = e => { if (e.target.closest && e.target.closest('#snd') && e.type !== 'pointerdown') return; start(); };
-    addEventListener('pointerdown', first, {once:true, capture:true}); addEventListener('keydown', first, {once:true, capture:true});
-    btn.addEventListener('click', ()=>{ if (!started){ start(); return; } if (vol === 0){ vol = 40; rng.value = 40; muted = false; } else muted = !muted; SS('mmute', muted ? '1' : '0'); SS('mvol', vol); apply(); });
+    const first = e => { if (e.target.closest && e.target.closest('#snd')) return; start(); };   // клики по плееру обрабатывает сам плеер
+    addEventListener('pointerdown', first, true); addEventListener('keydown', first, true);
+    // пауза: Web Audio — останавливаем весь звук (музыку и ветер); <audio> — паузим элементы
+    function setPaused(p){ paused = p;
+      if (ctx && !useEl){ if (!document.hidden) p ? ctx.suspend() : ctx.resume(); }
+      else { if (cur && cur.el) p ? cur.el.pause() : cur.el.play().catch(()=>{}); if (wind && wind.el) (p || mode !== 'home') ? wind.el.pause() : wind.el.play().catch(()=>{}); }
+      ui(); }
+    const elapsed = () => !cur ? 0 : cur.el ? cur.el.currentTime : ctx ? ctx.currentTime - (cur.t0 || 0) : 0;
+    playBtn.addEventListener('click', ()=>{ if (!started){ start(); return; } setPaused(!paused); });
+    $s('sndNext').addEventListener('click', ()=>{ if (!started){ start(); return; } if (paused) setPaused(false); if (!mode) return; next(); });
+    $s('sndPrev').addEventListener('click', ()=>{ if (!started){ start(); return; } if (paused) setPaused(false); if (!mode || !curName) return;
+      if (elapsed() > 3 || hist.length < 2) { play(curName, curLoop, true); return; }            // больше 3 сек — с начала, иначе — предыдущий
+      hist.pop(); const p = hist[hist.length - 1]; play(p, p === HOME && mode === 'home', true); });
+    // громкость: кнопка открывает окошко (на компе — ещё и при наведении)
+    const setOpen = o => { box.classList.toggle('open', o); volBtn.setAttribute('aria-expanded', o ? 'true' : 'false'); };
+    volBtn.addEventListener('click', e => { e.stopPropagation(); setOpen(!box.classList.contains('open')); });
+    document.addEventListener('pointerdown', e => { if (!box.contains(e.target)) setOpen(false); });
+    box.addEventListener('keydown', e => { if (e.key === 'Escape' && box.classList.contains('open')){ e.stopPropagation(); setOpen(false); volBtn.focus(); } });
+    btn.addEventListener('click', ()=>{ if (vol === 0){ vol = 40; rng.value = 40; muted = false; } else muted = !muted; SS('mmute', muted ? '1' : '0'); SS('mvol', vol); if (!started) start(); apply(); });
     rng.addEventListener('input', ()=>{ vol = +rng.value; muted = false; SS('mvol', vol); SS('mmute','0'); if (!started) start(); apply(); });
-    document.addEventListener('visibilitychange', ()=>{ if (!ctx) return; document.hidden ? ctx.suspend() : ctx.resume(); });
+    document.addEventListener('visibilitychange', ()=>{ if (!ctx || useEl) return; document.hidden ? ctx.suspend() : (!paused && ctx.resume()); });
     setTimeout(()=>box.classList.remove('hint'), 6000);
     ui();
   })();
@@ -3437,8 +3483,8 @@ html.v-map .mapv{display:flex}
   </div>
 </div>
 <style>
-.acct-btn{position:fixed; right:82px; bottom:18px; z-index:80; appearance:none; cursor:pointer; height:52px; padding:4px 18px 4px 4px; border-radius:999px;
-  display:inline-flex; align-items:center; gap:10px; max-width:calc(100vw - 110px); font:400 16px/1 var(--display); color:#2a1c04;
+.acct-btn{position:fixed; right:212px; bottom:18px; z-index:80; appearance:none; cursor:pointer; height:52px; padding:4px 18px 4px 4px; border-radius:999px;
+  display:inline-flex; align-items:center; gap:10px; max-width:calc(100vw - 240px); font:400 16px/1 var(--display); color:#2a1c04;
   background:linear-gradient(180deg,#F7DD8E,#E2B24C); border:1.5px solid #FFF3C4; box-shadow:0 6px 20px rgb(0 0 0 / .45), 0 0 0 1px rgb(120 80 10 / .5), 0 0 18px rgb(255 205 90 / .45)}
 .acct-btn:not(.in){animation:acctGlow 2.4s ease-in-out infinite}
 @keyframes acctGlow{0%,100%{box-shadow:0 6px 20px rgb(0 0 0 / .45), 0 0 0 1px rgb(120 80 10 / .5), 0 0 12px rgb(255 205 90 / .35)} 50%{box-shadow:0 6px 20px rgb(0 0 0 / .45), 0 0 0 1px rgb(120 80 10 / .5), 0 0 26px rgb(255 215 110 / .85)}}
@@ -3451,7 +3497,7 @@ html.v-map .mapv{display:flex}
 .acct-btn:hover{filter:brightness(1.07)}
 .acct-btn.in:hover .acct-av{box-shadow:inset 0 0 0 1.5px #d9b25a, 0 0 14px rgb(255 215 120 / .6)}
 .acct-btn:focus-visible{outline:2px solid #fff; outline-offset:3px}
-@media (max-width:720px){ .acct-btn{right:72px; bottom:12px; font-size:15px; padding-right:14px} .acct-btn.in{background:rgb(20 26 44 / .94)} .acct-lb{max-width:9ch} }
+@media (max-width:720px){ .acct-btn{right:12px; bottom:66px; height:46px; font-size:15px; padding:3px 14px 3px 3px; gap:8px; max-width:calc(100vw - 24px)} .acct-av{width:38px; height:38px; font-size:16px} .acct-btn.in{background:rgb(20 26 44 / .94)} .acct-lb{max-width:10ch} }   /* телефон: рядом с плеером места нет (слева «На главную») — кнопка над плеером */
 .acct-ov{z-index:120}
 .acct-sheet{position:relative; width:min(440px,100%); max-height:calc(100vh - 32px); overflow:auto; background:var(--surface); border:1px solid #d9b25a; border-radius:18px;
   padding:22px 20px 20px; box-shadow:0 30px 80px -20px rgb(0 0 0 / .9); color:var(--text)}
