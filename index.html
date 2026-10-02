@@ -3054,10 +3054,12 @@ html.v-map .mapv{display:flex}
       aur.renderOrder = 8; aur.frustumCulled = false; scene.add(aur);
       // детальный слой суши: тайлы официальной карты 1024² (gh_X_Y.webp), подгружаются при приближении
       // карта → глобус: u = a + b·fx; меркатор Y = A − B·fy (fx,fy — доли холста 11218×9472)
-      const HM = {a:0.085851, b:0.639511, A:1.709936, B:3.393703, W:11218, H:9472, ts:1024, list:[[4,0],[5,0],[3,1],[4,1],[5,1],[2,2],[3,2],[4,2],[5,2],[2,3],[3,3],[4,3],[5,3],[6,3],[7,3],[8,3],[0,4],[2,4],[3,4],[4,4],[5,4],[6,4],[7,4],[8,4],[9,4],[0,5],[1,5],[2,5],[3,5],[4,5],[5,5],[6,5],[7,5],[8,5],[9,5],[2,6],[3,6],[4,6],[5,6],[6,6],[7,6],[8,6],[9,6],[10,6],[2,7],[3,7],[4,7],[5,7],[6,7],[8,7],[9,7],[10,7],[9,8],[10,8],[9,9]]};
+      const HMF = {a:0.085125, b:0.642092, A:1.800681, B:3.484241, W:22528, H:19456, ts:1024, pre:'gn_', list:[[13,0],[9,1],[10,1],[11,1],[12,1],[13,1],[14,1],[7,2],[8,2],[9,2],[10,2],[11,2],[12,2],[13,2],[14,2],[7,3],[8,3],[9,3],[10,3],[11,3],[12,3],[13,3],[14,3],[7,4],[8,4],[9,4],[10,4],[5,5],[6,5],[7,5],[8,5],[5,6],[6,6],[7,6],[11,6],[12,6],[6,7],[10,7],[11,7],[12,7],[13,7],[16,7],[5,8],[6,8],[7,8],[9,8],[10,8],[11,8],[12,8],[13,8],[14,8],[15,8],[16,8],[17,8],[5,9],[6,9],[7,9],[10,9],[11,9],[12,9],[13,9],[14,9],[15,9],[16,9],[17,9],[0,10],[1,10],[2,10],[5,10],[6,10],[7,10],[9,10],[10,10],[11,10],[13,10],[14,10],[15,10],[16,10],[17,10],[18,10],[1,11],[2,11],[5,11],[6,11],[8,11],[9,11],[10,11],[11,11],[12,11],[13,11],[14,11],[15,11],[16,11],[17,11],[2,12],[5,12],[6,12],[7,12],[8,12],[9,12],[10,12],[11,12],[12,12],[13,12],[14,12],[15,12],[16,12],[17,12],[5,13],[6,13],[7,13],[8,13],[9,13],[10,13],[11,13],[12,13],[13,13],[14,13],[15,13],[19,13],[20,13],[5,14],[6,14],[7,14],[8,14],[9,14],[10,14],[11,14],[12,14],[13,14],[19,14],[20,14],[4,15],[5,15],[6,15],[7,15],[9,15],[10,15],[11,15],[12,15],[16,15],[17,15],[18,15],[19,15],[20,15],[16,16],[17,16],[18,16],[19,16],[20,16],[18,17],[19,17],[18,18],[19,18]]};
+      const HMC = {a:0.085125, b:0.642092, A:1.800681, B:3.484241, W:11264, H:9728, ts:1024, pre:'gm_', list:[[4,0],[5,0],[6,0],[7,0],[3,1],[4,1],[5,1],[6,1],[7,1],[2,2],[3,2],[4,2],[5,2],[2,3],[3,3],[5,3],[6,3],[8,3],[2,4],[3,4],[4,4],[5,4],[6,4],[7,4],[8,4],[0,5],[1,5],[2,5],[3,5],[4,5],[5,5],[6,5],[7,5],[8,5],[9,5],[1,6],[2,6],[3,6],[4,6],[5,6],[6,6],[7,6],[8,6],[9,6],[10,6],[2,7],[3,7],[4,7],[5,7],[6,7],[8,7],[9,7],[10,7],[8,8],[9,8],[10,8],[9,9]]};
+      const HM = TQ === '2k' ? HMC : HMF;   // тайли з повної офіційної карти: 1 м/px (ПК) або 2 м/px (телефон)
       U.hi = {value: 0};
       const hiG = new T.Group(); scene.add(hiG); clouds.renderOrder = 2;   // у групи НЕ ставити renderOrder: в three.js він стає groupOrder і перебиває порядок (патчі лягали поверх поднятого региона и облаков)
-      const hiTL = new T.TextureLoader(), hiMax = TQ === '8k' ? 40 : 18, hiAni = Math.min(8, ren.capabilities.getMaxAnisotropy());
+      const hiTL = new T.TextureLoader(), hiMax = TQ === '16k' ? 40 : TQ === '8k' ? 56 : 18, hiAni = Math.min(8, ren.capabilities.getMaxAnisotropy());
       const hiV = `attribute vec2 guv; varying vec2 vT,vG; varying vec3 vN,vW,vE,vNo; void main(){ vT=uv; vG=guv; vN=normalize(mat3(modelMatrix)*position); vec3 le=normalize(vec3(position.z,0.,-position.x)+vec3(1e-5,0.,0.)); vE=normalize(mat3(modelMatrix)*le); vNo=normalize(mat3(modelMatrix)*cross(normalize(position),le)); vec4 w=modelMatrix*vec4(position,1.); vW=w.xyz; gl_Position=projectionMatrix*viewMatrix*w; }`;
       const hiF = `uniform sampler2D tex,rid,sl; uniform vec4 slb; uniform vec3 sun,hcol; uniform float hover,lift,hi,time; uniform vec3 cty[42];
           float rail(vec2 u){ vec2 q=(u-slb.xy)/(slb.zw-slb.xy); if(q.x<0.||q.y<0.||q.x>1.||q.y>1.) return 0.; vec3 r=texture2D(sl,q).rgb; return r.r*(.8+.2*sin(time*2.3+u.x*2400.))+r.g*.35; } varying vec2 vT,vG; varying vec3 vN,vW,vE,vNo;
@@ -3116,7 +3118,7 @@ html.v-map .mapv{display:flex}
             gl_FragColor=vec4(c,lift*t.a*hi*a); }`;
       let hiBusy = 0, hiT = 0;
       function hiUpdate(g, cp, ts, dt){
-        const want = zoom > 1.2 && TQ === '2k' ? 1 : 0; U.hi.value += (want - U.hi.value) * Math.min(1, dt * 5); hiG.visible = U.hi.value > .01;
+        const want = zoom > (TQ === '2k' ? 1.2 : 1.6) ? 1 : 0; U.hi.value += (want - U.hi.value) * Math.min(1, dt * 5); hiG.visible = U.hi.value > .01;
         if (!want || ts - hiT < 250) return; hiT = ts;
         const vis = [];
         hiTiles.forEach(P => { const v = P.c.clone().applyEuler(g); const f = v.dot(cp.clone().sub(v).normalize());
@@ -3124,7 +3126,7 @@ html.v-map .mapv{display:flex}
           P.seen = ts; vis.push([p.x * p.x + p.y * p.y, P]); });
         vis.sort((x, y) => x[0] - y[0]);
         for (const [, P] of vis){ if (hiBusy >= 4) break; if (P.st) continue; P.st = 1; hiBusy++;
-          hiTL.load('gh_' + P.tx + '_' + P.ty + '.webp?v=14', t => { hiBusy--; t.anisotropy = hiAni; if (P.st !== 1){ t.dispose(); return; }
+          hiTL.load(HM.pre + P.tx + '_' + P.ty + '.webp?v=20', t => { hiBusy--; t.anisotropy = hiAni; if (P.st !== 1){ t.dispose(); return; }
             P.m = hiMesh(P, t); hiG.add(P.m); hiG.add(P.m.userData.up); P.st = 2; }, undefined, () => { hiBusy--; P.st = 0; }); }
         const live = hiTiles.filter(P => P.st === 2); if (live.length > hiMax){ live.sort((x, y) => x.seen - y.seen);
           for (const P of live.slice(0, live.length - hiMax)){ if (P.seen === ts) break; hiG.remove(P.m); hiG.remove(P.m.userData.up); P.m.userData.up.material.dispose(); P.m.material.uniforms.tex.value.dispose(); P.m.material.dispose(); P.m.geometry.dispose(); P.m = null; P.st = 0; } } }
