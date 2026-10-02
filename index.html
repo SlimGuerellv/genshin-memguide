@@ -2885,12 +2885,12 @@ html.v-map .mapv{display:flex}
     const REG = [['mond','Мондштадт','#6FE3C1'],['liyue','Ли Юэ','#F5C84C'],['fontaine','Фонтейн','#4FD3F7'],['sumeru','Сумеру','#9BDB4E'],
                  ['nodkrai','Нод-Край','#B9B2FF'],['natlan','Натлан','#FF7B5C'],['snezh','Снежная','#A8EEF5'],['inazuma','Инадзума','#C58CFF']];
     const CRISP = new Set([1, 2, 3, 4, 5, 6, 7, 8]);   // регионы с новыми чёткими границами (grid.png по моим кордонам): 1 Мондштадт, 3 Фонтейн, 6 Натлан, 7 Снежная
-    const RPOS = [[-0.0025,0.4301],[-0.3431,0.165],[-0.8676,0.6172],[-0.943,-0.107],[-1.8748,0.6443],[-1.9314,-0.2394],[-1.3814,1.1857],[0.4303,-0.6322]];
+    const RPOS = [[0.4619,0.0038],[0.1212,-0.2736],[-0.4033,0.2207],[-0.4788,-0.5265],[-1.4106,0.2537],[-1.4674,-0.6397],[-0.9169,0.9892],[0.8945,-0.946]];
     const URL3 = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
     const RD = () => window.rpRD || {};
     let on = false, S = null, raf = 0, last = 0;
     // вид: долгота/широта в центре, масштаб; анимация перелёта
-    let lon = 0, lat = .35, zoom = 1, vl = 0, vt = 0, fly = null, flown = false, idle = 0, hover = 0, liftV = 0, tIdx = 0;
+    let lon = 0.4644, lat = -0.0763, zoom = 1, vl = 0, vt = 0, fly = null, flown = false, idle = 0, hover = 0, liftV = 0, tIdx = 0;
     window.__globeOn = false;
 
     function loadThree(cb){ if (window.THREE) return cb(true);
@@ -2913,13 +2913,14 @@ html.v-map .mapv{display:flex}
       ren.setPixelRatio(Math.min(devicePixelRatio || 1, MOB ? 1.5 : 2));
       const scene = new T.Scene(), cam = new T.PerspectiveCamera(32, 1, .1, 100);
       const mgr = new T.LoadingManager(), tl = new T.TextureLoader(mgr);
-      const big = !MOB && ren.capabilities.maxTextureSize >= 8192 && Math.max(screen.width, screen.height) * (devicePixelRatio || 1) > 1400;
-      const tex = tl.load(big ? 'gearth8k.jpg?v=18' : 'gearth4k.jpg?v=18'); tex.anisotropy = Math.min(8, ren.capabilities.getMaxAnisotropy());
-      const landT = tl.load(big ? 'gland8k.png?v=13' : 'gland.png?v=14'), cloudT = tl.load('gcloud.png?v=12'); cloudT.minFilter = T.LinearFilter; cloudT.generateMipmaps = false;   // без мип-карт: иначе на стыке долготы (atan) видна полоса-шов
-      const ridT = tl.load('grid.png?v=17'); ridT.minFilter = ridT.magFilter = T.NearestFilter; ridT.generateMipmaps = false;
+      const mem = navigator.deviceMemory || 4, mts = ren.capabilities.maxTextureSize, scr = Math.max(screen.width, screen.height) * (devicePixelRatio || 1);
+      const TQ = MOB || mts < 8192 ? '2k' : (mts >= 16384 && mem >= 8 && scr > 1800 ? '16k' : '8k');   // новый глобус по официальной карте v7.1.50: 16k ПК / 8k средний / 2k телефон
+      const tex = tl.load('gearth' + TQ + '.jpg?v=20'); tex.anisotropy = Math.min(8, ren.capabilities.getMaxAnisotropy());
+      const landT = tl.load('gland' + TQ + '.png?v=20'), cloudT = tl.load('gcloud.png?v=20'); cloudT.minFilter = T.LinearFilter; cloudT.generateMipmaps = false;
+      const ridT = tl.load('grid.png?v=20'); ridT.minFilter = ridT.magFilter = T.NearestFilter; ridT.generateMipmaps = false;
       // карта регионов для клика (на процессоре)
       let RID = null; const ri = new Image(); ri.onload = () => { const c = document.createElement('canvas'); c.width = ri.width; c.height = ri.height;
-        const x = c.getContext('2d'); x.drawImage(ri, 0, 0); RID = {w: ri.width, h: ri.height, d: x.getImageData(0, 0, ri.width, ri.height).data}; fillHoles(); }; ri.src = 'grid.png?v=17';
+        const x = c.getContext('2d'); x.drawImage(ri, 0, 0); RID = {w: ri.width, h: ri.height, d: x.getImageData(0, 0, ri.width, ri.height).data}; fillHoles(); }; ri.src = 'grid.png?v=20';
       // озёра/дыры внутри региона считаем частью региона — они поднимаются вместе с ним
       function fillHoles(){ const W = RID.w, H = RID.h, d = RID.d, id = new Uint8Array(W * H);
         for (let i = 0; i < W * H; i++){ const v = Math.round(d[i * 4] / 30); id[i] = v > 0 && v <= 8 ? v : 0; }
@@ -2942,7 +2943,7 @@ html.v-map .mapv{display:flex}
       for (let j = 0; j < NY; j++) for (let i = 0; i < NX; i++){ const a = j * (NX + 1) + i, b = a + 1, c = a + NX + 1, d = c + 1; idx.push(a, c, b, b, c, d); }
       const geo = new T.BufferGeometry(); geo.setIndex(idx);
       geo.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); geo.setAttribute('uv', new T.Float32BufferAttribute(uv, 2)); geo.computeBoundingSphere();
-      const U = {map:{value:tex}, land:{value:landT}, rid:{value:ridT}, sun:{value:new T.Vector3(-.75, .35, .55).normalize()}, hover:{value:0}, crisp:{value:0}, rm:{value:null}, time:{value:0}, box:{value:new T.Vector4(0,0,1,1)}, hcol:{value:new T.Color('#6FE3C1')}, sl:{value:(() => { const t = tl.load('snzl.png?v=1'); t.minFilter = T.LinearFilter; t.generateMipmaps = false; return t; })()}, slb:{value:new T.Vector4(0.18310546875, 0.76806640625, 0.3662109375, 0.93896484375)}, aur:{value:0}, frost:{value:0}, lift:{value:0}, cl:{value:cloudT}, cty:{value:(A => { const v = []; for (let i = 0; i < A.length; i += 3) v.push(new T.Vector3(A[i], A[i+1], A[i+2])); return v; })([0.5011,0.6406,0.0162,0.4856,0.6243,0.0069,0.5262,0.6448,0.0060,0.4856,0.7002,0.0077,0.4849,0.7314,0.0060,0.4669,0.4800,0.0188,0.4707,0.5320,0.0069,0.4713,0.5022,0.0060,0.4028,0.5178,0.0069,0.4044,0.4006,0.0069,0.4082,0.6484,0.0085,0.3981,0.5972,0.0051,0.3503,0.7021,0.0188,0.3702,0.7017,0.0069,0.3320,0.6704,0.0069,0.3564,0.5818,0.0060,0.3979,0.4954,0.0162,0.3866,0.4531,0.0069,0.3516,0.4336,0.0077,0.6073,0.3333,0.0162,0.5859,0.3728,0.0069,0.5989,0.2690,0.0077,0.5615,0.2114,0.0051,0.5469,0.3140,0.0060,0.5688,0.3140,0.0051,0.5005,0.3135,0.0060,0.1953,0.6875,0.0136,0.2100,0.6582,0.0069,0.1920,0.6106,0.0069,0.1747,0.6355,0.0060,0.2002,0.7949,0.0069,0.1929,0.5068,0.0077,0.2209,0.4092,0.0094,0.1831,0.3530,0.0085,0.2490,0.3945,0.0077,0.2368,0.4385,0.0069,0.2054,0.3669,0.0060,0.2834,0.8875,0.0188,0.2905,0.8682,0.0069,0.2632,0.8916,0.0069,0.2577,0.8494,0.0060,0.3201,0.9065,0.0069])}};   // города: u, v, радиус — ночью светятся только они
+      const U = {map:{value:tex}, land:{value:landT}, rid:{value:ridT}, sun:{value:new T.Vector3(-.75, .35, .55).normalize()}, hover:{value:0}, crisp:{value:0}, rm:{value:null}, time:{value:0}, box:{value:new T.Vector4(0,0,1,1)}, hcol:{value:new T.Color('#6FE3C1')}, sl:{value:(() => { const t = tl.load('snzl.png?v=20'); t.minFilter = T.LinearFilter; t.generateMipmaps = false; return t; })()}, slb:{value:new T.Vector4(0.256996,0.661020,0.440172,0.907320)}, aur:{value:0}, frost:{value:0}, lift:{value:0}, cl:{value:cloudT}, cty:{value:(A => { const v = []; for (let i = 0; i < A.length; i += 3) v.push(new T.Vector3(A[i], A[i+1], A[i+2])); return v; })([0.5750,0.5053,0.0181,0.5595,0.4873,0.0075,0.6001,0.5100,0.0067,0.5595,0.5748,0.0093,0.5588,0.6135,0.0076,0.5408,0.3448,0.0168,0.5446,0.3930,0.0066,0.5452,0.3650,0.0055,0.4767,0.3795,0.0065,0.4783,0.2773,0.0056,0.4821,0.5141,0.0096,0.4720,0.4583,0.0054,0.4242,0.5771,0.0229,0.4441,0.5766,0.0084,0.4059,0.5393,0.0080,0.4303,0.4424,0.0062,0.4718,0.3588,0.0148,0.4605,0.3212,0.0060,0.4255,0.3046,0.0065,0.6812,0.2246,0.0122,0.6598,0.2550,0.0054,0.6728,0.1774,0.0055,0.6354,0.1371,0.0035,0.6208,0.2101,0.0045,0.6427,0.2101,0.0038,0.5744,0.2097,0.0045,0.2692,0.5595,0.0162,0.2839,0.5253,0.0079,0.2659,0.4726,0.0074,0.2486,0.4997,0.0067,0.2741,0.6972,0.0094,0.2668,0.3693,0.0071,0.2948,0.2843,0.0077,0.2569,0.2396,0.0066,0.3229,0.2724,0.0062,0.3107,0.3087,0.0059,0.2792,0.2504,0.0047,0.3573,0.8298,0.0279,0.3644,0.8013,0.0101,0.3371,0.8359,0.0103,0.3316,0.7739,0.0087,0.3940,0.8582,0.0104])}};   // города: u, v, радиус — ночью светятся только они
       const earth = new T.Mesh(geo, new T.ShaderMaterial({uniforms: U,
         vertexShader:`varying vec2 vUv; varying vec3 vN; varying vec3 vW,vE,vNo; void main(){ vUv=uv; vN=normalize(mat3(modelMatrix)*position); vec3 le=normalize(vec3(position.z,0.,-position.x)+vec3(1e-5,0.,0.)); vE=normalize(mat3(modelMatrix)*le); vNo=normalize(mat3(modelMatrix)*cross(normalize(position),le)); vec4 w=modelMatrix*vec4(position,1.); vW=w.xyz; gl_Position=projectionMatrix*viewMatrix*w; }`,
         fragmentShader:`uniform sampler2D map,land,rid,sl; uniform vec4 slb; uniform vec3 sun,hcol; uniform float hover,time,lift; uniform vec3 cty[42];
@@ -3053,10 +3054,10 @@ html.v-map .mapv{display:flex}
       aur.renderOrder = 8; aur.frustumCulled = false; scene.add(aur);
       // детальный слой суши: тайлы официальной карты 1024² (gh_X_Y.webp), подгружаются при приближении
       // карта → глобус: u = a + b·fx; меркатор Y = A − B·fy (fx,fy — доли холста 11218×9472)
-      const HM = {a:0.012, b:0.6394281, A:2.13375, B:3.3612305, W:11218, H:9472, ts:1024, list:[[4,0],[5,0],[3,1],[4,1],[5,1],[2,2],[3,2],[4,2],[5,2],[2,3],[3,3],[4,3],[5,3],[6,3],[7,3],[8,3],[0,4],[2,4],[3,4],[4,4],[5,4],[6,4],[7,4],[8,4],[9,4],[0,5],[1,5],[2,5],[3,5],[4,5],[5,5],[6,5],[7,5],[8,5],[9,5],[2,6],[3,6],[4,6],[5,6],[6,6],[7,6],[8,6],[9,6],[10,6],[2,7],[3,7],[4,7],[5,7],[6,7],[8,7],[9,7],[10,7],[9,8],[10,8],[9,9]]};
+      const HM = {a:0.085851, b:0.639511, A:1.709936, B:3.393703, W:11218, H:9472, ts:1024, list:[[4,0],[5,0],[3,1],[4,1],[5,1],[2,2],[3,2],[4,2],[5,2],[2,3],[3,3],[4,3],[5,3],[6,3],[7,3],[8,3],[0,4],[2,4],[3,4],[4,4],[5,4],[6,4],[7,4],[8,4],[9,4],[0,5],[1,5],[2,5],[3,5],[4,5],[5,5],[6,5],[7,5],[8,5],[9,5],[2,6],[3,6],[4,6],[5,6],[6,6],[7,6],[8,6],[9,6],[10,6],[2,7],[3,7],[4,7],[5,7],[6,7],[8,7],[9,7],[10,7],[9,8],[10,8],[9,9]]};
       U.hi = {value: 0};
       const hiG = new T.Group(); scene.add(hiG); clouds.renderOrder = 2;   // у групи НЕ ставити renderOrder: в three.js він стає groupOrder і перебиває порядок (патчі лягали поверх поднятого региона и облаков)
-      const hiTL = new T.TextureLoader(), hiMax = big ? 40 : 18, hiAni = Math.min(8, ren.capabilities.getMaxAnisotropy());
+      const hiTL = new T.TextureLoader(), hiMax = TQ === '8k' ? 40 : 18, hiAni = Math.min(8, ren.capabilities.getMaxAnisotropy());
       const hiV = `attribute vec2 guv; varying vec2 vT,vG; varying vec3 vN,vW,vE,vNo; void main(){ vT=uv; vG=guv; vN=normalize(mat3(modelMatrix)*position); vec3 le=normalize(vec3(position.z,0.,-position.x)+vec3(1e-5,0.,0.)); vE=normalize(mat3(modelMatrix)*le); vNo=normalize(mat3(modelMatrix)*cross(normalize(position),le)); vec4 w=modelMatrix*vec4(position,1.); vW=w.xyz; gl_Position=projectionMatrix*viewMatrix*w; }`;
       const hiF = `uniform sampler2D tex,rid,sl; uniform vec4 slb; uniform vec3 sun,hcol; uniform float hover,lift,hi,time; uniform vec3 cty[42];
           float rail(vec2 u){ vec2 q=(u-slb.xy)/(slb.zw-slb.xy); if(q.x<0.||q.y<0.||q.x>1.||q.y>1.) return 0.; vec3 r=texture2D(sl,q).rgb; return r.r*(.8+.2*sin(time*2.3+u.x*2400.))+r.g*.35; } varying vec2 vT,vG; varying vec3 vN,vW,vE,vNo;
@@ -3115,7 +3116,7 @@ html.v-map .mapv{display:flex}
             gl_FragColor=vec4(c,lift*t.a*hi*a); }`;
       let hiBusy = 0, hiT = 0;
       function hiUpdate(g, cp, ts, dt){
-        const want = zoom > 1.2 ? 1 : 0; U.hi.value += (want - U.hi.value) * Math.min(1, dt * 5); hiG.visible = U.hi.value > .01;
+        const want = zoom > 1.2 && TQ === '2k' ? 1 : 0; U.hi.value += (want - U.hi.value) * Math.min(1, dt * 5); hiG.visible = U.hi.value > .01;
         if (!want || ts - hiT < 250) return; hiT = ts;
         const vis = [];
         hiTiles.forEach(P => { const v = P.c.clone().applyEuler(g); const f = v.dot(cp.clone().sub(v).normalize());
@@ -3270,7 +3271,7 @@ html.v-map .mapv{display:flex}
         HINT.textContent = HINT0; setHover && S && setHover(0); done && done(); return; }
       loadThree(ok => { if (!ok || !window.THREE){ done && done(); return; }
         const show = () => { on = true; window.__globeOn = true; MAPV.classList.add('globe'); MODE.textContent = '🗺 Карта'; MODE.setAttribute('aria-label', 'Показать плоскую карту');
-          HINT.textContent = 'Выбери регион · тяни — вращать, колесо — масштаб'; lon = 0; lat = .35; zoom = 1; vl = vt = 0; fly = null; flown = false; hover = 0; idle = 0;
+          HINT.textContent = 'Выбери регион · тяни — вращать, колесо — масштаб'; lon = 0.4644; lat = -0.0763; zoom = 1; vl = vt = 0; fly = null; flown = false; hover = 0; idle = 0;
           S.U.hover.value = 0; S.w = 0; start(); done && done(); };
         if (S) show(); else { try { init(ok2 => show()); } catch(err){ done && done(); } } }); }
     MODE.addEventListener('click', () => { window.rpSnd && window.rpSnd('sfx_btn.mp3');
