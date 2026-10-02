@@ -1419,14 +1419,14 @@ html.v-map .mapv{display:flex}
 }
 
 /* ===== редкость на карточках «Персонажи» (вариант A, 01.10.2026): полоска внизу; у 5★ — переливается ===== */
-.card.rr5{--rcd:#6b4510} .card.rr4{--rcd:#3b2163}
+.card.rr5{--rcd:#a85410} .card.rr4{--rcd:#3b2163}
 .card.rr5 .art .meta, .card.rr4 .art .meta{background:linear-gradient(transparent, color-mix(in srgb, var(--rcd) 70%, rgb(8 10 18 / .9)))}
-.card.rr5 .art .meta::after, .card.rr4 .art .meta::after{content:""; position:absolute; left:0; right:0; bottom:0; height:3px; pointer-events:none}
+.card.rr5 .art .meta::after, .card.rr4 .art .meta::after{content:""; position:absolute; left:0; right:0; bottom:0; height:3.5px; pointer-events:none}
 .card.rr4 .art .meta::after{background:linear-gradient(90deg, transparent, #B98CFF 20%, #E2CCFF 50%, #B98CFF 80%, transparent)}
-.card.rr5 .art .meta::after{background:linear-gradient(90deg, transparent 0%, #9a6a1c 8%, #F2C55C 22%, #FFF6D2 32%, #F2C55C 42%, #C98F2E 55%, #FFE9A8 68%, #F2C55C 80%, #9a6a1c 92%, transparent 100%);
-  background-size:220% 100%; animation:rFlow 3.2s linear infinite; box-shadow:0 0 6px rgb(255 205 90 / .7), 0 0 14px rgb(255 190 70 / .35)}
+.card.rr5 .art .meta::after{background:linear-gradient(90deg, transparent 0%, #D0600A 8%, #FF8A1E 22%, #FFE2B8 32%, #FF9A2E 42%, #F07410 55%, #FFC46E 68%, #FF8A1E 80%, #D0600A 92%, transparent 100%);
+  background-size:220% 100%; animation:rFlow 3.2s linear infinite; box-shadow:0 0 7px rgb(255 140 30 / .9), 0 0 16px rgb(255 120 20 / .5)}
 .card.rr5 .art .meta::before{content:""; position:absolute; left:0; bottom:0; height:3px; width:28%; z-index:1; pointer-events:none;
-  background:linear-gradient(90deg, transparent, #fffbe8, transparent); filter:blur(.5px); animation:rGlint 3.2s ease-in-out infinite}
+  background:linear-gradient(90deg, transparent, #fff1dc, transparent); filter:blur(.5px); animation:rGlint 3.2s ease-in-out infinite}
 @keyframes rFlow{from{background-position:0 0} to{background-position:-220% 0}}
 @keyframes rGlint{0%{transform:translateX(-120%); opacity:0} 15%{opacity:1} 60%{transform:translateX(380%); opacity:1} 61%,100%{transform:translateX(380%); opacity:0}}
 .stars.r4{color:#D2AEFF; text-shadow:0 0 1px #24093f, 0 1px 2px rgb(0 0 0 / .9), 0 0 8px rgb(170 110 255 / .9)}
