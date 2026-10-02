@@ -2917,10 +2917,10 @@ html.v-map .mapv{display:flex}
       const TQ = MOB || mts < 8192 ? '2k' : (mts >= 16384 && mem >= 8 && scr > 1800 ? '16k' : '8k');   // новый глобус по официальной карте v7.1.50: 16k ПК / 8k средний / 2k телефон
       const tex = tl.load('gearth' + TQ + '.jpg?v=20'); tex.anisotropy = Math.min(8, ren.capabilities.getMaxAnisotropy());
       const landT = tl.load('gland' + TQ + '.png?v=20'), cloudT = tl.load('gcloud.png?v=20'); cloudT.minFilter = T.LinearFilter; cloudT.generateMipmaps = false;
-      const ridT = tl.load('grid.png?v=20'); ridT.minFilter = ridT.magFilter = T.NearestFilter; ridT.generateMipmaps = false;
+      const ridT = tl.load((TQ === '2k' ? 'grid.png' : 'grid8k.png') + '?v=21'); ridT.minFilter = ridT.magFilter = T.NearestFilter; ridT.generateMipmaps = false;
       // карта регионов для клика (на процессоре)
       let RID = null; const ri = new Image(); ri.onload = () => { const c = document.createElement('canvas'); c.width = ri.width; c.height = ri.height;
-        const x = c.getContext('2d'); x.drawImage(ri, 0, 0); RID = {w: ri.width, h: ri.height, d: x.getImageData(0, 0, ri.width, ri.height).data}; fillHoles(); }; ri.src = 'grid.png?v=20';
+        const x = c.getContext('2d'); x.drawImage(ri, 0, 0); RID = {w: ri.width, h: ri.height, d: x.getImageData(0, 0, ri.width, ri.height).data}; fillHoles(); }; ri.src = (TQ === '2k' ? 'grid.png' : 'grid8k.png') + '?v=21';
       // озёра/дыры внутри региона считаем частью региона — они поднимаются вместе с ним
       function fillHoles(){ const W = RID.w, H = RID.h, d = RID.d, id = new Uint8Array(W * H);
         for (let i = 0; i < W * H; i++){ const v = Math.round(d[i * 4] / 30); id[i] = v > 0 && v <= 8 ? v : 0; }
