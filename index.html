@@ -65,6 +65,12 @@
 <style>.ac-note{margin:0 0 2px!important;font-size:13.5px;font-style:italic;color:#7A6C5F;padding-left:2px}.ac-note::before{content:"✦ ";color:#E8A24A;font-style:normal}</style>
 <style>.artlinks{display:grid;gap:8px}</style>
 <style>.artalt{margin:8px 0 0!important;font-size:13.5px;color:var(--muted)}.artlink-alt{appearance:none;background:none;border:0;padding:0;font:inherit;font-weight:600;color:#E8A24A;cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px}.artlink-alt:hover{color:#fff}</style>
+<style>
+.art-sep{display:flex;align-items:center;justify-content:center;gap:10px;color:#E8A24A;font:700 22px/1 Georgia,serif;margin:-2px 0}
+.art-sep::before,.art-sep::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,transparent,#E8A24A66)}
+.art-sep::after{background:linear-gradient(270deg,transparent,#E8A24A66)}
+.art-or{font:600 13px system-ui,sans-serif;text-transform:uppercase;letter-spacing:.12em}
+</style>
 </head><body>
 <title>Геншин прокачка</title>
 <link rel="icon" type="image/png" href="data:image/png;base64,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">
@@ -2299,8 +2305,10 @@ html.v-map .mapv{display:flex}
     const c = ARTS.chars && ARTS.chars[ch.n]; if (!c) return '';
     const names = [c.s, c.s2].filter(n => n && ARTS.sets[n]); if (!names.length) return '';
     const multi = names.length > 1;
-    return `<div class="sec asec"><h3>Артефакты${multi ? ' · 2+2' : ''}</h3><div class="artlinks">${names.map(n => { const a = ARTS.sets[n], ic = a.img ? `<img src="${esc(a.img)}?v=1" alt="">` : '';
-      return `<button type="button" class="artlink" data-set="${esc(n)}" data-who="${esc(ch.n)}"><span class="artlink-ic">${ic}</span><span class="artlink-tx"><b>${esc(n)}</b><i>${multi ? '2 части · ' : ''}Статы и почему этот сет</i></span><span class="artlink-ar" aria-hidden="true">›</span></button>`; }).join('')}</div>${c.alt ? `<p class="artalt">Или полный сет (4 части): <button type="button" class="artlink-alt" data-set="${esc(c.alt)}" data-who="${esc(ch.n)}">${esc(c.alt)}</button></p>` : ''}</div>`;
+    const tile = (n, sub) => { const a = ARTS.sets[n], ic = a.img ? `<img src="${esc(a.img)}?v=1" alt="">` : '';
+      return `<button type="button" class="artlink" data-set="${esc(n)}" data-who="${esc(ch.n)}"><span class="artlink-ic">${ic}</span><span class="artlink-tx"><b>${esc(n)}</b><i>${sub}Статы и почему этот сет</i></span><span class="artlink-ar" aria-hidden="true">›</span></button>`; };
+    const alt = c.alt && ARTS.sets[c.alt] ? `<div class="art-sep art-or">или</div>${tile(c.alt, 'Полный сет · 4 части · ')}` : '';
+    return `<div class="sec asec"><h3>Артефакты${multi ? ' · 2+2' : ''}</h3><div class="artlinks">${names.map(n => tile(n, multi ? '2 части · ' : '')).join('<div class="art-sep art-plus">+</div>')}${alt}</div></div>`;
   }
   function openSheet(i, from){
     const ch = CHARS[i], el = elOf(ch); lastFocus = from;
