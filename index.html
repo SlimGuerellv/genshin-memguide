@@ -28,6 +28,13 @@
 .ac-go:hover,.ac-go:focus-visible{background:#D9702C;transform:translateY(-1px)}
 .ac-nav .ac-go:only-of-type{margin-left:auto}
 </style>
+<style>
+.aov{place-items:start center}
+.aov-in{margin:auto; display:flex; flex-wrap:wrap; gap:20px; justify-content:center; align-items:center; max-width:100%}
+.aov-in .acard{margin:0}
+.aov-in .acard[hidden]{display:none}
+@media (max-width:520px){ .aov-in{width:100%; flex-direction:column; flex-wrap:nowrap; align-items:stretch; gap:12px; margin:0} .aov-in .acard{min-height:0} }
+</style>
 </head><body>
 <title>Геншин прокачка</title>
 <link rel="icon" type="image/png" href="data:image/png;base64,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">
@@ -1726,7 +1733,7 @@ html.v-map .mapv{display:flex}
   </div>
   <div id="dictv"></div>
   <div id="artsv"></div>
-  <div class="aov" id="aov" hidden><div class="acard" role="dialog" aria-modal="true" aria-labelledby="acName" id="acard"></div></div>
+  <div class="aov" id="aov" hidden><div class="aov-in"><div class="acard" role="dialog" aria-modal="true" aria-labelledby="acName" id="acard"></div><div class="acard" role="dialog" aria-modal="true" id="acard2" hidden></div></div></div>
 </div>
 
 <div class="overlay" id="fover" hidden>
@@ -3595,7 +3602,7 @@ html.v-map .mapv{display:flex}
     document.getElementById('aq').addEventListener('input', e => { q = e.target.value.trim().toLowerCase(); render(); });
 
     // карточка сета
-    const OV = document.getElementById('aov'), AC = document.getElementById('acard');
+    const OV = document.getElementById('aov'), AC = document.getElementById('acard'), AC2 = document.getElementById('acard2');
     const SLOTS = [['flower','Цветок'],['plume','Перо'],['sands','Часы'],['goblet','Кубок'],['circlet','Корона']];
     let lastA = null;
     function openSet(n, from, who){
@@ -3607,14 +3614,12 @@ html.v-map .mapv{display:flex}
       const valH = cd && cd.val && cd.val.length ? `<h4>Оптимальные значения</h4><ul class="ac-v">${cd.val.map(v => `<li><b>${esc(v[0])}:</b> ${esc(v[1])}</li>`).join('')}</ul>` : '';
       const whyH = cd && cd.why ? `<h4>Почему этот сет для ${esc(cd.g || who)}</h4><p class="ac-why">${esc(cd.why)}</p>` : '';
       AC.innerHTML = `<h3 class="ac-h" id="acName">${esc(n)}<button class="ac-x" type="button" aria-label="Закрыть">×</button></h3>
-        <div class="ac-p1">
         <div class="ac-ban"><span class="ac-slot">${a.p ? 'Цветок' : ''}</span>${pic('flower') ? `<img src="${pic('flower')}" alt="">` : ''}<div class="ac-st" aria-label="${a.r||5} звёзд">${'★'.repeat(a.r||5)}</div></div>
         ${a.p ? `<div class="ac-tabs" role="group" aria-label="Части сета">${SLOTS.map(([k,t],i) => `<button type="button" class="ac-tab" data-k="${k}" data-t="${t}" aria-pressed="${i?'false':'true'}" title="${t}" aria-label="${t}"><img src="slot_${k}.webp" alt=""></button>`).join('')}</div>` : ''}
         ${cd ? `<div class="ac-s" id="acS"></div>` : ''}
-        <div class="ac-b"><h4>Бонус сета</h4>${bn}${a.j ? `<p class="ac-j">${esc(a.j)}</p>` : ''}</div>
-        ${hasP2 ? `<div class="ac-nav"><span class="ac-pg">1 / 2</span><button type="button" class="ac-go" data-pg="2">Дальше ›</button></div>` : ''}
-        </div>
-        ${hasP2 ? `<div class="ac-p2" hidden><div class="ac-b">${valH}${whyH}</div><div class="ac-nav"><button type="button" class="ac-go" data-pg="1">‹ Назад</button><span class="ac-pg">2 / 2</span></div></div>` : ''}`;
+        <div class="ac-b"><h4>Бонус сета</h4>${bn}${a.j ? `<p class="ac-j">${esc(a.j)}</p>` : ''}</div>`;
+      AC2.hidden = !hasP2;
+      AC2.innerHTML = hasP2 ? `<h3 class="ac-h">${esc(n)}<button class="ac-x" type="button" aria-label="Закрыть">×</button></h3><div class="ac-b">${valH}${whyH}</div>` : '';
       if (cd) showStats('flower');
       OV.hidden = false; sfx(SFX_OPEN); AC.querySelector('.ac-x').focus();
     }
@@ -3629,15 +3634,14 @@ html.v-map .mapv{display:flex}
     function closeSet(){ if (OV.hidden) return; OV.hidden = true; sfx(SFX_CLOSE); if (lastA) lastA.focus(); }
     AC.addEventListener('click', e => {
       if (e.target.closest('.ac-x')) return closeSet();
-      const go = e.target.closest('.ac-go');
-      if (go){ const p2 = go.dataset.pg === '2'; AC.querySelector('.ac-p1').hidden = p2; AC.querySelector('.ac-p2').hidden = !p2; OV.scrollTop = 0; sfx(SFX_PICK); return; }
       const t = e.target.closest('.ac-tab'); if (!t) return;
       AC.querySelectorAll('.ac-tab').forEach(x => x.setAttribute('aria-pressed', x === t ? 'true' : 'false'));
       const a = ARTS.sets[AC.querySelector('#acName').firstChild.textContent], im = AC.querySelector('.ac-ban img');
       im.src = `${a.p}_${t.dataset.k}.webp?v=1`; im.style.animation = 'none'; void im.offsetWidth; im.style.animation = '';
       AC.querySelector('.ac-slot').textContent = t.dataset.t; showStats(t.dataset.k); sfx(SFX_PICK);
     });
-    OV.addEventListener('click', e => { if (e.target === OV) closeSet(); });
+    OV.addEventListener('click', e => { if (e.target === OV || e.target.classList.contains('aov-in')) closeSet(); });
+    AC2.addEventListener('click', e => { if (e.target.closest('.ac-x')) closeSet(); });
     addEventListener('keydown', e => { if (e.key === 'Escape' && !OV.hidden) closeSet(); });
     new MutationObserver(() => { if (!document.documentElement.classList.contains('v-arts')) { OV.hidden = true; } }).observe(document.documentElement, {attributes:true, attributeFilter:['class']});
     const ag = document.getElementById('agrid');
