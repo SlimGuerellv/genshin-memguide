@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Зразок: оздоблення карточок</title>
+<style>
+*{box-sizing:border-box}
+:root{--cream:#EEE5D8;--brown:#4B4036;--rust:#B5501E;--orange:#D9702C;--gold:#E8A24A;--muted:#7A6C5F}
+body{margin:0;min-height:100vh;background:radial-gradient(circle at 30% 20%,#14182b,#070912);color:var(--brown);font:15px/1.5 system-ui,sans-serif;display:flex;gap:20px;flex-wrap:wrap;justify-content:center;align-items:center;padding:24px}
+.card{width:min(460px,100%);background:var(--cream);border-radius:6px;overflow:hidden;box-shadow:0 24px 60px #000a;position:relative}
+/* шапка */
+.h{position:relative;background:linear-gradient(180deg,#E07A33,#D9702C);color:#FFF1D6;text-align:center;font:700 24px/1.15 Georgia,serif;padding:14px 48px;border-bottom:3px solid var(--rust)}
+.x{position:absolute;right:12px;top:12px;width:30px;height:30px;border-radius:50%;background:var(--rust);color:#FFF1D6;display:grid;place-items:center}
+.ban{height:110px;background:linear-gradient(120deg,#705058,#d89a55);display:grid;place-items:center;font-size:54px;position:relative;border-bottom:3px solid var(--gold)}
+.ban .l{position:absolute;left:14px;top:10px;font:600 14px system-ui;color:#fff}
+.ban .st{position:absolute;left:14px;bottom:8px;color:#ffd35a;letter-spacing:2px}
+.slots{display:flex;justify-content:center;gap:10px;padding:14px 12px 4px}
+.slot{width:44px;height:44px;border-radius:50%;border:2px solid transparent;background:var(--brown);color:#fff;font-size:20px}
+.slot.on{border-color:var(--gold);background:#7a5a3a;box-shadow:0 0 0 3px #E8A24A44}
+.pad{padding:10px 22px 22px;display:grid;gap:12px}
+/* заголовки с орнаментом */
+h4{margin:6px 0 0;font:400 14px/1 Georgia,serif;color:var(--rust);letter-spacing:.06em;text-transform:uppercase;display:flex;align-items:center;gap:10px}
+h4::before{content:"";width:7px;height:7px;background:var(--gold);transform:rotate(45deg);flex:none}
+h4::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,#B5501E66,transparent)}
+/* панель статов */
+.panel{background:#fff6;border:1px solid #4B403633;border-radius:10px;padding:12px 14px;display:grid;gap:10px;position:relative}
+.panel::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:3px;background:linear-gradient(var(--orange),var(--gold))}
+.l2{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;display:flex;gap:6px;align-items:center}
+.ch{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.chip{padding:5px 13px;border-radius:999px;font-size:13.5px;background:#4B403618;border:1px solid #4B403650;color:#3a2f26;font-weight:500}
+.chip.m{background:linear-gradient(180deg,#C65D26,var(--rust));border-color:var(--rust);color:#fff;font-weight:600;box-shadow:0 2px 8px #B5501E55}
+.or{font-style:normal;font-size:12.5px;color:var(--muted)}
+.bn{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;align-items:baseline}
+.bn i{font-style:normal;font-size:12.5px;padding:2px 8px;border-radius:6px;color:#F3E7D3;background:var(--brown)}
+p{margin:0}
+.j{font-style:italic;color:var(--muted);border-top:1px dashed #C9BBA8;padding-top:12px}
+/* карточка 2 */
+.top2{height:6px;background:linear-gradient(90deg,var(--rust),var(--gold),var(--rust))}
+.vals{display:grid;gap:8px}
+.v{display:grid;grid-template-columns:86px 1fr;gap:10px;align-items:center;background:#fff6;border:1px solid #4B403626;border-radius:10px;padding:8px 10px}
+.v b.n{display:grid;place-items:center;background:var(--brown);color:#FFE3B0;border-radius:8px;padding:6px 4px;font:700 16px Georgia,serif;text-align:center;line-height:1.1}
+.v b.n small{display:block;font:400 10.5px system-ui;color:#F3E7D3aa;margin-top:2px;text-transform:uppercase;letter-spacing:.05em}
+.v span{font-size:14px}
+.v span u{text-decoration:none;font-weight:600;color:var(--rust);display:block;font-size:13px}
+.why{position:relative;background:linear-gradient(135deg,#B5501E14,#E8A24A1f);border:1px solid #B5501E33;border-radius:10px;padding:14px 16px 12px 44px}
+.why::before{content:"“";position:absolute;left:12px;top:-2px;font:700 54px/1 Georgia,serif;color:var(--rust);opacity:.55}
+.why p{font-weight:500}
+.note{width:100%;text-align:center;color:#8a93a6;font-size:13px}
+</style></head><body>
+
+<div class="card">
+ <div class="h">Церемония древней знати<span class="x">×</span></div>
+ <div class="ban"><span class="l">Корона</span>👑<span class="st">★★★★★</span></div>
+ <div class="slots"><div class="slot">🌸</div><div class="slot">🪶</div><div class="slot">⏳</div><div class="slot">🏆</div><div class="slot on">👑</div></div>
+ <div class="pad">
+  <h4>Корона</h4>
+  <div class="panel">
+   <div class="l2">★ Мейн-стат</div>
+   <div class="ch"><span class="chip m">Крит. шанс</span><em class="or">или</em><span class="chip m">Крит. урон</span></div>
+   <div class="l2">◆ Доп. статы</div>
+   <div class="ch"><span class="chip">Восстановление энергии %</span><span class="chip">Сила атаки %</span><span class="chip">Крит. шанс / Крит. урон</span></div>
+  </div>
+  <h4>Бонус сета</h4>
+  <div class="bn"><i>2 части</i><p>+20% урона взрыва стихии.</p><i>4 части</i><p>Использовал взрыв стихии — весь отряд на 12 сек. получает +20% атаки. Не складывается.</p></div>
+  <p class="j">Сет для тех, кто живёт ради чужого урона. Ты не главный герой, ты бафер.</p>
+ </div>
+</div>
+
+<div class="card">
+ <div class="top2"></div>
+ <div class="pad" style="padding-top:18px">
+  <h4>Оптимальные значения</h4>
+  <div class="vals">
+   <div class="v"><b class="n">200%<small>энергия</small></b><span><u>Восстановление энергии</u>чтобы реализовать пассивную способность.</span></div>
+   <div class="v"><b class="n">1500+<small>атака</small></b><span><u>Сила атаки</u>от 1500 для хорошего лечения.</span></div>
+   <div class="v"><b class="n">1 : 2<small>крит</small></b><span><u>Крит. шанс и Крит. урон</u>хотя бы 1:2 (например, 60% на 120%), если от героя нужен урон.</span></div>
+  </div>
+  <h4>Почему этот сет для Алёши</h4>
+  <div class="why"><p>Сет усиливает урон взрыва стихии на 20% (2 части), а 4 части на 12 сек. дают всему отряду +20% к атаке после использования взрыва.</p></div>
+ </div>
+</div>
+<div class="note">Зразок: картинки частин — емодзі-заглушки. Концепція та сама, лише оздоблення.</div>
+</body></html>
