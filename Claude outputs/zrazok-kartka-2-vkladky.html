@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Зразок: карточка сета з двома вкладками</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:#0b0e1a;color:#4B4036;font:15px/1.5 system-ui,sans-serif;display:grid;place-items:center;padding:20px}
+.card{width:min(460px,100%);background:#EEE5D8;border-radius:6px;overflow:hidden;box-shadow:0 24px 60px #000a}
+.h{position:relative;background:#D9702C;color:#FFF1D6;text-align:center;font:700 24px/1.15 Georgia,serif;padding:14px 48px;border-bottom:3px solid #B5501E}
+.x{position:absolute;right:12px;top:12px;width:30px;height:30px;border-radius:50%;background:#B5501E;color:#FFF1D6;display:grid;place-items:center;font-size:18px}
+.main{display:flex;background:#4B4036;padding:6px;gap:6px}
+.main button{flex:1;appearance:none;border:0;border-radius:6px;padding:10px 6px;font:600 15px system-ui;color:#F3E7D3;background:transparent;cursor:pointer}
+.main button[aria-pressed=true]{background:#D9702C;color:#fff}
+.ban{height:120px;background:#705058;display:grid;place-items:center;font-size:54px;position:relative}
+.ban .l{position:absolute;left:14px;top:10px;font:600 14px system-ui;color:#fff}
+.ban .st{position:absolute;left:14px;bottom:8px;color:#ffd35a;letter-spacing:2px}
+.slots{display:flex;justify-content:center;gap:10px;padding:12px 12px 2px}
+.slot{width:44px;height:44px;border-radius:50%;border:2px solid transparent;background:#4B4036;color:#fff;font-size:20px;cursor:pointer}
+.slot[aria-pressed=true]{border-color:#E8A24A;background:#7a5a3a}
+.pad{padding:10px 22px 22px;display:grid;gap:10px}
+h4{margin:6px 0 0;font:400 14px/1 Georgia,serif;color:#B5501E;letter-spacing:.06em;text-transform:uppercase}
+.l2{font-size:12.5px;color:#7A6C5F;text-transform:uppercase;letter-spacing:.05em}
+.ch{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.chip{padding:4px 12px;border-radius:999px;font-size:13.5px;background:#4B403622;border:1px solid #4B403655;color:#3a2f26;font-weight:500}
+.chip.m{background:#B5501E;border-color:#B5501E;color:#fff;font-weight:600}
+.or{font-style:normal;font-size:12.5px;color:#7A6C5F}
+.bn{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;align-items:baseline}
+.bn i{font-style:normal;font-size:12.5px;padding:2px 8px;border-radius:6px;color:#F3E7D3;background:#4B4036}
+.bn p,p{margin:0}
+.j{font-style:italic;color:#7A6C5F;border-top:1px dashed #C9BBA8;padding-top:12px}
+.why{background:#B5501E14;border-left:3px solid #B5501E;padding:8px 12px;border-radius:0 8px 8px 0}
+ul{margin:0;padding-left:18px;font-size:14px;display:grid;gap:4px}
+.hide{display:none}
+.note{color:#8a93a6;font-size:13px;text-align:center;margin-top:12px}
+</style></head><body>
+<div>
+<div class="card">
+ <div class="h">Церемония древней знати<span class="x">×</span></div>
+ <div class="main" id="main">
+  <button aria-pressed="false" data-t="set">Сет</button>
+  <button aria-pressed="true" data-t="who">Для Алёши</button>
+ </div>
+
+ <!-- вкладка 1: Сет -->
+ <div id="p-set" class="hide">
+  <div class="ban"><span class="l">Цветок</span>🌸<span class="st">★★★★★</span></div>
+  <div class="slots" data-g="set"></div>
+  <div class="pad">
+   <h4>Бонус сета</h4>
+   <div class="bn"><i>2 части</i><p>+20% урона взрыва стихии.</p><i>4 части</i><p>Использовал взрыв стихии — весь отряд на 12 сек. получает +20% атаки. Не складывается.</p></div>
+   <p class="j">Сет для тех, кто живёт ради чужого урона. Ты не главный герой, ты бафер.</p>
+  </div>
+ </div>
+
+ <!-- вкладка 2: Для персонажа -->
+ <div id="p-who">
+  <div class="slots" data-g="who"></div>
+  <div class="pad" id="stats"></div>
+  <div class="pad" style="border-top:1px dashed #C9BBA8;padding-top:14px">
+   <h4>Оптимальные значения</h4>
+   <ul><li><b>Восстановление энергии:</b> 200%, чтобы реализовать пассивную способность.</li><li><b>Сила атаки:</b> от 1500 для хорошего лечения.</li><li><b>Крит. шанс и Крит. урон:</b> хотя бы 1:2 (например, 60% на 120%), если от героя нужен урон.</li></ul>
+   <h4>Почему этот сет для Алёши</h4>
+   <p class="why">Сет усиливает урон взрыва стихии на 20% (2 части), а 4 части на 12 сек. дают всему отряду +20% к атаке после использования взрыва.</p>
+  </div>
+ </div>
+</div>
+<div class="note">Зразок: картинки частин — заглушки-емодзі. Кнопки «Сет / Для Алёши» і слоти клікаються.</div>
+</div>
+<script>
+const SL=[['🌸','flower','Цветок',['ХП'],['Восстановление энергии %','Сила атаки %','Крит. шанс','Крит. урон']],
+['🪶','plume','Перо',['Сила атаки'],['Восстановление энергии %','Сила атаки %','Крит. шанс','Крит. урон']],
+['⏳','sands','Часы',['Восстановление энергии %'],['Сила атаки %','Крит. шанс','Крит. урон']],
+['🏆','goblet','Кубок',['Бонус Электро урона','Сила атаки %'],['Восстановление энергии %','Сила атаки %','Крит. шанс','Крит. урон']],
+['👑','circlet','Корона',['Крит. шанс','Крит. урон'],['Восстановление энергии %','Сила атаки %','Крит. шанс / Крит. урон']]];
+function pick(i){
+ document.querySelectorAll('.slot').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.i===i));
+ const s=SL[i];
+ document.querySelector('.ban').innerHTML=`<span class="l">${s[2]}</span>${s[0]}<span class="st">★★★★★</span>`;
+ document.getElementById('stats').innerHTML=`<h4>${s[2]}</h4>
+ <div class="l2">Мейн-стат</div><div class="ch">${s[3].map(t=>`<span class="chip m">${t}</span>`).join('<em class="or">или</em>')}</div>
+ <div class="l2">Доп. статы</div><div class="ch">${s[4].map(t=>`<span class="chip">${t}</span>`).join('')}</div>`;
+}
+document.querySelectorAll('.slots').forEach(g=>SL.forEach((s,i)=>{const b=document.createElement('button');b.className='slot';b.dataset.i=i;b.title=s[2];b.textContent=s[0];b.onclick=()=>pick(i);g.appendChild(b)}));
+document.querySelectorAll('#main button').forEach(b=>b.onclick=()=>{
+ document.querySelectorAll('#main button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+ document.getElementById('p-set').classList.toggle('hide',b.dataset.t!=='set');
+ document.getElementById('p-who').classList.toggle('hide',b.dataset.t!=='who');});
+pick(0);
+</script></body></html>

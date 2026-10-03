@@ -20,6 +20,14 @@
 .ac-ch .chip.sub{color:#3a2f26;font-weight:500}
 </style>
 <style>.ac-v{margin:0;padding-left:18px;font-size:14px;display:grid;gap:4px}.ac-v b{font-weight:600}</style>
+<style>
+.ac-p1[hidden],.ac-p2[hidden]{display:none}
+.ac-nav{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:4px 22px 20px}
+.ac-pg{font-size:13px;color:#7A6C5F}
+.ac-go{appearance:none;cursor:pointer;border:0;border-radius:999px;background:#B5501E;color:#fff;font:600 14px system-ui,sans-serif;padding:9px 18px;transition:transform .15s,background .15s}
+.ac-go:hover,.ac-go:focus-visible{background:#D9702C;transform:translateY(-1px)}
+.ac-nav .ac-go:only-of-type{margin-left:auto}
+</style>
 </head><body>
 <title>Геншин прокачка</title>
 <link rel="icon" type="image/png" href="data:image/png;base64,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">
@@ -3595,11 +3603,18 @@ html.v-map .mapv{display:flex}
       const cd = who && ARTS.chars && ARTS.chars[who] && ARTS.chars[who].s === n ? ARTS.chars[who] : null; AC.dataset.who = cd ? who : '';
       const pic = k => a.p ? `${a.p}_${k}.webp?v=1` : (a.img ? a.img + '?v=1' : '');
       const bn = (a.b2 || a.b4) ? `<div class="bn"><i>2 части</i><p>${esc(a.b2||'—')}</p><i>4 части</i><p>${esc(a.b4||'—')}</p></div>` : `<p class="none">Пока не заполнено</p>`;
+      const hasP2 = !!(cd && ((cd.val && cd.val.length) || cd.why));
+      const valH = cd && cd.val && cd.val.length ? `<h4>Оптимальные значения</h4><ul class="ac-v">${cd.val.map(v => `<li><b>${esc(v[0])}:</b> ${esc(v[1])}</li>`).join('')}</ul>` : '';
+      const whyH = cd && cd.why ? `<h4>Почему этот сет для ${esc(cd.g || who)}</h4><p class="ac-why">${esc(cd.why)}</p>` : '';
       AC.innerHTML = `<h3 class="ac-h" id="acName">${esc(n)}<button class="ac-x" type="button" aria-label="Закрыть">×</button></h3>
+        <div class="ac-p1">
         <div class="ac-ban"><span class="ac-slot">${a.p ? 'Цветок' : ''}</span>${pic('flower') ? `<img src="${pic('flower')}" alt="">` : ''}<div class="ac-st" aria-label="${a.r||5} звёзд">${'★'.repeat(a.r||5)}</div></div>
         ${a.p ? `<div class="ac-tabs" role="group" aria-label="Части сета">${SLOTS.map(([k,t],i) => `<button type="button" class="ac-tab" data-k="${k}" data-t="${t}" aria-pressed="${i?'false':'true'}" title="${t}" aria-label="${t}"><img src="slot_${k}.webp" alt=""></button>`).join('')}</div>` : ''}
         ${cd ? `<div class="ac-s" id="acS"></div>` : ''}
-        <div class="ac-b"><h4>Бонус сета</h4>${bn}${cd && cd.why ? `<h4>Почему этот сет для ${esc(cd.g || who)}</h4><p class="ac-why">${esc(cd.why)}</p>` : ''}${a.j ? `<p class="ac-j">${esc(a.j)}</p>` : ''}</div>`;
+        <div class="ac-b"><h4>Бонус сета</h4>${bn}${a.j ? `<p class="ac-j">${esc(a.j)}</p>` : ''}</div>
+        ${hasP2 ? `<div class="ac-nav"><span class="ac-pg">1 / 2</span><button type="button" class="ac-go" data-pg="2">Дальше ›</button></div>` : ''}
+        </div>
+        ${hasP2 ? `<div class="ac-p2" hidden><div class="ac-b">${valH}${whyH}</div><div class="ac-nav"><button type="button" class="ac-go" data-pg="1">‹ Назад</button><span class="ac-pg">2 / 2</span></div></div>` : ''}`;
       if (cd) showStats('flower');
       OV.hidden = false; sfx(SFX_OPEN); AC.querySelector('.ac-x').focus();
     }
@@ -3607,14 +3622,15 @@ html.v-map .mapv{display:flex}
       const w = AC.dataset.who, box = AC.querySelector('#acS'); if (!w || !box) return;
       const c = ARTS.chars[w], m = (c.m && c.m[k]) || [], sub = [].concat((c.ss && c.ss[k]) || c.sub || []);
       const row = (arr, cls) => arr.map(t => `<span class="chip ${cls}">${esc(t)}</span>`).join('<em class="or">или</em>');
-      const val = (c.val && c.val.length) ? `<div class="ac-r"><span class="ac-l">Оптимальные значения</span><ul class="ac-v">${c.val.map(v => `<li><b>${esc(v[0])}:</b> ${esc(v[1])}</li>`).join('')}</ul></div>` : '';
       box.innerHTML = `<h4>${SLOTN[k]}</h4>
         <div class="ac-r"><span class="ac-l">Мейн-стат</span><div class="ac-ch">${m.length ? row(m,'main') : '<span class="none">Пока не заполнено</span>'}</div></div>
-        <div class="ac-r"><span class="ac-l">Доп. статы</span><div class="ac-ch">${sub.length ? sub.map(t => `<span class="chip sub">${esc(t)}</span>`).join('') : '<span class="none">Пока не заполнено</span>'}</div></div>${val}`;
+        <div class="ac-r"><span class="ac-l">Доп. статы</span><div class="ac-ch">${sub.length ? sub.map(t => `<span class="chip sub">${esc(t)}</span>`).join('') : '<span class="none">Пока не заполнено</span>'}</div></div>`;
     }
     function closeSet(){ if (OV.hidden) return; OV.hidden = true; sfx(SFX_CLOSE); if (lastA) lastA.focus(); }
     AC.addEventListener('click', e => {
       if (e.target.closest('.ac-x')) return closeSet();
+      const go = e.target.closest('.ac-go');
+      if (go){ const p2 = go.dataset.pg === '2'; AC.querySelector('.ac-p1').hidden = p2; AC.querySelector('.ac-p2').hidden = !p2; OV.scrollTop = 0; sfx(SFX_PICK); return; }
       const t = e.target.closest('.ac-tab'); if (!t) return;
       AC.querySelectorAll('.ac-tab').forEach(x => x.setAttribute('aria-pressed', x === t ? 'true' : 'false'));
       const a = ARTS.sets[AC.querySelector('#acName').firstChild.textContent], im = AC.querySelector('.ac-ban img');
