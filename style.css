@@ -1663,7 +1663,7 @@ html.v-map .mapv{display:flex}
   .rp-slides{overflow-y:hidden; scroll-snap-type:none}
   .rs{overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain; scrollbar-width:none; -webkit-overflow-scrolling:touch; scroll-snap-align:none; scroll-snap-stop:normal}
   .rs::-webkit-scrollbar{display:none}
-  .rs:not(.rsart){height:100%; min-height:0; grid-template-rows:auto auto; align-content:start}   /* старое правило ≤720px делало высоту auto — слайд вылезал за окно и низ был недостижим */
+  .rs:not(.rsart){height:100%; min-height:0; grid-template-rows:max-content max-content; align-content:start}   /* max-content: при фикс. высоте слайда «auto»-ряд с картинкой сжимался в ~0 и картинка лезла на текст; старое правило ≤720px делало высоту auto — слайд вылезал за окно и низ был недостижим */
   .rs.rsart{overflow-y:auto; align-items:flex-start}
   .rs.rsart .rs-txt{margin-top:auto}
   .rs.rsart .rs-bg{transform:none}
