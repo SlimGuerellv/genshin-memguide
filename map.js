@@ -689,17 +689,23 @@
     // пришли с главной: белая вспышка тает (класс fromwhite ставится ещё в <head>)
     FL.addEventListener('animationend', e => { if (e.animationName === 'wFlashIn') root.classList.remove('fromwhite'); });
     setTimeout(() => root.classList.remove('fromwhite'), 1500);
-    // доигрываем «буль-буль» телепорта, начатый на главной
-    try { const s = JSON.parse(sessionStorage.getItem('hv_sfx') || 'null'); sessionStorage.removeItem('hv_sfx');
-      const dt = s ? (Date.now() - s.t) / 1000 : 99;
-      if (s && s.v > 0 && dt >= 0 && dt < 2.2){ const u = new Audio('sfx_bubble.mp3'); u.volume = s.v; u.currentTime = dt; u.play().catch(()=>{}); } } catch(e){}
-
+    // пришли с экрана загрузки главной: он уже дошёл до 100%. Здесь тот же кадр стоит на 100% (видео с того же места)
+    // и растворяется, как только глобус готов
+    let FROM = null; try { FROM = JSON.parse(sessionStorage.getItem('hv_fromload') || 'null'); sessionStorage.removeItem('hv_fromload'); } catch(e){}
+    if (FROM && Date.now() - FROM.at < 30000){
+      ML.classList.add('on', 'hold'); setRow(MROW, 1);
+      const seek = () => { try { const d = MV2.duration || 0; if (d) MV2.currentTime = (FROM.t + (Date.now() - FROM.at) / 1000) % d; } catch(e){} MV2.play().catch(()=>{}); };
+      MV2.readyState >= 1 ? seek() : MV2.addEventListener('loadedmetadata', seek, {once:true});
+      const t0 = performance.now();
+      (function wait(){ if (!window.__globeOn && performance.now() - t0 < 15000) return setTimeout(wait, 150);
+        ML.classList.remove('on'); setTimeout(() => { ML.classList.remove('hold'); MV2.pause(); }, 600); })();
+    } else {
     // настоящая загрузка: глобус (three.js и текстуры) и видео экрана загрузки. Полоса идёт не быстрее 2,8 с (как раньше),
     // на медленном интернете ждёт на 90%, пока глобус не догрузится (но не дольше 20 с)
     const waits = [];
     waits.push(new Promise(r => { const t = setInterval(() => { if (window.__globeOn){ clearInterval(t); r(); } }, 200); }));   // глобус готов (текстуры загружены)
     waits.push(new Promise(r => { if (MV2.readyState >= 3) return r(); ['canplay', 'error'].forEach(ev => MV2.addEventListener(ev, r, {once:true})); setTimeout(r, 8000); }));
-    let done = 0; waits.forEach(p => p.then(() => done++));
+    let done = 0; waits.forEach(p => p.then(() => done++));   // (прямой заход на карту, по ссылке)
     const hardStop = performance.now() + 20000;
     try { MV2.currentTime = 0; } catch(e){} MV2.play().catch(()=>{});
     delete ML.querySelector('.pct').dataset.t; setRow(MROW, 0); ML.classList.remove('ready'); ML.classList.add('on');
@@ -717,6 +723,7 @@
       setTimeout(()=>{ ML.addEventListener('click', finish); addEventListener('keydown', finish); }, 150);
     })();
 
+    }
     // переключение карта ⇄ глобус: тот же экран загрузки, закрывается сам
     const MLAB = ML.querySelector('.mlabel');
     window.mapSwitchLoad = function(label, work){

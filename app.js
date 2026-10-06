@@ -816,12 +816,43 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
       setTimeout(()=>{ FL.classList.remove('go'); flying = false; }, 1400);
     }
     document.getElementById('goChars').addEventListener('click', ()=>fly(charsLoad));
-    // карта — отдельная страница map.html: музыка затихает, белая вспышка, под ней переход
-    document.getElementById('goMap').addEventListener('click', ()=>{ window.gMusic && window.gMusic.leave();
-      fly(()=>{ try { sessionStorage.setItem('hv_fromwhite', '1'); } catch(e){} location.href = 'map.html'; }); });
-    // «Назад» из карты: страница может вернуться из кеша браузера — снимаем вспышку и снова включаем музыку
+    // карта (отдельная страница map.html): экран загрузки идёт ЗДЕСЬ, на главной. Пока полоса бежит, браузер тихо
+    // докачивает всё для глобуса (только качает, не распаковывает — анимация не лагает). 100% — сразу переход на глобус.
+    const ML = document.getElementById('mload'), MROW = ML.querySelector('.elrow'), MV2 = document.getElementById('mlvid');
+    function mapPrefetch(){
+      const MOB = matchMedia('(hover:none) and (pointer:coarse)').matches, mem = navigator.deviceMemory || 4,
+            scr = Math.max(screen.width, screen.height) * (devicePixelRatio || 1);
+      let mts = 4096; try { const g = document.createElement('canvas').getContext('webgl'); if (g){ mts = g.getParameter(g.MAX_TEXTURE_SIZE); const x = g.getExtension('WEBGL_lose_context'); x && x.loseContext(); } } catch(e){}
+      const TQ = MOB || mts < 8192 ? '2k' : (mts >= 16384 && mem >= 8 && scr > 1800 ? '16k' : '8k');   // та же логика, что в глобусе (map.js)
+      const files = ['map.html', 'map.js?v=2', 'gearth' + TQ + '.jpg?v=20', 'gland' + TQ + '.png?v=20', 'gcloud.png?v=20', 'snzl.png?v=20', (TQ === '2k' ? 'grid.png' : 'grid8k.png') + '?v=21'];
+      const ps = files.map(f => fetch(f).then(r => r.blob()).catch(()=>{}));
+      ps.push(fetch('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js', {mode: 'no-cors'}).then(r => r.blob()).catch(()=>{}));
+      let n = 0; ps.forEach(p => p.then(() => n++));
+      return () => n / ps.length;   // доля скачанного
+    }
+    let mapGoing = false;
+    function mapLoad(){
+      if (mapGoing) return; mapGoing = true;
+      const part = mapPrefetch();
+      delete ML.querySelector('.pct').dataset.t; setRow(MROW, 0); ML.classList.remove('ready'); ML.classList.add('on');
+      // видео экрана загрузки на главной не качается заранее: источники подставляются только сейчас
+      if (!MV2.dataset.on){ MV2.dataset.on = '1'; MV2.querySelectorAll('source[data-src]').forEach(x => x.src = x.dataset.src); MV2.preload = 'auto'; MV2.load(); }
+      try { MV2.currentTime = 0; } catch(e){} MV2.play().catch(()=>{});
+      // не быстрее 2,8 с (как раньше); на медленном интернете ждёт на 90%, пока не скачается (не дольше 12 с)
+      const t0 = performance.now(), dur = 2800, hardStop = t0 + 12000; let shown = 0, prev = t0;
+      (function step(ts){ const now = Math.max(prev, ts || performance.now()), p = part(), all = p >= 1 || now > hardStop;
+        const k = ease(Math.min(1, (now - t0) / dur)), target = all ? k : Math.min(k, .9 * (.3 + .7 * p));
+        shown = Math.max(shown, Math.min(target, shown + (now - prev) / 700)); prev = now;   // плавно, без скачков
+        setRow(MROW, shown);
+        if (shown < 1){ requestAnimationFrame(step); return; }
+        try { sessionStorage.setItem('hv_fromload', JSON.stringify({t: MV2.currentTime || 0, at: Date.now()})); } catch(e){}
+        location.href = 'map.html';
+      })();
+    }
+    document.getElementById('goMap').addEventListener('click', ()=>{ window.gMusic && window.gMusic.leave(); new Image().src = 'mapload.jpg?v=5'; fly(mapLoad); });
+    // «Назад» с карты: страница может вернуться из кеша браузера — убираем вспышку и экран загрузки, музыка снова
     addEventListener('pageshow', e => { if (!e.persisted) return; document.getElementById('wflash').classList.remove('go'); flying = false;
-      window.gMusic && window.gMusic.back(); });
+      mapGoing = false; ML.classList.remove('on'); MV2.pause(); window.gMusic && window.gMusic.back(); });
     // словарь: сначала экран загрузки с баннером
     const DL = document.getElementById('dload'), DP = document.getElementById('dpct');
     function dictLoad(){
@@ -861,8 +892,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
       if (v > 0){ const a = BTN_SFX.cloneNode(); a.volume = v; a.play().catch(()=>{});
         // «влёт» при переходе в раздел (как загрузка в Геншине)
         if (b.id === 'goDict' || b.id === 'goChars' || b.id === 'goMap' || b.id === 'goArts'){ const w = WHOOSH.cloneNode(), u = BUBBLE.cloneNode(); w.volume = u.volume = v;
-          setTimeout(()=>{ w.play().catch(()=>{}); u.play().catch(()=>{}); }, 90);
-          if (b.id === 'goMap') try { sessionStorage.setItem('hv_sfx', JSON.stringify({t: Date.now() + 90, v})); } catch(e){} } }   // влёт + «буль-буль» телепорта, как в игре
+          setTimeout(()=>{ w.play().catch(()=>{}); u.play().catch(()=>{}); }, 90);} }   // влёт + «буль-буль» телепорта, как в игре
     }, true);
     document.getElementById('goHome').addEventListener('click', ()=>{
       const v = window.gMusic ? window.gMusic.sfxVol() : .5;
