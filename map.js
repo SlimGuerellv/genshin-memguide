@@ -5,7 +5,7 @@
     const RD = HVJ('regiondata');
     const CH = HVJ('data');
     const ELC = {'Анемо':'#6FE3C1','Гео':'#F5C84C','Электро':'#C58CFF','Дендро':'#9BDB4E','Гидро':'#4FD3F7','Пиро':'#FF7B5C','Крио':'#A8EEF5'};
-    const TABS = [['hist','История','ti_hist.webp'],['chars','Персонажи региона','ti_chars.webp'],['events','События','ti_events.webp'],['places','Места','ti_places.webp'],['bosses','Боссы','ti_bosses.webp'],['domains','Данжи','ti_domains.webp'],['items','Предметы региона','ti_items.webp'],['wood','Древесина','ic_wood.webp']];
+    const TABS = [['hist','История','ti_hist.webp'],['chars','Персонажи региона','ti_chars.webp'],['events','События','ti_events.webp'],['places','Места','ti_places.webp'],['bosses','Боссы','ti_bosses.webp'],['domains','Данжи','ti_domains.webp'],['curios','Диковинки региона','ic_curio.webp'],['items','Предметы региона','ti_items.webp'],['wood','Древесина','ic_wood.webp']];
     const E = s => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
     const P = document.getElementById('rpanel'), IN = P.querySelector('.rp-in'), SL = document.getElementById('rpSlides'), DOTS = document.getElementById('rpDots'), NAV = document.getElementById('rpNav');
     const snd = n => { try { const a = new Audio(n); const v = window.gMusic ? window.gMusic.sfxVol() : .5; if (v > 0){ a.volume = v; a.play().catch(()=>{}); } } catch(e){} };
@@ -17,6 +17,7 @@
           const sp = R.splash && R.splash[c.n], cd = R.card && R.card[c.n];
           return {k:'Персонаж', h:c.n, p:t[0], q:t[1], av:sp || c.img, sp:!!sp, fit:(R.fit||{})[c.n], card:cd, skins:(R.skins||{})[c.n], ec:ELC[c.e], ek:{'Анемо':'anemo','Гео':'geo','Электро':'electro','Дендро':'dendro','Гидро':'hydro','Пиро':'pyro','Крио':'cryo'}[c.e], tags:[c.e, '★'.repeat(c.r||0), c.w].filter(Boolean)}; });
       }
+      if (tab === 'curios') return (R.tabs.curios || []).map(x => ({k:'', h:x[0], p:x[1], q:x[2], pic:x[3], who:x[4]}));
       return (R.tabs[tab] || []).map(x => ({k:'', h:x[0], p:x[1], q:x[2], pic:x[3], tr:x[4] === 't', drop:[].concat(x.slice(4)).find(v => Array.isArray(v)), res:x.slice(4).find(v => v && typeof v === 'object' && !Array.isArray(v))})).map(x => ({...x, gems: x.res && x.res.gems, rare: x.res && x.res.rare, rst: x.res && x.res.resist, dmg: x.res && x.res.dmg, dmgn: x.res && x.res.dmgn, tac: x.res && x.res.tac, pin: x.res && x.res.pin, need: x.res && x.res.need}));
     }
     // картинки слайда: одна или галерея (плавная смена, стрелки, точки, сама листается)
@@ -71,7 +72,7 @@
     function render(tab){
       NAV.querySelectorAll('.rp-tab').forEach(b => b.setAttribute('aria-selected', b.dataset.t === tab ? 'true' : 'false'));
       const name = TABS.find(t => t[0] === tab)[1], list = slides(tab);
-      SL.innerHTML = list.map((x,i) => `<article${x.k === 'Персонаж' ? ` data-ch="${E(x.h)}"` : ''} class="rs${x.k === 'Персонаж' ? ' rsch' : ''}${x.card ? ' rsart rscard' : x.sp ? ' rsart' : ''}${tab === 'items' ? ' rsitem' : ''}${tab === 'bosses' ? ' rsboss' : ''}${x.tr ? ' rstr' : ''}${x.rare ? ' hassol' : ''}" style="${x.ec ? '--ec:'+x.ec : ''}${x.ek ? `;--eic:url(el_${x.ek}.webp)` : ''}">
+      SL.innerHTML = list.map((x,i) => `<article${x.k === 'Персонаж' ? ` data-ch="${E(x.h)}"` : ''} class="rs${x.k === 'Персонаж' ? ' rsch' : ''}${x.card ? ' rsart rscard' : x.sp ? ' rsart' : ''}${tab === 'items' || tab === 'curios' ? ' rsitem' : ''}${tab === 'bosses' ? ' rsboss' : ''}${x.tr ? ' rstr' : ''}${x.rare ? ' hassol' : ''}" style="${x.ec ? '--ec:'+x.ec : ''}${x.ek ? `;--eic:url(el_${x.ek}.webp)` : ''}">
         ${x.card ? `<div class="rs-bg" aria-hidden="true"><img class="rs-cdb" src="${x.card}" alt="" loading="lazy" decoding="async">${x.skins ? x.skins.map((k,j) => `<img class="rs-cd sk${j ? '' : ' on'}" src="${k[1]}" alt="" loading="lazy" decoding="async">`).join('') : `<img class="rs-cd" src="${x.card}" alt="" loading="lazy" decoding="async">`}</div>` : x.sp ? `<div class="rs-bg" aria-hidden="true" style="${x.fit||''}"><span class="rs-glow"></span><img class="rs-sp" src="${x.av}" alt="" loading="lazy" decoding="async"></div>`
           : x.pic ? gal(x)
           : `<div class="rs-img" data-ph="${x.av ? '' : 'Здесь будет картинка'}">${x.av ? `<img class="av" src="${x.av}" alt="${E(x.h)}" loading="lazy" decoding="async">` : `<div class="ph">${E(x.h)}</div>`}</div>`}
@@ -82,7 +83,7 @@
           <div class="rs-rpop" hidden>${x.rst.groups.map((g,gi) => `<details class="rs-rg" name="rsrg"${gi ? '' : ' open'}><summary><small>${E(g.ph)}</small>${E(g.n)}</summary><div class="rs-rtw"><table class="rs-rtab"><thead><tr><th></th>${x.rst.cols.map(c => `<th title="${RN[c]}">${c === 'phys' ? PHYS : `<img src="el_${c}.webp" alt="${RN[c]}">`}</th>`).join('')}</tr></thead><tbody>${g.rows.map(r => `<tr><th>${E(r[0])}</th>${r[1].map(v => `<td class="${v >= 300 ? 'vh' : v >= 50 ? 'vm' : v < 0 ? 'vl' : ''}">${v}<span class="pc">%</span></td>`).join('')}</tr>`).join('')}</tbody></table></div></details>`).join('')}</div><button type="button" class="rs-rbtn rs-qbtn" aria-expanded="false" aria-label="Что значат эти цифры?" title="Что значат эти цифры?">?</button>
           <div class="rs-rpop" hidden>${rsGroupsHelp(x.rst)}${RS_LEGEND}</div>` : `<button type="button" class="rs-rst rs-rbtn rs-rsim" aria-expanded="false" title="Что значат эти цифры?"><span class="rs-rk">Резист</span>${[['pyro','Пиро'],['hydro','Гидро'],['anemo','Анемо'],['electro','Электро'],['dendro','Дендро'],['cryo','Крио'],['geo','Гео']].map(([k,n]) => { const v = x.rst[k]; if (v == null) return ''; const im = v === 'imm';
             return `<span class="rs-rv${im ? ' imm' : ''}" data-n="${n}: ${im ? 'иммунитет' : v + '%'}"><img src="el_${k}.webp" alt="${n}"><i>${im ? 'имм' : v + '%'}</i></span>`; }).join('')}<i class="rs-q" aria-hidden="true">?</i></button>
-          <div class="rs-rpop" hidden><div class="rs-say rs-say1"><h5>Простыми словами</h5><p>${rsSay(Object.fromEntries(Object.entries(x.rst)))}</p></div>${RS_LEGEND}</div>`) : ''}</div><p>${E(x.p)}</p>${x.q ? `<q>${E(x.q)}</q>` : ''}${x.drop ? dropHtml(x, x.pic ? 'rs-dtxt' : '') : ''}${x.gems ? gemHtml(x, x.pic ? 'rs-dtxt' : '') : ''}${x.rare ? rareHtml(x, 'rs-dtxt rs-rtxt') : ''}</div>${x.rare ? rareHtml(x, 'rs-rside') : ''}</article>`).join('');
+          <div class="rs-rpop" hidden><div class="rs-say rs-say1"><h5>Простыми словами</h5><p>${rsSay(Object.fromEntries(Object.entries(x.rst)))}</p></div>${RS_LEGEND}</div>`) : ''}</div><p>${E(x.p)}</p>${x.q ? `<q>${E(x.q)}</q>` : ''}${x.who ? `<div class="rs-curwho"><div class="who-k">Кому нужна</div><div class="who-l">${x.who.map(whoAv).join('')}</div><p class="who-f">Нажми на персонажа — откроется его карточка.</p></div>` : ''}${x.drop ? dropHtml(x, x.pic ? 'rs-dtxt' : '') : ''}${x.gems ? gemHtml(x, x.pic ? 'rs-dtxt' : '') : ''}${x.rare ? rareHtml(x, 'rs-dtxt rs-rtxt') : ''}</div>${x.rare ? rareHtml(x, 'rs-rside') : ''}</article>`).join('');
       DOTS.innerHTML = list.map((_,i) => `<button type="button" aria-label="Слайд ${i+1}" aria-current="${i ? 'false' : 'true'}"></button>`).join('') + (list.length > 1 ? '<span class="rp-more" aria-hidden="true">↓</span>' : '');
       SL.scrollTop = 0; IN.classList.remove('scrolled'); para(); hintUpd();
     }
@@ -163,7 +164,7 @@
       document.getElementById('rpTitle').textContent = R.name;
       document.getElementById('rpSub').textContent = R.motto + ' · Архонт: ' + R.archon;
       document.getElementById('rpDiff').innerHTML = `Сложность<b>${'★'.repeat(R.diff)}<span>${'★'.repeat(5-R.diff)}</span></b>${E(R.diffText)}`;
-      NAV.querySelectorAll('.rp-tab[data-t=wood]').forEach(b => b.hidden = !(R.tabs && R.tabs.wood)); P.dataset.region = id; P.hidden = false; render('hist'); snd('sfx_open.mp3'); document.getElementById('rpClose').focus();
+      NAV.querySelectorAll('.rp-tab[data-t=wood]').forEach(b => b.hidden = !(R.tabs && R.tabs.wood)); NAV.querySelectorAll('.rp-tab[data-t=curios]').forEach(b => b.hidden = !(R.tabs && R.tabs.curios)); P.dataset.region = id; P.hidden = false; render('hist'); snd('sfx_open.mp3'); document.getElementById('rpClose').focus();
     }
 
     // боковые кнопки справа от плашки (для боссов): «Как бить» и «На карте» — действуют на текущий слайд

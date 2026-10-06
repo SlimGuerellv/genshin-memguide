@@ -1837,3 +1837,9 @@ html.fromwhite body{background-color:#fffaf0}
 @keyframes elBreathS{0%,100%{transform:scale(1)} 50%{transform:scale(1.1)}}
 @keyframes elBreath{0%,100%{filter:brightness(1.05) drop-shadow(0 0 7px color-mix(in srgb, var(--ec) 70%, transparent))} 50%{filter:brightness(1.5) drop-shadow(0 0 18px var(--ec)) drop-shadow(0 0 6px var(--ec))}}
 @media (prefers-reduced-motion:reduce){ .elrow.breathe .eli, .elrow.breathe .eli .c{animation:none} }
+
+/* диковинки региона: «Кому нужна» прямо на карточке */
+.rs-curwho{margin-top:14px}
+.rs-curwho .who-k{margin:0 0 8px}
+.rs-curwho .who-f{margin:8px 0 0; font-size:12px; color:var(--muted)}
+.rs-curwho .who-a{width:46px; height:46px}
