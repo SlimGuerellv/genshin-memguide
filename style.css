@@ -1638,7 +1638,7 @@ html.v-map .mapv{display:flex}
   /* 06.10: телефон, «Персонажи региона». Постер сверху, текст ПОД ним (раньше текст прижимался к низу и налезал на арт),
      костюмы строкой под текстом (раньше занимали левую колонку и сжимали текст) */
   .rs.rsart.rscard{flex-direction:column; align-items:stretch; justify-content:flex-start; gap:4px;
-    height:auto; min-height:100%; padding:calc(38% + 2px) 10px 16px}
+    height:100%; padding:calc(38% + 2px) 10px 58px}
   .rs.rscard::before{background:linear-gradient(180deg, transparent 0, transparent 26vw, rgb(11 16 30 / .72) 40vw, rgb(11 16 30 / .82) 100%)}
   .rs.rsart.rscard .rs-txt{order:1; max-width:none; margin:0; padding:8px 6px 2px}
   .rs.rsart.rscard .rs-txt::before{inset:-6px -20px -10px; -webkit-mask:none; mask:none; background:none; -webkit-backdrop-filter:none; backdrop-filter:none}
@@ -1655,6 +1655,36 @@ html.v-map .mapv{display:flex}
   .rp-dots{display:none}
   .rs{padding:12px 14px; grid-template-rows:minmax(0,1fr) auto}
   .rs-txt p{font-size:14px}
+}
+
+/* ===== 06.10 телефон: каждая карточка листается внутри себя до конца; на следующую — «подтянуть» снизу вверх (см. map.js, PULL) ===== */
+.rp-pull{display:none}
+@media (max-width:760px){
+  .rp-slides{overflow-y:hidden; scroll-snap-type:none}
+  .rs{overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain; scrollbar-width:none; -webkit-overflow-scrolling:touch; scroll-snap-align:none; scroll-snap-stop:normal}
+  .rs::-webkit-scrollbar{display:none}
+  .rs:not(.rsart){height:100%; min-height:0; grid-template-rows:auto auto; align-content:start}   /* старое правило ≤720px делало высоту auto — слайд вылезал за окно и низ был недостижим */
+  .rs.rsart{overflow-y:auto; align-items:flex-start}
+  .rs.rsart .rs-txt{margin-top:auto}
+  .rs.rsart .rs-bg{transform:none}
+  .rs.rsart.rscard > *{flex:none}
+  .rs, .rs.rsart{padding-bottom:58px}   /* запас под подсказку «потяни вверх» */
+  .rp-pull{position:absolute; left:0; right:0; bottom:0; z-index:6; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:5px;
+    height:calc(66px + var(--p,0) * .6px); padding:0 16px 12px; pointer-events:none; color:#dfe7f7; text-align:center;
+    background:linear-gradient(0deg, rgb(8 12 24 / .94) 10%, rgb(8 12 24 / .55) 60%, transparent)}
+  .rp-pull[hidden]{display:none}
+  .rp-pull.top{bottom:auto; top:var(--st,0px); flex-direction:column-reverse; justify-content:flex-end; padding:12px 16px 0; background:linear-gradient(180deg, rgb(8 12 24 / .94) 10%, rgb(8 12 24 / .55) 60%, transparent)}
+  .pp-hd{width:13px; height:13px; border-top:3px solid var(--rc); border-left:3px solid var(--rc); transform:rotate(45deg); margin-bottom:-10px; border-radius:2px; flex:none}
+  .rp-pull.top .pp-hd{transform:rotate(225deg); margin:-10px 0 0}
+  .pp-sk{width:3px; height:calc(5px + min(var(--p,0), 130) * .45px); background:linear-gradient(var(--rc), color-mix(in srgb, var(--rc) 20%, transparent)); border-radius:2px; flex:none}
+  .rp-pull.top .pp-sk{background:linear-gradient(0deg, var(--rc), color-mix(in srgb, var(--rc) 20%, transparent))}
+  .pp-t{font-size:calc(12.5px + min(var(--p,0), 110) * .035px); letter-spacing:.03em; min-height:1.3em; text-shadow:0 1px 3px rgb(0 0 0 / .8)}
+  .rp-pull.idle{height:58px; opacity:.85; animation:ppBob 1.5s ease-in-out infinite}
+  .rp-pull.idle .pp-sk{height:5px}
+  .rp-pull.idle .pp-t{font-size:12px; color:var(--muted)}
+  .rp-pull.ready .pp-t{color:#fff; font-weight:600; text-shadow:0 0 10px var(--rc)}
+  .rp-pull.ready .pp-hd, .rp-pull.ready .pp-sk{filter:drop-shadow(0 0 6px var(--rc))}
+  @keyframes ppBob{50%{transform:translateY(-5px)}}
 }
 
 .wrap{transition:opacity .5s ease}

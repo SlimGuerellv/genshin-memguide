@@ -84,7 +84,7 @@
             return `<span class="rs-rv${im ? ' imm' : ''}" data-n="${n}: ${im ? 'иммунитет' : v + '%'}"><img src="el_${k}.webp" alt="${n}"><i>${im ? 'имм' : v + '%'}</i></span>`; }).join('')}<i class="rs-q" aria-hidden="true">?</i></button>
           <div class="rs-rpop" hidden><div class="rs-say rs-say1"><h5>Простыми словами</h5><p>${rsSay(Object.fromEntries(Object.entries(x.rst)))}</p></div>${RS_LEGEND}</div>`) : ''}</div><p>${E(x.p)}</p>${x.q ? `<q>${E(x.q)}</q>` : ''}${x.drop ? dropHtml(x, x.pic ? 'rs-dtxt' : '') : ''}${x.gems ? gemHtml(x, x.pic ? 'rs-dtxt' : '') : ''}${x.rare ? rareHtml(x, 'rs-dtxt rs-rtxt') : ''}</div>${x.rare ? rareHtml(x, 'rs-rside') : ''}</article>`).join('');
       DOTS.innerHTML = list.map((_,i) => `<button type="button" aria-label="Слайд ${i+1}" aria-current="${i ? 'false' : 'true'}"></button>`).join('') + (list.length > 1 ? '<span class="rp-more" aria-hidden="true">↓</span>' : '');
-      SL.scrollTop = 0; IN.classList.remove('scrolled'); para();
+      SL.scrollTop = 0; IN.classList.remove('scrolled'); para(); hintUpd();
     }
     // параллакс сплеш-артов: от курсора (сам арт) и от прокрутки (слой фона едет медленнее текста)
     const still = matchMedia('(prefers-reduced-motion: reduce)').matches; let praf = 0;
@@ -126,6 +126,36 @@
       if (window.getSelection && String(window.getSelection()).length) return;
       window.openChar && window.openChar(a.dataset.ch, a); });
     NAV.addEventListener('click', e => { const b = e.target.closest('.rp-tab'); if (!b || b.getAttribute('aria-selected') === 'true') return; snd('sfx_pick.mp3'); render(b.dataset.t); });
+    // ===== телефон: карточка листается внутри себя до конца; на следующую/прошлую — «подтянуть» (стрелка тянется, «давай, тяги…») =====
+    const NARROW = matchMedia('(max-width:760px)');
+    const PULL = document.createElement('div'); PULL.className = 'rp-pull'; PULL.hidden = true; PULL.setAttribute('aria-hidden', 'true');
+    PULL.innerHTML = '<i class="pp-hd"></i><i class="pp-sk"></i><span class="pp-t"></span>'; IN.appendChild(PULL);
+    const PT = PULL.querySelector('.pp-t'), PW = ['давай', 'тяги', 'давай', 'давай', 'давай…'], TH = 105;
+    var pg = null;
+    const atEnd = a => a.scrollTop + a.clientHeight >= a.scrollHeight - 3;
+    function hintUpd(){ if (pg) return; const a = NARROW.matches && !P.hidden && curSlide(), on = !!(a && a.nextElementSibling && atEnd(a));
+      PULL.hidden = !on; PULL.classList.remove('top', 'ready'); PULL.classList.toggle('idle', on); PULL.style.setProperty('--p', 0); if (on) PT.textContent = 'потяни вверх — дальше'; }
+    function goTo(n){ const old = curSlide(); n.scrollTop = 0; SL.scrollTo({top: n.offsetTop, behavior: 'smooth'}); snd('sfx_pick.mp3');
+      PULL.hidden = true; setTimeout(() => { if (old && old !== n) old.scrollTop = 0; hintUpd(); }, 520); }
+    SL.addEventListener('scroll', () => { if (!pg) requestAnimationFrame(hintUpd); }, true);
+    NARROW.addEventListener && NARROW.addEventListener('change', hintUpd);
+    SL.addEventListener('touchstart', e => { pg = null; if (!NARROW.matches || e.touches.length !== 1) return; const a = e.target.closest('.rs');
+      if (!a || a !== curSlide()) return; pg = {y: e.touches[0].clientY, a, base: a.offsetTop, end: atEnd(a), top: a.scrollTop <= 1, dir: 0, raw: 0}; }, {passive: true});
+    SL.addEventListener('touchmove', e => { if (!pg) return; const dy = e.touches[0].clientY - pg.y;
+      if (!pg.dir){ if (Math.abs(dy) < 8) return; const d = dy < 0 ? 1 : -1;   // 1: тянем вверх (к следующей), -1: вниз (к прошлой)
+        if (!(d === 1 ? pg.end && pg.a.nextElementSibling : pg.top && pg.a.previousElementSibling)){ pg = null; return; }
+        pg.dir = d; PULL.hidden = false; PULL.classList.remove('idle'); PULL.classList.toggle('top', d === -1); PULL.style.setProperty('--st', SL.offsetTop + 'px'); }
+      e.preventDefault(); const raw = Math.max(0, -dy * pg.dir - 8); pg.raw = raw;
+      SL.scrollTop = pg.base + pg.dir * Math.min(raw * .6, 170);
+      PULL.style.setProperty('--p', raw.toFixed(0)); const ok = raw >= TH; PULL.classList.toggle('ready', ok);
+      PT.textContent = ok ? 'отпускай!' : raw < 8 ? '' : PW.slice(0, 1 + Math.floor(raw / TH * PW.length)).join(', '); }, {passive: false});
+    const pgEnd = () => { if (!pg) return; const g = pg; pg = null; PULL.hidden = true; PULL.classList.remove('ready');
+      const n = g.dir === 1 ? g.a.nextElementSibling : g.dir === -1 ? g.a.previousElementSibling : null;
+      if (g.dir && n && g.raw >= TH) goTo(n); else { if (g.dir) SL.scrollTo({top: g.base, behavior: 'smooth'}); setTimeout(hintUpd, 350); } };
+    SL.addEventListener('touchend', pgEnd); SL.addEventListener('touchcancel', pgEnd);
+    // колесо мыши на узком окне (десктоп с узким окном): то же самое, но без натягивания
+    let wl = 0; SL.addEventListener('wheel', e => { if (!NARROW.matches) return; const a = e.target.closest('.rs'); if (!a || a !== curSlide() || Date.now() - wl < 700) return;
+      const n = e.deltaY > 30 && atEnd(a) ? a.nextElementSibling : e.deltaY < -30 && a.scrollTop <= 1 ? a.previousElementSibling : null; if (n){ wl = Date.now(); goTo(n); } }, {passive: true});
     function open(id){
       R = RD[id]; if (!R) return; back = document.activeElement;
       IN.style.setProperty('--rc', R.color); document.getElementById('rpSide').style.setProperty('--rc', R.color); IN.style.setProperty('--rbg', R.bg ? `url(${R.bg})` : 'none'); IN.style.setProperty('--pbg', R.pbg ? `url(${R.pbg})` : 'none'); IN.classList.toggle('haspbg', !!R.pbg);
