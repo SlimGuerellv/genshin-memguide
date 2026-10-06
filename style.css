@@ -1635,6 +1635,17 @@ html.v-map .mapv{display:flex}
 @media (max-width:760px){
   .rs.rscard .rs-cd{transform:none}
   .rs.rscard::before{background:linear-gradient(0deg, rgb(11 16 30 / .95) 0%, rgb(11 16 30 / .8) 45%, transparent 62%)}
+  /* 06.10: телефон, «Персонажи региона». Постер сверху, текст ПОД ним (раньше текст прижимался к низу и налезал на арт),
+     костюмы строкой под текстом (раньше занимали левую колонку и сжимали текст) */
+  .rs.rsart.rscard{flex-direction:column; align-items:stretch; justify-content:flex-start; gap:4px;
+    height:auto; min-height:100%; padding:calc(38% + 2px) 10px 16px}
+  .rs.rscard::before{background:linear-gradient(180deg, transparent 0, transparent 26vw, rgb(11 16 30 / .72) 40vw, rgb(11 16 30 / .82) 100%)}
+  .rs.rsart.rscard .rs-txt{order:1; max-width:none; margin:0; padding:8px 6px 2px}
+  .rs.rsart.rscard .rs-txt::before{inset:-6px -20px -10px; -webkit-mask:none; mask:none; background:none; -webkit-backdrop-filter:none; backdrop-filter:none}
+  .rs.rsart.rscard .rs-txt h3{font-size:26px; line-height:1.15}
+  .rs.rsch .rs-txt h3::after{display:block; width:max-content; margin:8px 0 2px; font-size:12.5px}
+  .rs.rsart.rscard .rs-skin{order:2; justify-content:flex-start; margin:6px 6px 0}
+  .rs.rsart.rscard .rs-skin span{width:100%; margin:0 0 2px}
 }
 @media (max-width:760px){
   .rp-in{grid-template-columns:1fr; grid-template-rows:auto auto 1fr}
