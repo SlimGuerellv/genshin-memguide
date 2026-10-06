@@ -1777,5 +1777,20 @@ html.fromwhite .wflash::before{transform:scale(1.35)}
 @keyframes wFlashIn{from{opacity:1} to{opacity:0}}
 html.fromwhite body{background-color:#fffaf0}
 /* карта: пришли с экрана загрузки главной — стоит на 100%, без «нажмите», и растворяется, когда глобус готов */
-.mload.hold .done{display:none}
 .mload.hold .pct{opacity:.35}
+/* экран загрузки глобуса: 100% — «подождите» / «Добро пожаловать в Тейват», стихии «дышат» */
+.mload.wait .done, .mload.hold .done{display:block; opacity:1; transform:none; animation:none; transition:opacity .3s ease}
+.mload .done.swap{opacity:0 !important}
+.mload.wait .pct{opacity:.35}
+.mload.cut{transition:none}
+.elrow.breathe .eli{animation:elBreathS 1.6s ease-in-out infinite}
+.elrow.breathe .eli .c{clip-path:none; animation:elBreath 1.6s ease-in-out infinite}
+.elrow.breathe .eli:nth-child(2), .elrow.breathe .eli:nth-child(2) .c{animation-delay:.12s}
+.elrow.breathe .eli:nth-child(3), .elrow.breathe .eli:nth-child(3) .c{animation-delay:.24s}
+.elrow.breathe .eli:nth-child(4), .elrow.breathe .eli:nth-child(4) .c{animation-delay:.36s}
+.elrow.breathe .eli:nth-child(5), .elrow.breathe .eli:nth-child(5) .c{animation-delay:.48s}
+.elrow.breathe .eli:nth-child(6), .elrow.breathe .eli:nth-child(6) .c{animation-delay:.6s}
+.elrow.breathe .eli:nth-child(7), .elrow.breathe .eli:nth-child(7) .c{animation-delay:.72s}
+@keyframes elBreathS{0%,100%{transform:scale(1)} 50%{transform:scale(1.1)}}
+@keyframes elBreath{0%,100%{filter:brightness(1.05) drop-shadow(0 0 7px color-mix(in srgb, var(--ec) 70%, transparent))} 50%{filter:brightness(1.5) drop-shadow(0 0 18px var(--ec)) drop-shadow(0 0 6px var(--ec))}}
+@media (prefers-reduced-motion:reduce){ .elrow.breathe .eli, .elrow.breathe .eli .c{animation:none} }
