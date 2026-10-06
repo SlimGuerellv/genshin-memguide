@@ -142,6 +142,8 @@ body{
   color:var(--text); font-family:var(--body); font-size:15px; line-height:1.5;
   min-height:100vh;
 }
+/* 06.10: эффекты карточек (ауры, перья, кометы) вылезали за правый край → страница шире экрана, на телефоне ехала вбок и отдалялась */
+html{overflow-x:hidden} @supports (overflow:clip){ html, body{overflow-x:clip} }
 .wrap{max-width:1180px; margin:0 auto; padding-inline:16px; padding-block:28px 64px}
 header.top{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:12px 24px; margin-bottom:20px}
 h1{font-family:var(--display); font-weight:400; font-size:clamp(26px,5vw,40px); line-height:1.05; margin:0; letter-spacing:.01em; text-wrap:balance}
