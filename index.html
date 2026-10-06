@@ -70,13 +70,13 @@
 .tsec .tm{appearance:none;font:inherit;color:inherit;background:none;border:0;padding:6px 2px 4px;border-radius:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;min-width:0;transition:background .15s}
 .tsec .tm:hover,.tsec .tm:focus-visible{background:rgb(255 255 255 / .07);outline:none}
 .tsec .tm.main{background:rgb(255 255 255 / .06)}
-.sheet .fold>h3{cursor:pointer;user-select:none;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 2px;margin-bottom:2px;border-radius:8px;transition:color .15s, background .15s}
+.sheet .fold>h3{position:relative;z-index:1;cursor:pointer;user-select:none;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 2px;margin-bottom:2px;border-radius:8px;transition:color .15s, background .15s}
 .sheet .fold>h3:hover{color:var(--text);background:rgb(255 255 255 / .05)}
 .sheet .fold>h3:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
 .fold-ar{width:8px;height:8px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);margin:-3px 6px 0 0;transition:transform .2s}
 .fold.shut .fold-ar{transform:rotate(-45deg);margin-top:0}
 .fold-b{display:grid;grid-template-rows:1fr;transition:grid-template-rows .25s ease}
-.fold-i{min-height:0;overflow:hidden}
+.fold-i{min-height:0;overflow:hidden;padding:16px 8px 10px;margin:-16px -8px -10px}
 .fold.shut .fold-b{grid-template-rows:0fr}
 .fold.shut .fold-i{visibility:hidden;transition:visibility 0s .25s}
 @media (prefers-reduced-motion:reduce){.fold-b,.fold-ar{transition:none}}
