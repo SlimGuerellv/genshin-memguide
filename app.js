@@ -824,7 +824,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
             scr = Math.max(screen.width, screen.height) * (devicePixelRatio || 1);
       let mts = 4096; try { const g = document.createElement('canvas').getContext('webgl'); if (g){ mts = g.getParameter(g.MAX_TEXTURE_SIZE); const x = g.getExtension('WEBGL_lose_context'); x && x.loseContext(); } } catch(e){}
       const TQ = MOB || mts < 8192 ? '2k' : (mts >= 16384 && mem >= 8 && scr > 1800 ? '16k' : '8k');   // та же логика, что в глобусе (map.js)
-      const files = ['map.html', 'map.js?v=5', 'gearth' + TQ + '.jpg?v=20', 'gland' + TQ + '.png?v=20', 'gcloud.png?v=20', 'snzl.png?v=20', (TQ === '2k' ? 'grid.png' : 'grid8k.png') + '?v=21'];
+      const files = ['map.html', 'map.js?v=6', 'gearth' + TQ + '.jpg?v=20', 'gland' + TQ + '.png?v=20', 'gcloud.png?v=20', 'snzl.png?v=20', (TQ === '2k' ? 'grid.png' : 'grid8k.png') + '?v=21'];
       const ps = files.map(f => fetch(f).then(r => r.blob()).catch(()=>{}));
       ps.push(fetch('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js', {mode: 'no-cors'}).then(r => r.blob()).catch(()=>{}));
       let n = 0; ps.forEach(p => p.then(() => n++));
