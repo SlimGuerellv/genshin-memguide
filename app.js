@@ -514,6 +514,35 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     p.style.setProperty('--sph', $('sheet').offsetHeight + 'px');
     ov.classList.add('sp-open'); p.setAttribute('aria-hidden', 'false');
   }
+  // электро-рамка кнопки «Синергия»: ток трещит по обводке (SVG-фильтры из index.html / map.html)
+  let nsRun = false, nsLast = 0, nsBtn = null, nsRO = null;
+  const NSNS = 'http://www.w3.org/2000/svg';
+  function nsFit(){ const b = nsBtn, s = b && b._ns; if (!s) return; const w = b.offsetWidth, h = b.offsetHeight; if (!w) return;
+    s.setAttribute('width', w + 14); s.setAttribute('height', h + 14); s.setAttribute('viewBox', `0 0 ${w + 14} ${h + 14}`);
+    s.querySelectorAll('rect').forEach(r => { r.setAttribute('x', 7); r.setAttribute('y', 7); r.setAttribute('width', w); r.setAttribute('height', h); }); }
+  function nsTick(t){
+    const b = nsBtn;
+    if (!b || !b.isConnected || $('overlay').hidden){ nsRun = false; return; }
+    if (t - nsLast > 70 && !document.hidden && !matchMedia('(prefers-reduced-motion:reduce)').matches){ nsLast = t;
+      const t1 = document.getElementById('nst1'), t2 = document.getElementById('nst2');
+      if (t1) t1.setAttribute('seed', (Math.random() * 500) | 0); if (t2) t2.setAttribute('seed', (Math.random() * 500) | 0);
+      const on = b.getAttribute('aria-pressed') === 'true';
+      b._ns.style.opacity = Math.min(1, (0.55 + Math.random() * 0.45) * (on ? 1 : .8) + .15);
+      b._ns.style.filter = `drop-shadow(0 0 ${on ? 7 : 4}px rgb(170 130 255 / .9))`;
+    }
+    requestAnimationFrame(nsTick);
+  }
+  function nsArcs(){
+    const b = $('sheet').querySelector('.sbtn.ns'); if (nsRO){ nsRO.disconnect(); nsRO = null; }
+    nsBtn = b; if (!b) return;
+    const s = document.createElementNS(NSNS, 'svg'); s.setAttribute('class', 'arcs'); s.setAttribute('aria-hidden', 'true');
+    s.innerHTML = '<rect rx="12" fill="none" stroke="url(#nsg1)" stroke-width="2" filter="url(#nsb1)"/>'
+      + '<rect rx="12" fill="none" stroke="url(#nsg2)" stroke-width="1.1" filter="url(#nsb2)"/>'
+      + '<rect rx="12" fill="none" stroke="#fff" stroke-opacity=".75" stroke-width=".7"/>';
+    b.appendChild(s); b._ns = s; nsFit();
+    if (window.ResizeObserver){ nsRO = new ResizeObserver(nsFit); nsRO.observe(b); }
+    if (!nsRun){ nsRun = true; requestAnimationFrame(nsTick); }
+  }
   // «Синергия» у натланцев: что такое Ночной дух простыми словами
   const NSOUL = [
     ['Что это такое', 'Ночной дух — особый «ночной режим» героев Натлана. Включил его — и герой быстрее двигается, умеет то, чего в обычном состоянии не умеет, а его навыки работают иначе. Есть он только у натланцев.'],
@@ -576,7 +605,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
       </div>`;
     spSkills = skills;
     $('overlay').hidden = false;
-    spRender(ch);
+    spRender(ch); nsArcs();
     window.dispatchEvent(new CustomEvent('hv:sheet', {detail:{name: ch.n}}));   // комментарии (модуль аккаунтов)
     fitNames($('sheet'));
     $('close').focus();
