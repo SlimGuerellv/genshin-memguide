@@ -299,6 +299,23 @@ nav.els{
 .skills li{display:flex; gap:12px; align-items:flex-start; background:var(--bg2); border-radius:10px; padding:10px 12px}
 .skills .prio{flex:0 0 auto; min-width:38px; text-align:center; font-family:var(--display); font-size:15px; color:#10131c; background:var(--c); border-radius:8px; padding:4px 6px; font-variant-numeric:tabular-nums}
 .skills .prio small{display:block; font-family:var(--body); font-size:9px; font-weight:400; letter-spacing:.06em; opacity:.8}
+/* навыки с иконками и ротация (Вареса и далее) */
+.skills.skx li{align-items:center}
+.skills.skx .sk-ic{flex:0 0 auto; width:48px; height:48px; border-radius:50%}
+.skills.skx .sk-tx{flex:1; min-width:0; display:grid; gap:3px}
+.skills.skx .sk-tx b{font-size:14px}
+.skills.skx .sk-tx span{font-size:13px; line-height:1.4; color:var(--muted)}
+.sk-notes{margin:10px 2px 0; padding:0 0 0 18px; display:grid; gap:6px; font-size:13px; line-height:1.45; color:var(--muted)}
+.rot{list-style:none; margin:0; padding:0; display:grid; gap:8px}
+.rot li{display:grid; grid-template-columns:26px auto 1fr; gap:10px; align-items:center; background:var(--bg2); border-radius:10px; padding:10px 12px}
+.rot-n{display:grid; place-items:center; width:24px; height:24px; border-radius:50%; background:var(--c); color:#10131c; font-family:var(--display); font-size:13px}
+.rot-ch{display:flex; align-items:center; gap:4px; flex-wrap:wrap; min-width:30px}
+.rot-ic{width:34px; height:34px; border-radius:50%}
+.rot-pl{font-size:11px; letter-spacing:.04em; text-transform:uppercase; border:1px solid var(--c); color:var(--c); border-radius:999px; padding:5px 9px}
+.rot-ar{font-style:normal; color:var(--muted); font-size:16px}
+.rot-t{font-size:13px; line-height:1.4}
+.rot-note{margin:10px 2px 0; font-size:13px; line-height:1.45; color:var(--muted)}
+@media (max-width:480px){ .rot li{grid-template-columns:26px 1fr} .rot-t{grid-column:1 / -1} .skills.skx .sk-ic{width:40px; height:40px} }
 footer{margin-top:40px; color:var(--muted); font-size:12.5px; text-align:center}
 
 /* фильтр */

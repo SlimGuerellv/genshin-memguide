@@ -496,12 +496,23 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     return foldSec('team', 'Команды', `<div class="teams">${c.teams.map(team).join('')}</div>`, 'tsec');
   }
   $('sheet').addEventListener('keydown', ev => { if ((ev.key === 'Enter' || ev.key === ' ') && ev.target.matches('.fold > h3')){ ev.preventDefault(); foldToggle(ev.target); } });
+  // ротация: шаги с иконками навыков (ch.rot = [{s:['e','a','pl','q'], t:'...'}], ch.rotn — примечание)
+  const ROTIC = {a:'sk_varesa_a.webp?v=1', e:'sk_varesa_e.webp?v=1', q:'sk_varesa_q.webp?v=1'};
+  function rotSec(ch){
+    if (!ch.rot || !ch.rot.length) return '';
+    const chip = k => k === 'pl' ? `<span class="rot-pl">Планж</span>` : `<img class="rot-ic" src="${ROTIC[k]}" alt="${k==='e'?'Е':k==='q'?'Q':'Тычка'}">`;
+    const steps = ch.rot.map((r,i)=>`<li><span class="rot-n">${i+1}</span><span class="rot-ch">${(r.s||[]).map(chip).join('<i class="rot-ar">›</i>')}</span><span class="rot-t">${esc(r.t)}</span></li>`).join('');
+    return foldSec('rot', 'Ротация', `<ol class="rot">${steps}</ol>${ch.rotn ? `<p class="rot-note">${esc(ch.rotn)}</p>` : ''}`);
+  }
   function openSheet(i, from){
     const ch = CHARS[i], el = elOf(ch); lastFocus = from;
     const tags = ch.e==='Любая'
       ? ELEMENTS.slice(1).map(e=>`<span class="tag" style="--tc:${e.c}">${icon(e)}${e.name}</span>`).join('')
       : `<span class="tag">${icon(el)}${esc(ch.e)}</span>`;
-    const skills = ch.sk && ch.sk.length
+    const skills = ch.skx && ch.skx.length
+      ? `<ul class="skills skx">${ch.skx.map(s=>`<li><img class="sk-ic" src="${esc(s.ic)}" alt="" loading="lazy"><span class="sk-tx"><b>${esc(s.n)}</b><span>${esc(s.t||'')}</span></span><span class="prio"><small>ПРИОР.</small>${s.p}</span></li>`).join('')}</ul>`
+        + (ch.skn && ch.skn.length ? `<ul class="sk-notes">${ch.skn.map(n=>`<li>${esc(n)}</li>`).join('')}</ul>` : '')
+      : ch.sk && ch.sk.length
       ? `<ul class="skills">${ch.sk.map(s=>{ const m = s.match(/^(.*?)\s*—\s*(\d+)\s*$/);
           return m ? `<li><span class="prio"><small>ПРИОР.</small>${m[2]}</span><span>${esc(m[1])}</span></li>` : `<li><span>${esc(s)}</span></li>`; }).join('')}</ul>`
       : `<p class="none">Пока не заполнено</p>`;
@@ -524,6 +535,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
          ${artSec(ch)}
          ${teamSec(ch)}
         ${foldSec('skills', 'Навыки', skills)}
+        ${rotSec(ch)}
         <div class="sec cmt" id="cmt"></div>
       </div>
       </div>`;
