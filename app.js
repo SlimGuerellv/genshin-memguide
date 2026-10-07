@@ -1349,3 +1349,38 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
   })();
   document.addEventListener('click', e => { const b = e.target.closest('.artlink, .artlink-alt'); if (b && window.openArtSet) window.openArtSet(b.dataset.set, b, b.dataset.who); });
 })();
+
+/* ===== «Что нового»: кнопка и окно журнала обновлений (данные — news.js, window.HVNEWS) ===== */
+(function(){
+  const NEWS = window.HVNEWS; if (!Array.isArray(NEWS) || !NEWS.length) return;
+  const KEY = 'hv_news_seen';
+  const LS = { get(){ try { return localStorage.getItem(KEY); } catch(e){ return null; } }, set(v){ try { localStorage.setItem(KEY, v); } catch(e){} } };
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const seen = LS.get();
+  let unread = seen == null ? NEWS.length : NEWS.findIndex(n => n.id === seen);   // сколько записей новее последней виденной
+  if (unread < 0) unread = NEWS.length;
+  const btn = document.createElement('button');
+  btn.type = 'button'; btn.id = 'newsBtn'; btn.className = 'news-btn'; btn.setAttribute('aria-label', 'Что нового'); btn.title = 'Что нового';
+  btn.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 2.5l2.2 6.3 6.3 2.2-6.3 2.2L12 19.5l-2.2-6.3L3.5 11l6.3-2.2z" fill="currentColor"/><path d="M19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9z" fill="currentColor" opacity=".7"/></svg><span class="news-lb">Что нового</span><i class="news-dot" aria-hidden="true"></i>';
+  btn.classList.toggle('has-new', unread > 0);
+  const ov = document.createElement('div'); ov.className = 'news-ov'; ov.hidden = true;
+  ov.innerHTML = '<div class="news-sheet" role="dialog" aria-modal="true" aria-labelledby="newsTitle"><button class="close" type="button" aria-label="Закрыть">×</button><h2 id="newsTitle">Что нового</h2><div class="news-body"></div></div>';
+  const body = ov.querySelector('.news-body');
+  function render(newCount){
+    body.innerHTML = NEWS.map((n, i) => '<section class="news-it' + (i < newCount ? ' is-new' : '') + '"><div class="news-hd"><span class="news-d">' + esc(n.d) + '</span>' + (i < newCount ? '<span class="news-tag">новое</span>' : '') + '</div><h3>' + esc(n.t) + '</h3><ul>' + n.l.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul></section>').join('');
+  }
+  let opener = null;
+  const open = () => { render(unread); opener = document.activeElement; ov.hidden = false; document.documentElement.classList.add('news-open'); body.scrollTop = 0;
+    LS.set(NEWS[0].id); btn.classList.remove('has-new'); const c = ov.querySelector('.close'); c && c.focus(); };
+  const close = () => { if (ov.hidden) return; ov.hidden = true; document.documentElement.classList.remove('news-open'); unread = 0; if (opener && opener.focus) try { opener.focus(); } catch(e){} };
+  btn.addEventListener('click', open);
+  ov.addEventListener('click', e => { if (e.target === ov || e.target.closest('.close')) close(); });
+  addEventListener('keydown', e => { if (e.key === 'Escape' && !ov.hidden){ e.stopImmediatePropagation(); close(); } }, true);
+  // кнопка стоит левее кнопки входа (на главной): ширину кнопки входа берём с неё самой
+  const acct = () => document.getElementById('acctBtn');
+  function place(){ const a = acct(), w = a && a.offsetWidth ? a.offsetWidth : 0, small = innerWidth <= 720;
+    btn.style.right = (w ? (small ? 12 : 14) + w + 10 : (small ? 12 : 14)) + 'px'; }
+  const mount = () => { document.body.appendChild(btn); document.body.appendChild(ov); place(); const a = acct(); if (a && window.ResizeObserver) new ResizeObserver(place).observe(a); addEventListener('resize', place); };
+  if (document.body) mount(); else addEventListener('DOMContentLoaded', mount);
+  window.addEventListener('load', place);
+})();
