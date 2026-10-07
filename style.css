@@ -1872,3 +1872,14 @@ html.fromwhite body{background-color:#fffaf0}
 .snd-toast.show{opacity:1; transform:none}
 .snd-toast-k{font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted)}
 .snd-toast b{font-size:15px; font-weight:600; color:#f1ecdf; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+
+/* ===== Плашка громкости слита с плашкой плеера: общий контур, растёт вверх из кнопки динамика ===== */
+.snd .sp-pop{z-index:-1; right:-1px; bottom:-1px; width:50px; height:236px; padding:12px 0 60px; border-radius:25px; box-sizing:border-box;
+  background:rgb(20 26 44 / .96); border:1px solid rgb(217 178 90 / .55); box-shadow:0 10px 24px rgb(0 0 0 / .45)}
+.snd .sp-pop::after{display:none}
+@media (max-width:720px){ .snd .sp-pop{right:-1px; width:46px; padding-bottom:56px; border-radius:23px} }
+
+/* ===== Кнопка входа — в правом верхнем углу; плашка с названием трека — под ней ===== */
+.acct-btn{top:14px; right:14px; bottom:auto; max-width:calc(100vw - 28px)}
+.snd-toast{top:76px}
+@media (max-width:720px){ .acct-btn{top:12px; right:12px; bottom:auto; max-width:calc(100vw - 24px)} .snd-toast{top:66px; right:12px} }
