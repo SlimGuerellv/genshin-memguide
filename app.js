@@ -999,7 +999,6 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     try { if (sessionStorage.getItem('hv_lite') === '1') lite = true; } catch(e){}
     let nF = 0, nM = 0, sumDt = 0;   // замер реальной частоты кадров canvas-цикла: если ниже ~40 fps — отключаем паралакс
     function goLite(){ lite = true; try { sessionStorage.setItem('hv_lite','1'); } catch(e){}
-      window.hvLow && window.hvLow();   // на слабом ПК заодно переходим с 1080p на 720p
       if (raf){ cancelAnimationFrame(raf); raf = 0; } last = 0; W.classList.remove('cv'); cv.width = cv.height = 1; }
     if (fine && !reduce) addEventListener('pointermove', e=>{ if (e.pointerType!=='mouse') return; tx = (e.clientX/innerWidth-.5)*-2; ty = (e.clientY/innerHeight-.5)*-2; }, {passive:true});
     function size(){ const d = Math.min(1.5, devicePixelRatio||1), w = Math.round(innerWidth*d), h = Math.round(innerHeight*d); if (w!==W0||h!==H0){ cv.width = W0 = w; cv.height = H0 = h; } }
