@@ -1016,8 +1016,15 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     function fadeOut(t){ if (!t) return;
       if (t.g){ t.g.gain.setTargetAtTime(0, ctx.currentTime, .35); t.s.onended = null; setTimeout(()=>{ try { t.s.stop(); } catch(e){} }, 1800); }
       else if (t.el){ const el = t.el; el.onended = null; let v = el.volume; const iv = setInterval(()=>{ v -= .05; if (v <= 0){ clearInterval(iv); el.pause(); } else el.volume = v; }, 60); } }
+    // название трека: плашка в правом верхнем углу, показывается 10 секунд после начала песни
+    let toast = null, toastT = 0;
+    function showTitle(name){ const txt = TITLES[name] || name; if (!txt) return;
+      if (!toast){ toast = document.createElement('div'); toast.className = 'snd-toast'; toast.setAttribute('aria-live', 'polite'); toast.innerHTML = '<span class="snd-toast-k">Сейчас играет</span><b></b>'; document.body.appendChild(toast); }
+      toast.querySelector('b').textContent = txt; void toast.offsetWidth; toast.classList.add('show');
+      clearTimeout(toastT); toastT = setTimeout(() => toast.classList.remove('show'), 10000); }
     async function play(name, loop, noHist){
       const my = ++token, old = cur; cur = null; curName = name; curLoop = loop; ui();
+      if (!paused) showTitle(name);
       if (!noHist && hist[hist.length - 1] !== name){ hist.push(name); if (hist.length > 40) hist.shift(); }
       if (!useEl){
         try {

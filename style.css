@@ -1864,3 +1864,11 @@ html.fromwhite body{background-color:#fffaf0}
 }
 .snd.open .sp-pop{opacity:1; visibility:visible; transform:none; transition:opacity .15s, transform .15s, visibility 0s}
 @media (max-width:720px){ .snd .sp-pop{right:3px} }
+
+/* ===== Название трека: плашка в правом верхнем углу (10 сек после начала песни) ===== */
+.snd-toast{position:fixed; top:14px; right:14px; z-index:90; max-width:min(70vw,300px); display:flex; flex-direction:column; gap:2px; padding:9px 18px 10px; border-radius:14px;
+  background:rgb(20 26 44 / .92); border:1px solid rgb(217 178 90 / .55); box-shadow:0 8px 24px rgb(0 0 0 / .5); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+  opacity:0; transform:translateY(-12px); pointer-events:none; transition:opacity .35s, transform .35s}
+.snd-toast.show{opacity:1; transform:none}
+.snd-toast-k{font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted)}
+.snd-toast b{font-size:15px; font-weight:600; color:#f1ecdf; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
