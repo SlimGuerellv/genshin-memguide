@@ -498,11 +498,12 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
   $('sheet').addEventListener('keydown', ev => { if ((ev.key === 'Enter' || ev.key === ' ') && ev.target.matches('.fold > h3')){ ev.preventDefault(); foldToggle(ev.target); } });
   // раздел справа: кнопки в карточке (Команды / Навыки / Ротация), панель выезжает справа, карточка уезжает влево
   let spKey = null, spCh = null, spSkills = '';
-  const SPT = {team:'Команды', skills:'Навыки', rot:'Ротация'};
-  const spHas = (k, ch) => k === 'team' ? !!teamBody(ch) : k === 'rot' ? !!(ch.rot && ch.rot.length) : true;
-  const spBtns = ch => `<div class="sbtns" role="group" aria-label="Разделы">${['team','skills','rot'].filter(k => spHas(k, ch)).map(k =>
+  const SPT = {team:'Команды', skills:'Навыки', rot:'Ротация', syn:'Синергия'};
+  const isNat = ch => ch.reg === 'Натлан' || ch.reg2 === 'Натлан';
+  const spHas = (k, ch) => k === 'team' ? !!teamBody(ch) : k === 'rot' ? !!(ch.rot && ch.rot.length) : k === 'syn' ? isNat(ch) : true;
+  const spBtns = ch => `<div class="sbtns" role="group" aria-label="Разделы">${['team','skills','rot','syn'].filter(k => spHas(k, ch)).map(k =>
     `<button type="button" class="sbtn" data-sp="${k}" aria-pressed="false"><span>${SPT[k]}</span><i class="sbtn-ar" aria-hidden="true"></i></button>`).join('')}</div>`;
-  const spBody = (k, ch) => k === 'team' ? `<div class="sec tsec">${teamBody(ch)}</div>` : k === 'rot' ? rotBody(ch) : spSkills;
+  const spBody = (k, ch) => k === 'team' ? `<div class="sec tsec">${teamBody(ch)}</div>` : k === 'rot' ? rotBody(ch) : k === 'syn' ? synBody(ch) : spSkills;
   function spRender(ch){
     const ov = $('overlay'), p = $('spanel'); if (!p) return;
     if (spKey && !spHas(spKey, ch)) spKey = null;
@@ -512,6 +513,25 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     $('spTitle').textContent = SPT[spKey]; $('spBody').innerHTML = spBody(spKey, ch); $('spBody').scrollTop = 0;
     p.style.setProperty('--sph', $('sheet').offsetHeight + 'px');
     ov.classList.add('sp-open'); p.setAttribute('aria-hidden', 'false');
+  }
+  // «Синергия» у натланцев: что такое Ночной дух простыми словами
+  const NSOUL = [
+    ['Что это такое', 'Ночной дух — особый «ночной режим» героев Натлана. Включил его — и герой быстрее двигается, умеет то, чего в обычном состоянии не умеет, а его навыки работают иначе. Есть он только у натланцев.'],
+    ['Как его включить', 'Нажать элементальный навык (Е). Герой входит в состояние <b>Благословение Ночного духа</b>: светится контур, появляются узоры, слева от персонажа возникает шкала. У Кинича боевой режим идёт сразу, без этого шага.'],
+    ['Очки — это «топливо»', 'Шкала слева — <b>очки Ночного духа</b>. Они тратятся со временем и на действия режима. Кончились — режим выключается. Запас у всех свой: например, у Муалани и Качины он начинается с 60 очков, у Шилонен — с 45. И пополняют очки по-разному: обычными атаками, навыками, помощью союзников.'],
+    ['Что такое флогистон', 'Запас энергии самого Натлана для открытого мира. Если очки кончились, режим не пропадает сразу: идёт расход флогистона. Пополнить его можно у телепортов и статуй, а также сбором особых жуков и цветков.'],
+    ['Передача Ночного духа', 'В открытом мире, когда переключаешься с одного натланца на другого, быстрый режим перемещения не обрывается. Бежать и скользить можно без остановок.'],
+    ['Вспышка Ночного духа', 'Это «автобонус». Когда натланец наносит элементальный урон, срабатывает особый эффект: какой именно — зависит от героя, его талантов и артефактов. Включается сам, но не чаще, чем позволяет откат.']
+  ];
+  const NSCD = [['1 натланец','18 сек'],['2 натланца','12 сек'],['3 и больше','9 сек']];
+  function synBody(ch){
+    return `<div class="syn">${NSOUL.map(([h,t]) => `<div class="syn-c"><h4>${h}</h4><p>${t}</p></div>`).join('')}
+      <div class="syn-c syn-key"><h4>Синергия: зачем собирать натланцев вместе</h4>
+        <p>Откат Вспышки зависит от числа натланцев в отряде. Чем их больше, тем чаще срабатывают бонусы:</p>
+        <div class="syn-cd">${NSCD.map(([w,s]) => `<div><b>${s}</b><span>${w}</span></div>`).join('')}</div>
+        <p>С тремя натланцами Вспышка срабатывает вдвое чаще, чем с одним, и бонусы от талантов и артефактов работают почти без перерывов. Поэтому натланцы так хорошо дружат друг с другом.</p></div>
+      ${ch.synn ? `<div class="syn-c syn-me"><h4>У ${esc(ch.n)}</h4><p>${esc(ch.synn)}</p></div>` : ''}
+      <p class="syn-src">Цифры по состоянию на текущие версии игры, их могут менять в обновлениях.</p></div>`;
   }
   // ротация: шаги с иконками навыков (ch.rot = [{s:['e','a','pl','q'], t:'...'}], ch.rotn — примечание)
   const ROTIC = {a:'sk_varesa_a.webp?v=1', e:'sk_varesa_e.webp?v=1', q:'sk_varesa_q.webp?v=1'};
