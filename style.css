@@ -2028,3 +2028,8 @@ html.fromwhite body{background-color:#fffaf0}
 .news-it h3{margin:4px 0 6px; font:400 17px/1.2 var(--display)}
 .news-it ul{margin:0; padding-left:18px; display:grid; gap:4px; font-size:14px; line-height:1.4}
 .news-open body{overflow:hidden}
+
+/* два постера в карточке: второй плавно проявляется поверх первого и снова исчезает */
+.side-art .sa2{position:absolute; inset:0; background:no-repeat center top / contain; border-radius:inherit; opacity:0; animation:saFade 10s ease-in-out infinite}
+@keyframes saFade{0%,32%{opacity:0} 48%,82%{opacity:1} 98%,100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){ .side-art .sa2{animation:none} }

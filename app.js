@@ -498,12 +498,12 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
   $('sheet').addEventListener('keydown', ev => { if ((ev.key === 'Enter' || ev.key === ' ') && ev.target.matches('.fold > h3')){ ev.preventDefault(); foldToggle(ev.target); } });
   // раздел справа: кнопки в карточке (Команды / Навыки / Ротация), панель выезжает справа, карточка уезжает влево
   let spKey = null, spCh = null, spSkills = '';
-  const SPT = {team:'Команды', skills:'Навыки', rot:'Ротация', con:'Созвездия', syn:'Синергия'};
+  const SPT = {team:'Команды', skills:'Навыки', rot:'Ротация', wp:'Оружие', con:'Созвездия', syn:'Синергия'};
   const isNat = ch => ch.reg === 'Натлан' || ch.reg2 === 'Натлан';
-  const spHas = (k, ch) => k === 'team' ? !!teamBody(ch) : k === 'rot' ? !!(ch.rot && ch.rot.length) : k === 'con' ? !!(ch.con && ch.con.length) : k === 'syn' ? isNat(ch) : true;
-  const spBtns = ch => `<div class="sbtns" role="group" aria-label="Разделы">${['team','skills','rot','con','syn'].filter(k => spHas(k, ch)).map(k =>
+  const spHas = (k, ch) => k === 'team' ? !!teamBody(ch) : k === 'rot' ? !!(ch.rot && ch.rot.length) : k === 'wp' ? !!(ch.wp && ch.wp.length) : k === 'con' ? !!(ch.con && ch.con.length) : k === 'syn' ? isNat(ch) : true;
+  const spBtns = ch => `<div class="sbtns" role="group" aria-label="Разделы">${['team','skills','rot','wp','con','syn'].filter(k => spHas(k, ch)).map(k =>
     `<button type="button" class="sbtn${k === 'syn' ? ' ns' : ''}" data-sp="${k}" aria-pressed="false"><span>${SPT[k]}</span><i class="sbtn-ar" aria-hidden="true"></i></button>`).join('')}</div>`;
-  const spBody = (k, ch) => k === 'team' ? `<div class="sec tsec">${teamBody(ch)}</div>` : k === 'rot' ? rotBody(ch) : k === 'con' ? conBody(ch) : k === 'syn' ? synBody(ch) : spSkills;
+  const spBody = (k, ch) => k === 'team' ? `<div class="sec tsec">${teamBody(ch)}</div>` : k === 'rot' ? rotBody(ch) : k === 'wp' ? wpBody(ch) : k === 'con' ? conBody(ch) : k === 'syn' ? synBody(ch) : spSkills;
   function spRender(ch){
     const ov = $('overlay'), p = $('spanel'); if (!p) return;
     if (spKey && !spHas(spKey, ch)) spKey = null;
@@ -564,6 +564,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
   }
   // ротация: шаги с иконками навыков (ch.rot = [{s:['e','a','pl','q'], t:'...'}], ch.rotn — примечание)
   const ROTIC = {a:'sk_varesa_a.webp?v=1', e:'sk_varesa_e.webp?v=1', q:'sk_varesa_q.webp?v=1'};
+  function wpBody(ch){ return `<div class="syn">${ch.wp.map(x => `<div class="syn-c"><h4>${x.r ? x.r + '. ' : ''}${esc(x.n)}</h4><p>${esc(x.t)}</p></div>`).join('')}${ch.wpn ? `<div class="syn-c syn-key"><h4>Разрыв между оружием</h4><p>${esc(ch.wpn)}</p></div>` : ''}</div>`; }
   function conBody(ch){ return `<div class="syn">${ch.con.map(x => `<div class="syn-c"><h4>${esc(x.c)}</h4><p>${esc(x.t)}</p></div>`).join('')}</div>`; }
   function rotBody(ch){
     if (!ch.rot || !ch.rot.length) return '';
@@ -578,7 +579,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
       ? ELEMENTS.slice(1).map(e=>`<span class="tag" style="--tc:${e.c}">${icon(e)}${e.name}</span>`).join('')
       : `<span class="tag">${icon(el)}${esc(ch.e)}</span>`;
     const skills = ch.skx && ch.skx.length
-      ? `<ul class="skills skx">${ch.skx.map(s=>`<li>${s.ic ? `<img class="sk-ic" src="${esc(s.ic)}" alt="" loading="lazy">` : ''}<span class="sk-tx"><b>${esc(s.n)}</b><span>${esc(s.t||'')}</span></span><span class="prio"><small>ПРИОР.</small>${s.p}</span></li>`).join('')}</ul>`
+      ? `<ul class="skills skx">${ch.skx.map(s=>`<li>${s.ic ? `<img class="sk-ic" src="${esc(s.ic)}" alt="" loading="lazy">` : ''}<span class="sk-tx"><b>${esc(s.n)}</b><span>${esc(s.t||'')}</span></span>${s.pas ? `<span class="prio pas"><small>ПАССИВ</small></span>` : `<span class="prio"><small>ПРИОР.</small>${s.p}</span>`}</li>`).join('')}</ul>`
         + (ch.skn && ch.skn.length ? `<ul class="sk-notes">${ch.skn.map(n=>`<li>${esc(n)}</li>`).join('')}</ul>` : '')
       : ch.sk && ch.sk.length
       ? `<ul class="skills">${ch.sk.map(s=>{ const m = s.match(/^(.*?)\s*—\s*(\d+)\s*$/);
@@ -589,7 +590,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     $('sheet').classList.toggle('hasside', !!(ARTS.chars && ARTS.chars[ch.n] && ARTS.chars[ch.n].side));
     $('sheet').innerHTML = `
       <button class="close" type="button" id="close" aria-label="Закрыть">×</button>
-      ${(() => { const sd = ARTS.chars && ARTS.chars[ch.n] && ARTS.chars[ch.n].side; return sd ? `<div class="side-art" aria-hidden="true" style="background-image:url('${esc(sd)}')"></div>` : ''; })()}
+      ${(() => { const sd = ARTS.chars && ARTS.chars[ch.n] && ARTS.chars[ch.n].side, s2 = sd && ARTS.chars[ch.n].side2; return sd ? `<div class="side-art" aria-hidden="true" style="background-image:url('${esc(sd)}')">${s2 ? `<div class="sa2" style="background-image:url('${esc(s2)}')"></div>` : ''}</div>` : ''; })()}
       <div class="sheet-sc">
       <div class="sheet-head">
         ${(ARTS.chars && ARTS.chars[ch.n] && ARTS.chars[ch.n].side) ? `<div class="sheet-av"><img src="${ch.img}" alt="${esc(ch.n)}"></div>` : `<div class="strip"><span style="--len:${ch.n.length}">${esc(ch.n)}</span></div>`}
