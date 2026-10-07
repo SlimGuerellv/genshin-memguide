@@ -334,7 +334,7 @@
       const mem = navigator.deviceMemory || 4, mts = ren.capabilities.maxTextureSize, scr = Math.max(screen.width, screen.height) * (devicePixelRatio || 1);
       const TQ = MOB || mts < 8192 ? '2k' : (mts >= 16384 && mem >= 8 && scr > 1800 ? '16k' : '8k');   // новый глобус по официальной карте v7.1.50: 16k ПК / 8k средний / 2k телефон
       const tex = tl.load('gearth' + TQ + '.jpg?v=20'); tex.anisotropy = Math.min(8, ren.capabilities.getMaxAnisotropy());
-      const landT = tl.load('gland' + TQ + '.png?v=20'), cloudT = tl.load('gcloud.png?v=20'); cloudT.minFilter = T.LinearFilter; cloudT.generateMipmaps = false;
+      const landT = tl.load('gland' + TQ + '.png?v=20'), cloudT = tl.load('gcloud.png?v=21'); cloudT.minFilter = T.LinearFilter; cloudT.generateMipmaps = false;
       const ridT = tl.load((TQ === '2k' ? 'grid.png' : 'grid8k.png') + '?v=21'); ridT.minFilter = ridT.magFilter = T.NearestFilter; ridT.generateMipmaps = false;
       // карта регионов для клика (на процессоре)
       let RID = null; const ri = new Image(); ri.onload = () => { const c = document.createElement('canvas'); c.width = ri.width; c.height = ri.height;
