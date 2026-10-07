@@ -502,7 +502,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
   const isNat = ch => ch.reg === 'Натлан' || ch.reg2 === 'Натлан';
   const spHas = (k, ch) => k === 'team' ? !!teamBody(ch) : k === 'rot' ? !!(ch.rot && ch.rot.length) : k === 'syn' ? isNat(ch) : true;
   const spBtns = ch => `<div class="sbtns" role="group" aria-label="Разделы">${['team','skills','rot','syn'].filter(k => spHas(k, ch)).map(k =>
-    `<button type="button" class="sbtn" data-sp="${k}" aria-pressed="false"><span>${SPT[k]}</span><i class="sbtn-ar" aria-hidden="true"></i></button>`).join('')}</div>`;
+    `<button type="button" class="sbtn${k === 'syn' ? ' ns' : ''}" data-sp="${k}" aria-pressed="false"><span>${SPT[k]}</span><i class="sbtn-ar" aria-hidden="true"></i></button>`).join('')}</div>`;
   const spBody = (k, ch) => k === 'team' ? `<div class="sec tsec">${teamBody(ch)}</div>` : k === 'rot' ? rotBody(ch) : k === 'syn' ? synBody(ch) : spSkills;
   function spRender(ch){
     const ov = $('overlay'), p = $('spanel'); if (!p) return;
