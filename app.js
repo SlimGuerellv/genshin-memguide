@@ -468,7 +468,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
   let lastFocus = null;
   const ARTS = HVJ('artsdata');
   function sec(title, val){
-    return `<div class="sec"><h3>${title}</h3>${val ? `<p>${esc(val)}</p>` : `<p class="none">Пока не заполнено</p>`}</div>`;
+    return val ? `<div class="sec"><h3>${title}</h3><p>${esc(val)}</p></div>` : '';
   }
   const SLOTN = {flower:'Цветок',plume:'Перо',sands:'Часы',goblet:'Кубок',circlet:'Корона'};
   function artSec(ch){
