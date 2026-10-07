@@ -488,24 +488,41 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
   const foldToggle = h => { const s = h.closest('.fold'); if (!s) return; const shut = s.classList.toggle('shut'); h.setAttribute('aria-expanded', String(!shut));
     shut ? FOLD.add(s.dataset.fold) : FOLD.delete(s.dataset.fold); foldSave(); };
   const TROLE = {main:'Мейн ДД', sub:'Саб-ДД', sup:'Саппорт'};
-  function teamSec(ch){
+  function teamBody(ch){
     const c = ARTS.chars && ARTS.chars[ch.n]; if (!c || !c.teams || !c.teams.length) return '';
     const team = (tm, k) => { const top = (c.top || []).indexOf(k) + 1; return `<div class="team${top ? ' top' : ''}">${top ? `<span class="team-top">★ TOP ${top}</span>` : ''}${tm.map(m => { const p = CHARS.find(x => x.n === m[0]); if (!p) return '';
       const e = byName[p.e] || ANY, cur = m[0] === ch.n;
       return `<button type="button" class="tm${m[1] === 'main' ? ' main' : ''}" data-tm="${esc(m[0])}" style="--tc:${e.c}"${cur ? ' disabled style="--tc:' + e.c + ';cursor:default"' : ''}><span class="tm-av"><img class="p" src="${p.img}" alt="${esc(m[0])}" loading="lazy" decoding="async">${e.emoji ? '' : `<span class="tm-el">${icon(e)}</span>`}${m[2] ? `<span class="tm-c">${esc(m[2])}</span>` : ''}</span><span class="tm-r">${TROLE[m[1]] || ''}</span><span class="tm-n">${esc(m[0])}</span><span class="tm-e">${esc(p.e)}</span></button>`; }).join('')}</div>`; };
-    return foldSec('team', 'Команды', `<div class="teams">${c.teams.map(team).join('')}</div>`, 'tsec');
+    return `<div class="teams">${c.teams.map(team).join('')}</div>`;
   }
   $('sheet').addEventListener('keydown', ev => { if ((ev.key === 'Enter' || ev.key === ' ') && ev.target.matches('.fold > h3')){ ev.preventDefault(); foldToggle(ev.target); } });
+  // раздел справа: кнопки в карточке (Команды / Навыки / Ротация), панель выезжает справа, карточка уезжает влево
+  let spKey = null, spCh = null, spSkills = '';
+  const SPT = {team:'Команды', skills:'Навыки', rot:'Ротация'};
+  const spHas = (k, ch) => k === 'team' ? !!teamBody(ch) : k === 'rot' ? !!(ch.rot && ch.rot.length) : true;
+  const spBtns = ch => `<div class="sbtns" role="group" aria-label="Разделы">${['team','skills','rot'].filter(k => spHas(k, ch)).map(k =>
+    `<button type="button" class="sbtn" data-sp="${k}" aria-pressed="false"><span>${SPT[k]}</span><i class="sbtn-ar" aria-hidden="true"></i></button>`).join('')}</div>`;
+  const spBody = (k, ch) => k === 'team' ? `<div class="sec tsec">${teamBody(ch)}</div>` : k === 'rot' ? rotBody(ch) : spSkills;
+  function spRender(ch){
+    const ov = $('overlay'), p = $('spanel'); if (!p) return;
+    if (spKey && !spHas(spKey, ch)) spKey = null;
+    $('sheet').querySelectorAll('.sbtn').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.sp === spKey)));
+    if (!spKey){ ov.classList.remove('sp-open'); p.setAttribute('aria-hidden', 'true'); return; }
+    p.style.setProperty('--c', elOf(ch).c);
+    $('spTitle').textContent = SPT[spKey]; $('spBody').innerHTML = spBody(spKey, ch); $('spBody').scrollTop = 0;
+    p.style.setProperty('--sph', $('sheet').offsetHeight + 'px');
+    ov.classList.add('sp-open'); p.setAttribute('aria-hidden', 'false');
+  }
   // ротация: шаги с иконками навыков (ch.rot = [{s:['e','a','pl','q'], t:'...'}], ch.rotn — примечание)
   const ROTIC = {a:'sk_varesa_a.webp?v=1', e:'sk_varesa_e.webp?v=1', q:'sk_varesa_q.webp?v=1'};
-  function rotSec(ch){
+  function rotBody(ch){
     if (!ch.rot || !ch.rot.length) return '';
     const chip = k => k === 'pl' ? `<span class="rot-pl">Планж</span>` : `<img class="rot-ic" src="${ROTIC[k]}" alt="${k==='e'?'Е':k==='q'?'Q':'Тычка'}">`;
     const steps = ch.rot.map((r,i)=>`<li><span class="rot-n">${i+1}</span><span class="rot-ch">${(r.s||[]).map(chip).join('<i class="rot-ar">›</i>')}</span><span class="rot-t">${esc(r.t)}</span></li>`).join('');
-    return foldSec('rot', 'Ротация', `<ol class="rot">${steps}</ol>${ch.rotn ? `<p class="rot-note">${esc(ch.rotn)}</p>` : ''}`);
+    return `<ol class="rot">${steps}</ol>${ch.rotn ? `<p class="rot-note">${esc(ch.rotn)}</p>` : ''}`;
   }
-  function openSheet(i, from){
-    const ch = CHARS[i], el = elOf(ch); lastFocus = from;
+  function openSheet(i, from, keepSp){
+    const ch = CHARS[i], el = elOf(ch); lastFocus = from; if (!keepSp) spKey = null; spCh = ch;
     const tags = ch.e==='Любая'
       ? ELEMENTS.slice(1).map(e=>`<span class="tag" style="--tc:${e.c}">${icon(e)}${e.name}</span>`).join('')
       : `<span class="tag">${icon(el)}${esc(ch.e)}</span>`;
@@ -533,25 +550,30 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
         ${ch.no ? `<div class="sec"><h3>Примечание</h3><p>${esc(ch.no)}</p></div>` : ''}
         ${sec('Нужные статы', ch.st)}
          ${artSec(ch)}
-         ${teamSec(ch)}
-        ${foldSec('skills', 'Навыки', skills)}
-        ${rotSec(ch)}
+        ${spBtns(ch)}
         <div class="sec cmt" id="cmt"></div>
       </div>
       </div>`;
+    spSkills = skills;
     $('overlay').hidden = false;
+    spRender(ch);
     window.dispatchEvent(new CustomEvent('hv:sheet', {detail:{name: ch.n}}));   // комментарии (модуль аккаунтов)
     fitNames($('sheet'));
     $('close').focus();
   }
   $('sheet').addEventListener('click', ev=>{
     const fh = ev.target.closest('.fold > h3'); if (fh){ foldToggle(fh); return; }
+    const sb = ev.target.closest('.sbtn'); if (sb){ sfx(SFX_PICK); spKey = spKey === sb.dataset.sp ? null : sb.dataset.sp; spRender(spCh); return; }
     const tb = ev.target.closest('.tm'); if (tb && !tb.disabled){ const j = CHARS.findIndex(c => c.n === tb.dataset.tm); if (j >= 0){ sfx(SFX_OPEN); openSheet(j, tb); } return; }
     const b = ev.target.closest('.mypb'); if (!b) return;
     const ch = CHARS.find(c=>c.n===$('sheet-name').textContent); if (!ch) return;
     setSt(ch, b.dataset.st);
     $('sheet').querySelectorAll('.mypb').forEach(x=>x.setAttribute('aria-pressed', String(x.dataset.st===stOf(ch))));
     render();
+  });
+  $('spanel').addEventListener('click', ev => {
+    if (ev.target.closest('.sp-x')){ sfx(SFX_CLOSE); spKey = null; spRender(spCh); return; }
+    const tb = ev.target.closest('.tm'); if (tb && !tb.disabled){ const j = CHARS.findIndex(c => c.n === tb.dataset.tm); if (j >= 0){ sfx(SFX_OPEN); openSheet(j, tb, true); } }
   });
   // перенос коллекции кодом
   const enc = o => btoa(unescape(encodeURIComponent(JSON.stringify(o))));
@@ -565,7 +587,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
   let resetArm = 0;
   $('myreset').addEventListener('click', ()=>{ if (Date.now()-resetArm > 3000){ resetArm = Date.now(); msg('Нажми ещё раз, чтобы стереть все отметки'); return; }
     COLL = {}; saveColl(); $('mycode').value = enc(COLL); render(); msg('Отметки сброшены'); });
-  function closeSheet(){ window.dispatchEvent(new Event('hv:sheetclose')); $('overlay').hidden = true; $('overlay').classList.remove('onrp'); if (lastFocus) lastFocus.focus(); }
+  function closeSheet(){ window.dispatchEvent(new Event('hv:sheetclose')); spKey = null; $('overlay').hidden = true; $('overlay').classList.remove('onrp', 'sp-open'); if (lastFocus) lastFocus.focus(); }
   // коллекция для модуля аккаунтов (Firebase): прочитать / заменить целиком
   window.collApi = { get: () => ({...COLL}), set: o => { COLL = {...o}; saveColl(true); render();
     const nm = !$('overlay').hidden && $('sheet-name'); if (nm){ const ch = CHARS.find(c=>c.n===nm.textContent); if (ch) $('sheet').querySelectorAll('.mypb').forEach(x=>x.setAttribute('aria-pressed', String(x.dataset.st===stOf(ch)))); } } };
@@ -573,7 +595,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
   window.openChar = (name, from) => { const i = CHARS.findIndex(c => c.n === name); if (i < 0) return false;
     sfx(SFX_OPEN); openSheet(i, from || document.activeElement); $('overlay').classList.add('onrp'); return true; };
   $('overlay').addEventListener('click', ev=>{ if (ev.target.closest('#close') || ev.target.id==='overlay'){ sfx(SFX_CLOSE); closeSheet(); } });
-  document.addEventListener('keydown', ev=>{ if (ev.key==='Escape' && !$('overlay').hidden){ ev.stopImmediatePropagation(); sfx(SFX_CLOSE); closeSheet(); } });
+  document.addEventListener('keydown', ev=>{ if (ev.key==='Escape' && !$('overlay').hidden){ ev.stopImmediatePropagation(); sfx(SFX_CLOSE); if (spKey){ spKey = null; spRender(spCh); } else closeSheet(); } });
 
   // подгоняем вертикальные имена, чтобы не вылезали за полоску
   function fitNames(root){
