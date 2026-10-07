@@ -1851,3 +1851,16 @@ html.fromwhite body{background-color:#fffaf0}
 .sheet .fold>h3 .fold-ar{width:9px;height:9px;margin:-4px 4px 0 0;color:var(--gold)}
 .sheet .fold.shut>h3 .fold-ar{margin-top:0}
 .sheet .fold:not(.shut)>h3{border-color:var(--gold)}
+
+/* ===== Плеер: при наведении на динамик вылезает вертикальный ползунок; клик по динамику — mute ===== */
+.snd .sp-pop{right:4px; bottom:calc(100% + 6px); width:46px; height:176px; padding:12px 0 14px; border-radius:23px; display:flex; flex-direction:column; align-items:center; gap:8px;
+  opacity:0; visibility:hidden; pointer-events:auto; transform:translateY(6px); transition:opacity .2s .3s, transform .2s .3s, visibility 0s .5s}
+.snd .sp-pop::after{height:16px}
+.snd .sp-pop output{flex:none; width:auto; text-align:center; font-size:12.5px; font-weight:700; color:#f1ecdf; font-variant-numeric:tabular-nums}
+.snd .sp-pop input{flex:1; min-height:0; margin:0; width:22px; writing-mode:vertical-lr; direction:rtl; accent-color:#d9b25a; cursor:pointer}
+.snd:hover .sp-pop{opacity:0; visibility:hidden; transform:translateY(6px)}
+@media (hover:hover){
+  .snd #sndBtn:hover ~ .sp-pop, .snd .sp-pop:hover, .snd:focus-within .sp-pop:focus-within{opacity:1; visibility:visible; transform:none; transition:opacity .15s, transform .15s, visibility 0s}
+}
+.snd.open .sp-pop{opacity:1; visibility:visible; transform:none; transition:opacity .15s, transform .15s, visibility 0s}
+@media (max-width:720px){ .snd .sp-pop{right:3px} }
