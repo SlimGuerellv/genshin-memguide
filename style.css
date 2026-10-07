@@ -1176,7 +1176,8 @@ html.v-map .mapv{display:flex}
 .mload.on{opacity:1; visibility:visible}
 .mload video, .mload .mposter{position:absolute; inset:0; width:100%; height:100%; max-width:none; object-fit:cover}
 .mload .mposter{background:#050a14 center/cover no-repeat}
-.mload:is(.on,.hold,.ready,.sw) .mposter{background-image:url(loading.jpg?v=1)}   /* картинка качается, только когда экран загрузки показан */
+.mload:is(.on,.hold,.ready,.sw) .mposter{background-image:url(loading.jpg?v=2)}
+@media (hover:none) and (pointer:coarse) and (orientation:portrait){.mload:is(.on,.hold,.ready,.sw) .mposter{background-image:url(loading_m.jpg?v=2)}}   /* картинка качается, только когда экран загрузки показан */
 .mload .cbox{position:relative; align-self:end; margin-bottom:max(6vh,24px); display:flex; flex-direction:column; align-items:center; gap:20px}
 .mload .done{opacity:0; transform:translateY(6px); transition:opacity .5s ease, transform .5s ease; color:#fff; font-size:clamp(15px,1.8vw,19px); text-align:center;
   text-shadow:0 1px 3px rgb(0 0 0 / .8), 0 0 12px rgb(255 215 120 / .6); min-height:1.5em}

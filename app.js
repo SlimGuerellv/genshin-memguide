@@ -854,7 +854,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
         }, 2800);
       })();
     }
-    document.getElementById('goMap').addEventListener('click', ()=>{ window.gMusic && window.gMusic.leave(); new Image().src = 'loading.jpg?v=1'; fly(mapLoad); });
+    document.getElementById('goMap').addEventListener('click', ()=>{ window.gMusic && window.gMusic.leave(); new Image().src = 'loading.jpg?v=2'; fly(mapLoad); });
     // «Назад» с карты: страница может вернуться из кеша браузера — убираем вспышку и экран загрузки, музыка снова
     addEventListener('pageshow', e => { if (!e.persisted) return; document.getElementById('wflash').classList.remove('go'); flying = false;
       mapGoing = false; ML.classList.remove('on', 'wait'); MROW.classList.remove('breathe'); MV2.pause();
