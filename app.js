@@ -475,7 +475,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     const c = ARTS.chars && ARTS.chars[ch.n]; if (!c) return '';
     const names = [c.s, c.s2].filter(n => n && ARTS.sets[n]); if (!names.length) return '';
     const multi = names.length > 1;
-    const tile = (n, sub) => { const a = ARTS.sets[n], ic = a.img ? `<img src="${esc(a.img)}?v=1" alt="">` : '';
+    const tile = (n, sub) => { const a = ARTS.sets[n], ic = a.img ? `<img src="${esc(a.img)}?v=1" alt="" loading="lazy" decoding="async">` : '';
       return `<button type="button" class="artlink" data-set="${esc(n)}" data-who="${esc(ch.n)}"><span class="artlink-ic">${ic}</span><span class="artlink-tx"><b>${esc(n)}</b><i>${sub}Статы и почему этот сет</i></span><span class="artlink-ar" aria-hidden="true">›</span></button>`; };
     const alt = c.alt && ARTS.sets[c.alt] ? `<div class="art-sep art-or">или</div>${tile(c.alt, 'Полный сет · 4 части · ')}` : '';
     return `<div class="sec asec"><h3>Артефакты${multi ? ' · 2+2' : ''}</h3><div class="artlinks">${names.map(n => tile(n, multi ? '2 части · ' : '')).join('<div class="art-sep art-plus">+</div>')}${alt}</div></div>`;
