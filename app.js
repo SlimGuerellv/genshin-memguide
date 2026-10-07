@@ -565,11 +565,27 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
   // ротация: шаги с иконками навыков (ch.rot = [{s:['e','a','pl','q'], t:'...'}], ch.rotn — примечание)
   const ROTIC = {a:'sk_varesa_a.webp?v=1', e:'sk_varesa_e.webp?v=1', q:'sk_varesa_q.webp?v=1'};
   function wpBody(ch){ return `<div class="syn">${ch.wp.map(x => `<div class="syn-c"><h4>${x.r ? x.r + '. ' : ''}${esc(x.n)}</h4><p>${esc(x.t)}</p></div>`).join('')}${ch.wpn ? `<div class="syn-c syn-key"><h4>Разрыв между оружием</h4><p>${esc(ch.wpn)}</p></div>` : ''}</div>`; }
-  function conBody(ch){ return `<div class="syn">${ch.con.map(x => `<div class="syn-c"><h4>${esc(x.c)}</h4><p>${esc(x.t)}</p></div>`).join('')}</div>`; }
+  // созвездия: фон по стихии, 6 кружков; по клику на кружок показывается описание (ch.con = [{c:'C0',t}, {c:'C1',t,n?,ic?}, ...])
+  const CNSLUG = {'Пиро':'pyro','Гидро':'hydro','Анемо':'anemo','Гео':'geo','Электро':'electro','Дендро':'dendro','Крио':'cryo'};
+  const CNPOS = [[1525,277],[1580,389],[1616,500],[1616,611],[1580,722],[1508,832]].map(([x,y]) => [((x-1380)/520*100).toFixed(2), ((y-215)/680*100).toFixed(2)]);
+  const cnInfo = (ch, i) => { const x = ch.con.find(y => y.c === (i < 0 ? 'C0' : 'C' + (i+1))); if (!x) return '';
+    return `<h4>${i < 0 ? 'Общее' : esc(x.c) + (x.n ? ' · ' + esc(x.n) : '')}</h4><p>${esc(x.t)}</p>`; };
+  function conBody(ch){
+    const slug = CNSLUG[ch.e];
+    if (!slug) return `<div class="syn">${ch.con.map(x => `<div class="syn-c"><h4>${esc(x.c)}</h4><p>${esc(x.t)}</p></div>`).join('')}</div>`;
+    const nodes = CNPOS.map(([l,t], i) => { const x = ch.con.find(y => y.c === 'C' + (i+1)); if (!x) return '';
+      return `<button type="button" class="cn-node" data-i="${i}" aria-pressed="false" aria-label="Созвездие ${i+1}" style="left:${l}%;top:${t}%"><span class="cn-ic">${x.ic ? `<img src="${esc(x.ic)}" alt="" loading="lazy">` : ''}</span><b>C${i+1}</b></button>`; }).join('');
+    return `<div class="cn"><div class="cn-sky" style="background-image:url('con_${slug}.webp?v=1')">${nodes}</div><p class="cn-hint">Нажми на созвездие, чтобы увидеть, что оно даёт</p><div class="syn"><div class="syn-c" id="cnInfo">${cnInfo(ch, -1)}</div></div></div>`;
+  }
+  if ($('spBody')) $('spBody').addEventListener('click', ev => { const n = ev.target.closest('.cn-node'); if (!n || !spCh) return;
+    sfx(SFX_PICK); const on = n.getAttribute('aria-pressed') !== 'true';
+    $('spBody').querySelectorAll('.cn-node').forEach(b => b.setAttribute('aria-pressed', 'false'));
+    if (on) n.setAttribute('aria-pressed', 'true');
+    $('cnInfo').innerHTML = cnInfo(spCh, on ? +n.dataset.i : -1); });
   function rotBody(ch){
     if (!ch.rot || !ch.rot.length) return '';
-    const own = ch.n === 'Вареса';   // иконки навыков пока только у Вареси, у остальных — подписи
-    const chip = k => (k === 'pl' || !own) ? `<span class="rot-pl">${k==='pl'?'Планж':k==='e'?'Е':k==='q'?'Q':k==='a'?'Атака':esc(k)}</span>` : `<img class="rot-ic" src="${ROTIC[k]}" alt="${k==='e'?'Е':k==='q'?'Q':'Тычка'}">`;
+    const ric = ch.ric || (ch.n === 'Вареса' ? ROTIC : null);   // иконки навыков для ротации: ch.ric или (пока) только у Вареси, иначе подписи
+    const chip = k => (k === 'pl' || !ric || !ric[k]) ? `<span class="rot-pl">${k==='pl'?'Планж':k==='e'?'Е':k==='q'?'Q':k==='a'?'Атака':esc(k)}</span>` : `<img class="rot-ic" src="${ric[k]}" alt="${k==='e'?'Е':k==='q'?'Q':'Тычка'}">`;
     const steps = ch.rot.map((r,i)=>`<li><span class="rot-n">${i+1}</span><span class="rot-ch">${(r.s||[]).map(chip).join('<i class="rot-ar">›</i>')}</span><span class="rot-t">${esc(r.t)}</span></li>`).join('');
     return `<ol class="rot">${steps}</ol>${ch.rotn ? `<p class="rot-note">${esc(ch.rotn)}</p>` : ''}`;
   }
