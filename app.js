@@ -1321,7 +1321,8 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
       AC.dataset.b = '0';
       const bdOf = i => cd ? (cd.builds ? cd.builds[i] : cd) : null;
       const p2 = bd => { const valH = bd && bd.val && bd.val.length ? `<h4>Оптимальные значения</h4>${bd.note ? `<p class="ac-note">${esc(bd.note)}</p>` : ''}<div class="ac-vals">${bd.val.map(v => `<div class="ac-v2${v[2] ? '' : ' nob'}">${v[2] ? `<b class="vn">${esc(v[2])}${v[3] ? `<small>${esc(v[3])}</small>` : ''}</b>` : ''}<span><u>${esc(v[0])}</u>${esc(v[1])}</span></div>`).join('')}</div>` : '';
-      const whyH = cd && cd.why ? `<h4>Почему этот сет для ${esc(cd.g || who)}</h4><p class="ac-why">${esc(cd.why)}</p>` : '';
+      const wy = !cd ? '' : (cd.whys && cd.whys[n]) ? cd.whys[n] : (n === cd.alt && n !== cd.s && n !== cd.s2) ? '' : (cd.why || '');   // у запасного сета (alt) свой текст в cd.whys; если его нет, чужой не показываем
+      const whyH = wy ? `<h4>Почему этот сет для ${esc(cd.g || who)}</h4><p class="ac-why">${esc(wy)}</p>` : '';
       return `<div class="ac-top2"></div><div class="ac-b ac-b2">${valH}${whyH}</div>`; };
       AC._p2 = p2; AC._bd = bdOf;
       const bldH = cd && cd.builds ? `<div class="ac-bld" role="group" aria-label="Сборка">${cd.builds.map((x,i) => `<button type="button" class="ac-bl" data-i="${i}" aria-pressed="${i?'false':'true'}">${esc(x.name)}</button>`).join('')}</div>` : '';
