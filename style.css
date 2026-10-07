@@ -1843,3 +1843,11 @@ html.fromwhite body{background-color:#fffaf0}
 .rs-curwho .who-k{margin:0 0 8px}
 .rs-curwho .who-f{margin:8px 0 0; font-size:12px; color:var(--muted)}
 .rs-curwho .who-a{width:46px; height:46px}
+
+/* ===== Сворачиваемые разделы карточки (Команды, Навыки) — вид кнопки ===== */
+.sheet .fold>h3{padding:12px 14px;margin-bottom:6px;border-radius:12px;font-size:15px;font-weight:800;letter-spacing:.08em;color:var(--text);background:rgb(255 255 255 / .07);border:1.5px solid rgb(255 255 255 / .14);box-shadow:0 2px 8px rgb(0 0 0 / .25);transition:color .15s,background .15s,border-color .15s,transform .15s}
+.sheet .fold>h3:hover{background:rgb(255 255 255 / .12);border-color:var(--gold);transform:translateY(-1px)}
+.sheet .fold>h3:active{transform:translateY(0)}
+.sheet .fold>h3 .fold-ar{width:9px;height:9px;margin:-4px 4px 0 0;color:var(--gold)}
+.sheet .fold.shut>h3 .fold-ar{margin-top:0}
+.sheet .fold:not(.shut)>h3{border-color:var(--gold)}
