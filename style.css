@@ -1851,14 +1851,3 @@ html.fromwhite body{background-color:#fffaf0}
 .sheet .fold>h3 .fold-ar{width:9px;height:9px;margin:-4px 4px 0 0;color:var(--gold)}
 .sheet .fold.shut>h3 .fold-ar{margin-top:0}
 .sheet .fold:not(.shut)>h3{border-color:var(--gold)}
-
-/* ===== Плеер: из окошка остался только ползунок; название трека — плашка сверху ===== */
-.sp-pop{width:190px; padding:10px 14px; display:flex; align-items:center; gap:10px}
-.sp-pop input{flex:1; min-width:0; margin:0; accent-color:#d9b25a; cursor:pointer}
-.sp-pop output{width:28px; text-align:right; font-size:12.5px; color:var(--muted); font-variant-numeric:tabular-nums}
-.snd-toast{position:fixed; top:14px; left:50%; z-index:90; max-width:min(92vw,420px); display:flex; flex-direction:column; align-items:center; gap:2px; padding:8px 20px 9px; border-radius:14px; text-align:center;
-  background:rgb(20 26 44 / .92); border:1px solid rgb(217 178 90 / .55); box-shadow:0 8px 24px rgb(0 0 0 / .5); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
-  opacity:0; transform:translate(-50%,-14px); pointer-events:none; transition:opacity .35s, transform .35s}
-.snd-toast.show{opacity:1; transform:translate(-50%,0)}
-.snd-toast-k{font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted)}
-.snd-toast b{font-size:15px; font-weight:600; color:#f1ecdf; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%}

@@ -979,8 +979,8 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     const mapPick = avoid => { if (!mapBag.length) mapBag = shuffle(MAPLIST.slice());   // «мешок»: каждый трек по разу, потом новый
       if (mapBag[0] === avoid && MAPLIST.length > 1){ if (mapBag.length === 1) mapBag.push(...shuffle(MAPLIST.filter(x => x !== avoid))); const j = 1 + (Math.random() * (mapBag.length - 1) | 0); [mapBag[0], mapBag[j]] = [mapBag[j], mapBag[0]]; }
       return mapBag[0]; };
-    const box = document.getElementById('snd'), btn = document.getElementById('sndBtn'), rng = document.getElementById('sndVol'), root = document.documentElement;
-    const $s = id => document.getElementById(id), volBtn = $s('sndBtn'), playBtn = $s('sndPlay'), valEl = $s('sndVal'), HOVER = matchMedia('(hover:hover)').matches;
+    const box = document.getElementById('snd'), btn = document.getElementById('sndMute'), rng = document.getElementById('sndVol'), root = document.documentElement;
+    const $s = id => document.getElementById(id), volBtn = $s('sndBtn'), playBtn = $s('sndPlay'), titleEl = $s('sndTitle'), valEl = $s('sndVal');
     const TITLES = {music:'Moonlit Wilderness', theme:'Genshin Impact Main Theme', sweetsmile:'A Sweet Smile', mooncup:"Moon in One's Cup", relaxliyue:'Relaxation in Liyue', liyue:'Liyue',
       mondafternoon:'Bustling Afternoon in Mondstadt', jellyfish:'Melody of Jellyfish', snowtales:'Snow-Buried Tales', elegance:'Streets of Elegance', sepdream:'Separated Dream', inazuma:'Inazuma',
       dusk:"Malinalco's Dusk", hymn:"Mountain's Hymn", choosemoon:'We Choose the Moon', fecundity:'Sea of Fecundity', oldlong:'Old Long Since', peptoke:'Peptoke Chrysous Oikos',
@@ -1008,13 +1008,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     function ui(){ const v = muted ? 0 : vol; box.dataset.level = v === 0 ? 0 : v < 45 ? 1 : 2;
       btn.setAttribute('aria-label', muted || vol === 0 ? 'Включить музыку' : 'Выключить музыку'); valEl.textContent = v;
       const on = started && !paused; box.dataset.state = on ? 'play' : 'pause'; playBtn.setAttribute('aria-label', on ? 'Пауза' : 'Играть');
-    }
-    // название трека: плашка сверху сайта, 10 секунд после начала песни
-    let toast = null, toastT = 0;
-    function showTitle(name){ const txt = TITLES[name] || name; if (!txt) return;
-      if (!toast){ toast = document.createElement('div'); toast.className = 'snd-toast'; toast.setAttribute('aria-live', 'polite'); toast.innerHTML = '<span class="snd-toast-k">Сейчас играет</span><b></b>'; document.body.appendChild(toast); }
-      toast.querySelector('b').textContent = txt; void toast.offsetWidth; toast.classList.add('show');
-      clearTimeout(toastT); toastT = setTimeout(() => toast.classList.remove('show'), 10000); }
+      titleEl.textContent = curName ? (TITLES[curName] || curName) : 'Нажми ▶'; }
     function apply(){ ui(); if (gain) gain.gain.setTargetAtTime(target(), ctx.currentTime, .08); else { if (cur && cur.el) cur.el.volume = target(); if (wind && wind.el) wind.el.volume = target() * WIND_LVL; } }
     function load(name){ return bufs[name] || (bufs[name] = fetch(name + '.' + ext).then(r => r.arrayBuffer()).then(a => ctx.decodeAudioData(a))); }
     // держим в памяти только главную тему, текущий и следующий трек (чтобы телефон не захлебнулся)
@@ -1024,7 +1018,6 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
       else if (t.el){ const el = t.el; el.onended = null; let v = el.volume; const iv = setInterval(()=>{ v -= .05; if (v <= 0){ clearInterval(iv); el.pause(); } else el.volume = v; }, 60); } }
     async function play(name, loop, noHist){
       const my = ++token, old = cur; cur = null; curName = name; curLoop = loop; ui();
-      if (!paused && !hushed) showTitle(name);
       if (!noHist && hist[hist.length - 1] !== name){ hist.push(name); if (hist.length > 40) hist.shift(); }
       if (!useEl){
         try {
@@ -1114,12 +1107,10 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
       hist.pop(); const p = hist[hist.length - 1]; play(p, p === HOME && mode === 'home', true); });
     // громкость: кнопка открывает окошко (на компе — ещё и при наведении)
     const setOpen = o => { box.classList.toggle('open', o); volBtn.setAttribute('aria-expanded', o ? 'true' : 'false'); };
-    volBtn.addEventListener('click', e => { e.stopPropagation();
-      if (!HOVER && !box.classList.contains('open')){ setOpen(true); return; }   // телефон: первый тап показывает ползунок, следующий — mute
-      toggleMute(); });
+    volBtn.addEventListener('click', e => { e.stopPropagation(); setOpen(!box.classList.contains('open')); });
     document.addEventListener('pointerdown', e => { if (!box.contains(e.target)) setOpen(false); });
     box.addEventListener('keydown', e => { if (e.key === 'Escape' && box.classList.contains('open')){ e.stopPropagation(); setOpen(false); volBtn.focus(); } });
-    function toggleMute(){ if (vol === 0){ vol = 40; rng.value = 40; muted = false; } else muted = !muted; SS('mmute', muted ? '1' : '0'); SS('mvol', vol); if (!started) start(); apply(); }
+    btn.addEventListener('click', ()=>{ if (vol === 0){ vol = 40; rng.value = 40; muted = false; } else muted = !muted; SS('mmute', muted ? '1' : '0'); SS('mvol', vol); if (!started) start(); apply(); });
     rng.addEventListener('input', ()=>{ vol = +rng.value; muted = false; SS('mvol', vol); SS('mmute','0'); if (!started) start(); apply(); });
     document.addEventListener('visibilitychange', ()=>{ if (!ctx || useEl) return; document.hidden ? ctx.suspend() : (!paused && ctx.resume()); });
     setTimeout(()=>box.classList.remove('hint'), 6000);

@@ -32,7 +32,9 @@
   <button type="button" id="sndNext" class="sp-sm" aria-label="Следующий трек" title="Следующий трек"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.6 5H18v14h-2.4z" fill="currentColor"/><path d="M5 5.6v12.8L14.6 12z" fill="currentColor"/></svg></button>
   <button type="button" id="sndBtn" aria-label="Громкость" title="Громкость" aria-expanded="false" aria-controls="sndPop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path class="w1" d="M16 9.5a3.5 3.5 0 0 1 0 5"/><path class="w2" d="M18.5 7a7 7 0 0 1 0 10"/><path class="x" d="M16.5 9.5l5 5M21.5 9.5l-5 5"/></svg></button>
   <div class="sp-pop" id="sndPop" role="group" aria-label="Громкость музыки">
-    <input type="range" id="sndVol" min="0" max="100" value="40" aria-label="Громкость музыки"><output id="sndVal">40</output>
+    <div class="sp-k">Сейчас играет</div><div class="sp-t" id="sndTitle">Нажми ▶</div>
+    <div class="sp-r"><button type="button" id="sndMute" aria-label="Выключить музыку" title="Выключить / включить звук"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path class="w1" d="M16 9.5a3.5 3.5 0 0 1 0 5"/><path class="w2" d="M18.5 7a7 7 0 0 1 0 10"/><path class="x" d="M16.5 9.5l5 5M21.5 9.5l-5 5"/></svg></button>
+      <input type="range" id="sndVol" min="0" max="100" value="40" aria-label="Громкость музыки"><output id="sndVal">40</output></div>
   </div>
 </div>
 <div class="wrap">
