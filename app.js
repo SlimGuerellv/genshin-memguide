@@ -910,21 +910,32 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches, fine = matchMedia('(pointer:fine)').matches;
     const cv = document.getElementById('wcan'), ctx = cv.getContext('2d', {alpha:false});
     let tx=0, ty=0, x=0, y=0, raf=0, last=0, W0=0, H0=0;
+    // слабое устройство: без паралакса видео играет напрямую, без canvas (меньше нагрузки на CPU/GPU и память)
+    const nav = navigator, conn = nav.connection || {};
+    let lite = reduce || conn.saveData === true || (nav.deviceMemory && nav.deviceMemory <= 2) || (nav.hardwareConcurrency && nav.hardwareConcurrency <= 2);
+    try { if (sessionStorage.getItem('hv_lite') === '1') lite = true; } catch(e){}
+    let nF = 0, nM = 0, sumDt = 0;   // замер реальной частоты кадров canvas-цикла: если ниже ~40 fps — отключаем паралакс
+    function goLite(){ lite = true; try { sessionStorage.setItem('hv_lite','1'); } catch(e){}
+      if (raf){ cancelAnimationFrame(raf); raf = 0; } last = 0; W.classList.remove('cv'); cv.width = cv.height = 1; }
     if (fine && !reduce) addEventListener('pointermove', e=>{ if (e.pointerType!=='mouse') return; tx = (e.clientX/innerWidth-.5)*-2; ty = (e.clientY/innerHeight-.5)*-2; }, {passive:true});
     function size(){ const d = Math.min(1.5, devicePixelRatio||1), w = Math.round(innerWidth*d), h = Math.round(innerHeight*d); if (w!==W0||h!==H0){ cv.width = W0 = w; cv.height = H0 = h; } }
     function t(ts){
-      const dt = last ? Math.min(64, ts-last) : 16; last = ts;
+      if (lite){ raf = 0; return; }
+      const raw = last ? ts-last : 0, dt = last ? Math.min(64, raw) : 16; last = ts;
       const k = 1 - Math.exp(-dt/220); x += (tx-x)*k; y += (ty-y)*k;
       if (vid.readyState >= 2){
         if (!W.classList.contains('cv')) W.classList.add('cv');
         size(); const vw = vid.videoWidth, vh = vid.videoHeight, sc = Math.max(W0/vw, H0/vh) * 1.05;
         const dw = vw*sc, dh = vh*sc, ox = (W0-dw)/2 + x*W0*.016, oy = (H0-dh)/2 + y*H0*.012;
         ctx.drawImage(vid, ox, oy, dw, dh);
+        if (!nF) nF = ts;   // момент первого кадра
+        if (nF > 0 && ts - nF > 800 && raw > 0 && raw < 2000){ sumDt += raw; nM++;   // первые кадры не считаем; паузы вкладки (>2 с) тоже
+          if (nM >= 60 || (sumDt >= 2500 && nM >= 4)){ if (sumDt/nM > 25) { goLite(); return; } nF = -1e9; } }   // средний кадр >25 мс (<40 fps) — паралакс выключается; иначе замер завершён
       }
       raf = root.classList.contains('v-home') ? requestAnimationFrame(t) : 0; if (!raf) last = 0;
     }
     wv.style.transform = 'none';
-    const start = () => { if (!fine) return; if (!raf && root.classList.contains('v-home')) raf = requestAnimationFrame(t); };
+    const start = () => { if (!fine || lite) return; if (!raf && root.classList.contains('v-home')) raf = requestAnimationFrame(t); };
     start(); addEventListener('hashchange', start); addEventListener('popstate', start);
     document.getElementById('goHome').addEventListener('click', start);
   })();
