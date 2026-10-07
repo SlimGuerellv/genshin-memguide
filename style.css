@@ -1883,3 +1883,18 @@ html.fromwhite body{background-color:#fffaf0}
 .acct-btn{top:14px; right:14px; bottom:auto; max-width:calc(100vw - 28px)}
 .snd-toast{top:76px}
 @media (max-width:720px){ .acct-btn{top:12px; right:12px; bottom:auto; max-width:calc(100vw - 24px)} .snd-toast{top:66px; right:12px} }
+
+/* плавный вогнутый «галтель» в месте стыка плашки громкости с плеером */
+.snd .sp-pop::before{content:""; position:absolute; left:-15px; bottom:51px; width:14px; height:14px; pointer-events:none;
+  background:radial-gradient(circle at 0 0, transparent 13px, #6b5a3b 13px, #6b5a3b 14px, #141a2c 14px)}
+@media (max-width:720px){ .snd .sp-pop::before{bottom:47px} }
+
+/* контур плашки громкости рисуется отдельным слоем, чтобы убрать линию внутри плеера */
+.snd .sp-pop{border-color:transparent}
+.snd .sp-pop::after{display:block; content:""; position:absolute; inset:-1px; height:auto; width:auto; border:1px solid rgb(217 178 90 / .55); border-radius:25px; pointer-events:none;
+  clip-path:polygon(0 0,100% 0,100% 100%,0 100%,0 calc(100% - 25px),4px calc(100% - 25px),4px calc(100% - 52px),0 calc(100% - 52px))}
+.snd .sp-pop::before{left:-14px; bottom:50px; background:radial-gradient(circle at 0 0, transparent 13px, #6b5a3b 13px, #6b5a3b 14px, #141a2c 14px)}
+@media (max-width:720px){ .snd .sp-pop::after{border-radius:23px; clip-path:polygon(0 0,100% 0,100% 100%,0 100%,0 calc(100% - 23px),4px calc(100% - 23px),4px calc(100% - 48px),0 calc(100% - 48px))} .snd .sp-pop::before{bottom:46px} }
+.snd .sp-pop{border-radius:25px 25px 25px 0}
+.snd .sp-pop::after{border-radius:25px 25px 25px 0; clip-path:polygon(0 0,100% 0,100% 100%,0 100%,0 calc(100% - 1px),2px calc(100% - 1px),2px calc(100% - 52px),0 calc(100% - 52px))}
+@media (max-width:720px){ .snd .sp-pop{border-radius:23px 23px 23px 0} .snd .sp-pop::after{border-radius:23px 23px 23px 0; clip-path:polygon(0 0,100% 0,100% 100%,0 100%,0 calc(100% - 1px),2px calc(100% - 1px),2px calc(100% - 48px),0 calc(100% - 48px))} }
