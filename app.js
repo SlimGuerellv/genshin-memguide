@@ -509,7 +509,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     if (spKey && !spHas(spKey, ch)) spKey = null;
     $('sheet').querySelectorAll('.sbtn').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.sp === spKey)));
     if (!spKey){ ov.classList.remove('sp-open'); p.setAttribute('aria-hidden', 'true'); return; }
-    p.style.setProperty('--c', elOf(ch).c);
+    p.style.setProperty('--c', elOf(ch).c); p.classList.toggle('syn-mode', spKey === 'syn');
     $('spTitle').textContent = SPT[spKey]; $('spBody').innerHTML = spBody(spKey, ch); $('spBody').scrollTop = 0;
     p.style.setProperty('--sph', $('sheet').offsetHeight + 'px');
     ov.classList.add('sp-open'); p.setAttribute('aria-hidden', 'false');
