@@ -581,7 +581,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     sgs.slice().reverse().forEach(v => { if (!list.some(x => sgOf(x) === v)) list.unshift({n: v, sg: 1, t: 'Описание для этого персонажа пока не написано.'}); });
     return `<div class="syn">${list.map(x => { const sg = sgOf(x), k = wpKey(x) || (sg && WEAP.weapons[sg] ? sg : null), w = k && WEAP.weapons[k];
       const cd = w && (w.card || w.img), ic = cd ? `<img class="wp-ic" src="${esc(cd)}" alt="" loading="lazy">` : '';
-      const tag = (x.sg || isSig(x)) ? '<span class="wp-sg">Сигнатурное</span>' : '';
+      const tag = (x.sg || isSig(x)) ? `<span class="wp-sg">${(WEAP.rec || []).includes(ch.n) ? 'Рекомендуемое' : 'Сигнатурное'}</span>` : '';
       return `<div class="syn-c${k ? ' wp-link' : ''}${ic ? ' wp-has' : ''}"${k ? ` role="button" tabindex="0" data-wp="${esc(k)}"` : ''}>${ic}<div class="wp-tx"><h4>${x.r ? x.r + '. ' : ''}${esc(tag ? x.n.replace(/\s*\(сигнатурное\)\s*/i, '') : x.n)}${tag}</h4><p>${esc(x.t)}</p>${k ? '<span class="wp-go">Карточка оружия ›</span>' : ''}</div></div>`; }).join('')}${ch.wpn ? `<div class="syn-c syn-key"><h4>Разрыв между оружием</h4><p>${esc(ch.wpn)}</p></div>` : ''}</div>`; }
   // созвездия: фон по стихии, 6 кружков; по клику на кружок показывается описание (ch.con = [{c:'C0',t}, {c:'C1',t,n?,ic?}, ...])
   const CNSLUG = {'Пиро':'pyro','Гидро':'hydro','Анемо':'anemo','Гео':'geo','Электро':'electro','Дендро':'dendro','Крио':'cryo'};
