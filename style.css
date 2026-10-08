@@ -2069,3 +2069,10 @@ html.fromwhite body{background-color:#fffaf0}
 .fb-tag-bug{background:rgb(255 155 138 / .25); color:#FF9B8A}
 .fb-tag-idea{background:rgb(126 224 138 / .2); color:#7EE08A}
 .fb-tag-review{background:rgb(233 196 106 / .22); color:var(--gold)}
+
+/* памятник Капитано */
+.memo{display:flex; flex-direction:column; align-items:center; gap:10px; margin:2px 0 14px}
+.memo-rar{width:100%; max-width:520px; height:auto; display:block; background:#000; border-radius:12px}
+.memo-wr{width:150px; height:auto; display:block; filter:drop-shadow(0 6px 14px rgba(0,0,0,.45))}
+.memo-g{display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:8px; width:100%}
+.memo-g img{width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:10px; background:#0b1020; display:block}

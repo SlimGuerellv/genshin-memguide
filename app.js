@@ -543,6 +543,8 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     if (window.ResizeObserver){ nsRO = new ResizeObserver(nsFit); nsRO.observe(b); }
     if (!nsRun){ nsRun = true; requestAnimationFrame(nsTick); }
   }
+  // памятник для неиграбельных героев (ch.memo): плашка редкости, венок и плачущие гифки
+  const memoBody = () => `<div class="memo"><img class="memo-rar" src="memo_rarity.webp?v=1" alt="Редкость: SUPERMEGAULTRANANO LEGENDARY"><img class="memo-wr" src="memo_wreath.webp?v=1" alt="Венок" loading="lazy"><div class="memo-g">${Array.from({length:13}, (_, i) => `<img src="memo_cry${String(i+1).padStart(2,'0')}.webp?v=1" alt="" loading="lazy">`).join('')}</div></div>`;
   // «Синергия» у натланцев: что такое Ночной дух простыми словами
   const NSOUL = [
     ['Что это', 'Ночной дух — «ночной режим» натланцев. В нём герой быстрее бегает, а навыки сильнее или меняются.'],
@@ -612,10 +614,10 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
       </div>
       <div class="sheet-body">
         <div class="sec"><h3>Моя коллекция</h3><div class="mypick" role="group" aria-label="Моя коллекция">${['want','got','main','none'].map(k=>`<button type="button" class="mypb" data-st="${k}" style="--mc:${ST[k].c}" aria-pressed="${stOf(ch)===k}">${ST[k].ic?`<i>${ST[k].ic}</i>`:''}${ST[k].label}</button>`).join('')}</div></div>
-        ${ch.no ? `<div class="sec"><h3>Примечание</h3><p>${esc(ch.no)}</p></div>` : ''}
+        ${ch.memo ? memoBody() : (ch.no ? `<div class="sec"><h3>Примечание</h3><p>${esc(ch.no)}</p></div>` : '')}
         ${sec('Нужные статы', ch.st)}
          ${artSec(ch)}
-        ${spBtns(ch)}
+        ${ch.memo ? '' : spBtns(ch)}
         <div class="sec cmt" id="cmt"></div>
       </div>
       </div>`;
