@@ -544,7 +544,14 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     if (!nsRun){ nsRun = true; requestAnimationFrame(nsTick); }
   }
   // памятник для неиграбельных героев (ch.memo): плашка редкости, венок и плачущие гифки
-  const memoBody = () => `<div class="memo"><img class="memo-rar" src="memo_rarity.webp?v=1" alt="Редкость: SUPERMEGAULTRANANO LEGENDARY"><img class="memo-wr" src="memo_wreath.webp?v=1" alt="Венок" loading="lazy"><div class="memo-g">${Array.from({length:13}, (_, i) => `<img src="memo_cry${String(i+1).padStart(2,'0')}.webp?v=1" alt="" loading="lazy">`).join('')}</div></div>`;
+  const memoBody = () => {
+    const im = 'display:block;margin:0 auto;max-width:100%;height:auto;border-radius:10px';
+    return `<div class="memo" style="display:flex;flex-direction:column;align-items:center;gap:18px;margin:4px 0 16px;text-align:center">`
+      + `<img class="memo-rar" src="memo_rarity.webp?v=1" alt="Редкость: SUPERMEGAULTRANANO LEGENDARY" style="${im};width:100%;max-width:520px;background:#000;border-radius:12px">`
+      + `<img class="memo-wr" src="memo_wreath.webp?v=1" alt="Венок" loading="lazy" style="${im};width:170px">`
+      + Array.from({length:13}, (_, k) => `<img class="memo-gif" src="memo_cry${String(k+1).padStart(2,'0')}.webp?v=1" alt="" loading="lazy" style="${im};width:auto;max-width:min(100%,240px)">`).join('')
+      + `</div>`;
+  };
   // «Синергия» у натланцев: что такое Ночной дух простыми словами
   const NSOUL = [
     ['Что это', 'Ночной дух — «ночной режим» натланцев. В нём герой быстрее бегает, а навыки сильнее или меняются.'],
