@@ -2139,3 +2139,14 @@ html.v-weap #charsv, html.v-weap header.top .tools{display:none}
 .card.wset .art .meta{justify-content:flex-start}
 @media (max-width:720px){ .wgrid{grid-template-columns:repeat(auto-fill,minmax(135px,1fr)); gap:30px 34px} }
 @media (max-width:380px){ .wgrid{grid-template-columns:repeat(2,minmax(0,1fr))} }
+
+/* единый размер иконок оружия: арт 4:5, меч заполняет по высоте, низ упирается в край */
+.wgrid{grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:56px 64px}
+.card.wset{aspect-ratio:1.19/1}
+.card.wset > .strip{width:33%}
+.card.wset > .art{left:33%}
+.art img.photo.wph{object-fit:cover; object-position:50% 100%; padding:0}
+.wcard .ac-ban img{object-fit:contain}
+@media (max-width:720px){ .wgrid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:26px 28px} }
+@media (max-width:380px){ .wgrid{grid-template-columns:repeat(2,minmax(0,1fr))} }
+@media (max-width:720px){ .card.wset .strip span{font-size:calc(var(--wf,22px) * .64)} }
