@@ -57,6 +57,25 @@ service cloud.firestore {
       allow update: if false;
     }
 
+    // Отзывы / баги / идеи: писать может любой (без входа), читать — все, менять и удалять — только через консоль
+    match /feedback/{id} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly(['type', 'text', 'name', 'page', 'env', 'createdAt'])
+        && request.resource.data.keys().hasAll(['type', 'text', 'name', 'page', 'env', 'createdAt'])
+        && request.resource.data.type in ['review', 'bug', 'idea']
+        && request.resource.data.text is string
+        && request.resource.data.text.size() >= 3
+        && request.resource.data.text.size() <= 1000
+        && request.resource.data.name is string
+        && request.resource.data.name.size() <= 30
+        && request.resource.data.page is string
+        && request.resource.data.page.size() <= 40
+        && request.resource.data.env is string
+        && request.resource.data.env.size() <= 160
+        && request.resource.data.createdAt == request.time;
+      allow update, delete: if false;
+    }
+
     // Всё остальное закрыто
     match /{document=**} {
       allow read, write: if false;
