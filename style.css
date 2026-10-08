@@ -2124,3 +2124,18 @@ html.v-weap #charsv, html.v-weap header.top .tools{display:none}
 .card.wset .art .aura{display:none}
 .card.wset .art .meta{background:linear-gradient(transparent, rgb(20 10 2 / .78))}
 @media (max-width:720px){ .wtp{display:none} }
+
+/* оружие: без пустого места вокруг, нижний срез иконки прижат к краю рамки (не виден) */
+.art img.photo.wph{object-fit:contain; object-position:50% 100%; padding:6% 7% 0; transform:none}
+.wcard .ac-ban{overflow:hidden}
+.wcard .ac-ban img{top:0; bottom:0; right:7%; height:100%; width:auto; max-width:48%; aspect-ratio:auto; object-fit:contain; object-position:right bottom; filter:drop-shadow(0 4px 10px rgb(0 0 0 / .35))}
+
+/* крупнее карточки оружия: читаемое название (в 2 строки при длинных), без обрезки типа */
+.wgrid{grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:60px 72px}
+.card.wset{aspect-ratio:5/6}
+.card.wset > .strip{width:36%}
+.card.wset > .art{left:36%}
+.card.wset .strip span{white-space:normal; text-align:center; line-height:1.12; max-height:94%; font-size:min(var(--wf,22px), 36cqw); text-wrap:balance}
+.card.wset .art .meta{justify-content:flex-start}
+@media (max-width:720px){ .wgrid{grid-template-columns:repeat(auto-fill,minmax(135px,1fr)); gap:30px 34px} }
+@media (max-width:380px){ .wgrid{grid-template-columns:repeat(2,minmax(0,1fr))} }

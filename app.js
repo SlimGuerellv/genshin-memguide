@@ -1423,9 +1423,9 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
       document.getElementById('wcount').textContent = `${k} ${w}`;
       document.getElementById('wgrid').innerHTML = k ? list.map(n => { const o = WEAP.weapons[n], r = o.r || 0;
         const cd = `<button class="card wset wk${r}${r===5||r===4 ? ' rr'+r : ''}" type="button" data-n="${esc(n)}" aria-label="${esc(n)}, ${esc(o.t || '')}, ${r} звёзд">
-          <div class="strip"><span style="--len:${n.length}">${hl(n)}</span></div>
+          <div class="strip"><span style="--len:${n.length};--wf:${n.length <= 14 ? 24 : n.length <= 20 ? 21 : 19}px">${hl(n)}</span></div>
           <div class="art"><div class="aura" aria-hidden="true"></div>${o.img ? `<img class="photo wph" src="${esc(o.img)}" alt="" loading="lazy">` : ''}
-            <div class="meta"><span class="stars si${r}" role="img" aria-label="${r} звёзд"></span><span class="wtp">${esc(o.t || '')}</span></div></div></button>`;
+            <div class="meta"><span class="stars si${r}" role="img" aria-label="${r} звёзд"></span></div></div></button>`;
         return (r===5 || r===4) ? `<div class="pl pl${r}">${cd}</div>` : cd; }).join('')
         : `<div class="dempty">${NAMES().length ? 'Такого оружия нет. Наверное, его ещё не выбили.' : 'Каталог пока пуст: оружие добавляем пачками.'}</div>`;
     }
