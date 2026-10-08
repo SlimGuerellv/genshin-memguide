@@ -2150,3 +2150,9 @@ html.v-weap #charsv, html.v-weap header.top .tools{display:none}
 @media (max-width:720px){ .wgrid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:26px 28px} }
 @media (max-width:380px){ .wgrid{grid-template-columns:repeat(2,minmax(0,1fr))} }
 @media (max-width:720px){ .card.wset .strip span{font-size:calc(var(--wf,22px) * .64)} }
+
+/* иконки доходят до верха арта: арт 0.95 (ширина/высота), карточка шире */
+.card.wset{aspect-ratio:1.42/1}
+.wgrid{grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:52px 60px}
+@media (max-width:720px){ .wgrid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:24px 26px} .card.wset{aspect-ratio:1.18/1} }
+@media (max-width:380px){ .wgrid{grid-template-columns:repeat(2,minmax(0,1fr))} }
