@@ -2076,3 +2076,24 @@ html.fromwhite body{background-color:#fffaf0}
 .memo-rar{width:100%; max-width:520px; background:#000; border-radius:12px}
 .memo-wr{width:170px}
 .memo-gif{width:auto; max-width:min(100%,240px)}
+
+/* ===== Оружие: раздел-каталог и карточка ===== */
+html:not(.v-weap) #weapv{display:none}
+html.v-weap #charsv, html.v-weap header.top .tools{display:none}
+.wfl{display:flex; flex-wrap:wrap; gap:8px; margin:0 0 14px}
+.wfl:empty{display:none}
+.wset .wst{color:#FFCC00; letter-spacing:1px}
+.wcard .ac-b p{margin:0}
+.wc-rows{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:8px}
+.wc-rows div{background:#ffffff66; border:1px solid #4B403626; border-radius:10px; padding:8px 12px; display:grid; gap:2px}
+.wc-rows i{font-style:normal; font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:#7A6C5F}
+.wc-rows b{font-size:15px}
+.wc-pt{font-size:14.5px; line-height:1.55}
+.wc-who{display:flex; flex-wrap:wrap; gap:6px; border:0; padding:0; margin:0}
+.wc-who .who-a{width:38px; height:38px}
+.wp-ic{width:28px; height:28px; object-fit:contain; vertical-align:middle; margin-right:8px}
+.wp-sg{margin-left:8px; padding:1px 8px; border-radius:999px; font-size:10.5px; letter-spacing:.06em; background:color-mix(in srgb, var(--gold) 25%, transparent); border:1px solid color-mix(in srgb, var(--gold) 55%, transparent); color:var(--gold); vertical-align:middle}
+.syn-c.wp-link{cursor:pointer; transition:transform .15s, box-shadow .15s}
+.syn-c.wp-link:hover{transform:translateY(-1px); box-shadow:0 0 0 1px color-mix(in srgb, var(--gold) 55%, transparent)}
+.syn-c.wp-link:focus-visible{outline:2px solid var(--gold); outline-offset:2px}
+.wp-go{display:block; margin-top:8px; font-size:12.5px; color:var(--gold)}

@@ -467,6 +467,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
   $('grid').addEventListener('click', ev=>{ const c = ev.target.closest('.card'); if(c){ sfx(SFX_OPEN); openSheet(+c.dataset.i, c); } });
   let lastFocus = null;
   const ARTS = HVJ('artsdata');
+  const WEAP = window.HVD.weapdata ? HVJ('weapdata') : {weapons:{}, sig:{}};   // каталог оружия: weapons — карточки, sig — сигнатурка каждого персонажа
   function sec(title, val){
     return val ? `<div class="sec"><h3>${title}</h3><p>${esc(val)}</p></div>` : '';
   }
@@ -500,7 +501,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
   let spKey = null, spCh = null, spSkills = '';
   const SPT = {team:'Команды', skills:'Навыки', rot:'Ротация', wp:'Оружие', con:'Созвездия', syn:'Синергия'};
   const isNat = ch => ch.reg === 'Натлан' || ch.reg2 === 'Натлан';
-  const spHas = (k, ch) => k === 'team' ? !!teamBody(ch) : k === 'rot' ? !!(ch.rot && ch.rot.length) : k === 'wp' ? !!(ch.wp && ch.wp.length) : k === 'con' ? !!(ch.con && ch.con.length) : k === 'syn' ? isNat(ch) : true;
+  const spHas = (k, ch) => k === 'team' ? !!teamBody(ch) : k === 'rot' ? !!(ch.rot && ch.rot.length) : k === 'wp' ? !!((ch.wp && ch.wp.length) || WEAP.sig[ch.n]) : k === 'con' ? !!(ch.con && ch.con.length) : k === 'syn' ? isNat(ch) : true;
   const spBtns = ch => `<div class="sbtns" role="group" aria-label="Разделы">${['team','skills','rot','wp','con','syn'].filter(k => spHas(k, ch)).map(k =>
     `<button type="button" class="sbtn${k === 'syn' ? ' ns' : ''}" data-sp="${k}" aria-pressed="false"><span>${SPT[k]}</span><i class="sbtn-ar" aria-hidden="true"></i></button>`).join('')}</div>`;
   const spBody = (k, ch) => k === 'team' ? `<div class="sec tsec">${teamBody(ch)}</div>` : k === 'rot' ? rotBody(ch) : k === 'wp' ? wpBody(ch) : k === 'con' ? conBody(ch) : k === 'syn' ? synBody(ch) : spSkills;
@@ -570,7 +571,17 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
   }
   // ротация: шаги с иконками навыков (ch.rot = [{s:['e','a','pl','q'], t:'...'}], ch.rotn — примечание)
   const ROTIC = {a:'sk_varesa_a.webp?v=1', e:'sk_varesa_e.webp?v=1', q:'sk_varesa_q.webp?v=1'};
-  function wpBody(ch){ return `<div class="syn">${ch.wp.map(x => `<div class="syn-c"><h4>${x.r ? x.r + '. ' : ''}${esc(x.n)}</h4><p>${esc(x.t)}</p></div>`).join('')}${ch.wpn ? `<div class="syn-c syn-key"><h4>Разрыв между оружием</h4><p>${esc(ch.wpn)}</p></div>` : ''}</div>`; }
+  // оружие: сигнатурка идёт первой, записи со ссылкой на каталог открывают карточку оружия
+  const wpNorm = n => String(n).replace(/\s*\([^)]*\)\s*/g, ' ').trim().toLowerCase();
+  const wpKey = x => { if (x.k && WEAP.weapons[x.k]) return x.k; const t = wpNorm(x.n); return Object.keys(WEAP.weapons).find(k => k.toLowerCase() === t) || null; };
+  function wpBody(ch){
+    const sg = WEAP.sig[ch.n], list = (ch.wp || []).slice();
+    const isSig = x => !!sg && (wpNorm(x.n) === sg.toLowerCase() || /сигнатур/i.test(x.n));
+    if (sg && !list.some(isSig)) list.unshift({n: sg, sg: 1, t: 'Описание для этого персонажа пока не написано.'});
+    return `<div class="syn">${list.map(x => { const k = wpKey(x) || (sg && isSig(x) && WEAP.weapons[sg] ? sg : null), w = k && WEAP.weapons[k];
+      const ic = w && w.img ? `<img class="wp-ic" src="${esc(w.img)}" alt="" loading="lazy">` : '';
+      const tag = (x.sg || isSig(x)) ? '<span class="wp-sg">Сигнатурное</span>' : '';
+      return `<div class="syn-c${k ? ' wp-link' : ''}"${k ? ` role="button" tabindex="0" data-wp="${esc(k)}"` : ''}><h4>${ic}${x.r ? x.r + '. ' : ''}${esc(tag ? x.n.replace(/\s*\(сигнатурное\)\s*/i, '') : x.n)}${tag}</h4><p>${esc(x.t)}</p>${k ? '<span class="wp-go">Карточка оружия ›</span>' : ''}</div>`; }).join('')}${ch.wpn ? `<div class="syn-c syn-key"><h4>Разрыв между оружием</h4><p>${esc(ch.wpn)}</p></div>` : ''}</div>`; }
   // созвездия: фон по стихии, 6 кружков; по клику на кружок показывается описание (ch.con = [{c:'C0',t}, {c:'C1',t,n?,ic?}, ...])
   const CNSLUG = {'Пиро':'pyro','Гидро':'hydro','Анемо':'anemo','Гео':'geo','Электро':'electro','Дендро':'dendro','Крио':'cryo'};
   const CNPOS = [[1525,277],[1580,389],[1616,500],[1616,611],[1580,722],[1508,832]].map(([x,y]) => [((x-1380)/520*100).toFixed(2), ((y-215)/680*100).toFixed(2)]);
@@ -645,8 +656,10 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     $('sheet').querySelectorAll('.mypb').forEach(x=>x.setAttribute('aria-pressed', String(x.dataset.st===stOf(ch))));
     render();
   });
+  $('spanel').addEventListener('keydown', ev => { const wl = ev.target.closest && ev.target.closest('.wp-link'); if (wl && (ev.key === 'Enter' || ev.key === ' ') && window.openWeapon){ ev.preventDefault(); window.openWeapon(wl.dataset.wp, wl); } });
   $('spanel').addEventListener('click', ev => {
     if (ev.target.closest('.sp-x')){ sfx(SFX_CLOSE); spKey = null; spRender(spCh); return; }
+    const wl = ev.target.closest('[data-wp]'); if (wl && window.openWeapon){ window.openWeapon(wl.dataset.wp, wl); return; }
     const tb = ev.target.closest('.tm'); if (tb && !tb.disabled){ const j = CHARS.findIndex(c => c.n === tb.dataset.tm); if (j >= 0){ sfx(SFX_OPEN); openSheet(j, tb, true); } }
   });
   // перенос коллекции кодом
@@ -890,7 +903,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
   (function views(){ if (!document.getElementById('welcome')) return;
     const root = document.documentElement, W = document.getElementById('welcome'), vid = document.getElementById('wvid'), wv = W.querySelector('.wv');
     function apply(){ if (/^#(map|карта)/i.test(decodeURI(location.hash))){ location.replace('map.html'); return; }   // карта теперь на map.html
-      const h = decodeURI(location.hash), dict = /^#(dict|словарь)/i.test(h), map = /^#(map|карта)/i.test(h), arts = /^#(arts|артефакты)/i.test(h), home = !dict && !map && !arts && !/^#(chars|персонажи)/i.test(h); root.classList.toggle('v-home', home); root.classList.toggle('v-dict', dict); root.classList.toggle('v-map', map); root.classList.toggle('v-arts', arts);
+      const h = decodeURI(location.hash), dict = /^#(dict|словарь)/i.test(h), map = /^#(map|карта)/i.test(h), arts = /^#(arts|артефакты)/i.test(h), weap = /^#(weapons|оружие)/i.test(h), home = !dict && !map && !arts && !weap && !/^#(chars|персонажи)/i.test(h); root.classList.toggle('v-home', home); root.classList.toggle('v-dict', dict); root.classList.toggle('v-map', map); root.classList.toggle('v-arts', arts); root.classList.toggle('v-weap', weap);
       if (home){ vid.play && vid.play().catch(()=>{}); } else { vid.pause && vid.pause(); } }
     // ряд стихий на экранах загрузки (как в Геншине): заполняются цветом слева направо, при заполнении — вспышка своим цветом
     const ELS = [['pyro','#FF7B5C'],['hydro','#4FD3F7'],['anemo','#6FE3C1'],['electro','#C58CFF'],['dendro','#9BDB4E'],['cryo','#A8EEF5'],['geo','#F5C84C']];
@@ -996,6 +1009,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     }
     document.getElementById('goDict').addEventListener('click', ()=>fly(dictLoad));
     document.getElementById('goArts').addEventListener('click', ()=>fly(()=>{ location.hash = 'arts'; scrollTo(0,0); }));
+    document.getElementById('goWeap').addEventListener('click', ()=>fly(()=>{ location.hash = 'weapons'; scrollTo(0,0); }));
     // звук кнопки «На главную»
     const HOME_SFX = new Audio('sfx_home.mp3'); HOME_SFX.preload = 'auto';
     // звук кнопок на главной: любая кнопка внутри .welcome (Словарь, Персонажи и будущие)
@@ -1005,7 +1019,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
       const v = window.gMusic ? window.gMusic.sfxVol() : .5;
       if (v > 0){ const a = BTN_SFX.cloneNode(); a.volume = v; a.play().catch(()=>{});
         // «влёт» при переходе в раздел (как загрузка в Геншине)
-        if (b.id === 'goDict' || b.id === 'goChars' || b.id === 'goMap' || b.id === 'goArts'){ const w = WHOOSH.cloneNode(), u = BUBBLE.cloneNode(); w.volume = u.volume = v;
+        if (b.id === 'goDict' || b.id === 'goChars' || b.id === 'goMap' || b.id === 'goArts' || b.id === 'goWeap'){ const w = WHOOSH.cloneNode(), u = BUBBLE.cloneNode(); w.volume = u.volume = v;
           setTimeout(()=>{ w.play().catch(()=>{}); u.play().catch(()=>{}); }, 90);} }   // влёт + «буль-буль» телепорта, как в игре
     }, true);
     document.getElementById('goHome').addEventListener('click', ()=>{
@@ -1372,6 +1386,74 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     ag.addEventListener('keydown', e => { if (e.target.closest('.who-a')) return; const c = e.target.closest('.aset'); if (c && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); openSet(c.dataset.n, c); } });
     window.openArtSet = (n, from, who) => openSet(n, from, who);
     render();
+  })();
+
+  // ===== Оружие (раздел-каталог) =====
+  (function weapView(){
+    const box = document.getElementById('weapv'); if (!box) return;
+    const WT = ['Одноручное','Двуручное','Древковое','Стрелковое','Катализатор'];
+    const NAMES = () => Object.keys(WEAP.weapons);
+    box.innerHTML = `<div class="dhead"><div><h2>Оружие <span>чем бить, чтобы не плакать</span></h2>
+        <p class="dmeme">Каталог оружия. Сигнатурка — это красиво, но <b>иногда копьё за 3 звезды делает ровно то же самое</b>.</p></div>
+        <div class="dtools"><label class="search" for="wq"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="wq" type="search" placeholder="Найти оружие" autocomplete="off" aria-label="Поиск по оружию"></label></div></div>
+      <div class="wfl" id="wfl" role="group" aria-label="Фильтр"></div>
+      <div class="dcount" id="wcount"></div><div class="agrid" id="wgrid"></div>`;
+    let q = '', ft = '', fr = 0;
+    const CHN = Object.fromEntries(CHARS.map(c => [c.n, c]));
+    const hl = t => { if (!q) return esc(t); const i = t.toLowerCase().indexOf(q); return i < 0 ? esc(t) : esc(t.slice(0,i)) + '<mark>' + esc(t.slice(i,i+q.length)) + '</mark>' + esc(t.slice(i+q.length)); };
+    // кто использует: сигнатурка персонажа + записи в его разделе «Оружие»
+    function usersOf(k){
+      const set = new Set();
+      Object.entries(WEAP.sig).forEach(([nm, s]) => { if (s && s.toLowerCase() === k.toLowerCase()) set.add(nm); });
+      CHARS.forEach(c => (c.wp || []).forEach(x => { if (wpKey(x) === k) set.add(c.n); }));
+      return [...set].map(n => CHN[n]).filter(Boolean);
+    }
+    const whoBtns = k => usersOf(k).map(c => `<button type="button" class="who-a r${c.r||0}" data-ch="${esc(c.n)}" title="${esc(c.n)}" aria-label="${esc(c.n)}" style="--ec:${(byName[c.e]||ANY).c}"><img src="${c.img}" alt="" loading="lazy" decoding="async"></button>`).join('');
+    function filters(){
+      const types = WT.filter(t => NAMES().some(k => WEAP.weapons[k].t === t));
+      const stars = [5,4,3].filter(r => NAMES().some(k => WEAP.weapons[k].r === r));
+      document.getElementById('wfl').innerHTML = (types.length > 1 ? types.map(t => `<button type="button" class="chip" data-t="${t}" aria-pressed="${ft === t}">${t}</button>`).join('') : '')
+        + (stars.length > 1 ? stars.map(r => `<button type="button" class="chip" data-r="${r}" aria-pressed="${fr === r}">${r}★</button>`).join('') : '');
+    }
+    function render(){
+      const list = NAMES().filter(n => { const w = WEAP.weapons[n]; return (!q || n.toLowerCase().includes(q)) && (!ft || w.t === ft) && (!fr || w.r === fr); })
+        .sort((a,b) => (WEAP.weapons[b].r||0) - (WEAP.weapons[a].r||0) || a.localeCompare(b,'ru'));
+      const k = list.length, w = k%10===1 && k%100!==11 ? 'позиция' : (k%10>=2 && k%10<=4 && (k%100<10 || k%100>=20)) ? 'позиции' : 'позиций';
+      document.getElementById('wcount').textContent = `${k} ${w}`;
+      document.getElementById('wgrid').innerHTML = k ? list.map(n => { const o = WEAP.weapons[n];
+        const ic = o.img ? `<img src="${esc(o.img)}" alt="" loading="lazy">` : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 19 17 7m0 0h-5m5 0v5M4 20l3-1-2-2z"/></svg>`;
+        const wh = whoBtns(n);
+        return `<article class="aset wset" tabindex="0" role="button" data-n="${esc(n)}"><div class="art-c"><div class="art-ic">${ic}</div><div class="art-tx"><div class="art-n">${hl(n)}</div><p class="art-j">${esc(o.t || '')} · <span class="wst">${'★'.repeat(o.r||0)}</span></p></div></div>${wh ? `<div class="aset-who" aria-label="Кому подходит">${wh}</div>` : ''}</article>`; }).join('')
+        : `<div class="dempty">${NAMES().length ? 'Такого оружия нет. Наверное, его ещё не выбили.' : 'Каталог пока пуст: оружие добавляем пачками.'}</div>`;
+    }
+    document.getElementById('wq').addEventListener('input', e => { q = e.target.value.trim().toLowerCase(); render(); });
+    document.getElementById('wfl').addEventListener('click', e => { const b = e.target.closest('.chip'); if (!b) return;
+      if (b.dataset.t !== undefined) ft = ft === b.dataset.t ? '' : b.dataset.t; else fr = fr === +b.dataset.r ? 0 : +b.dataset.r; filters(); render(); sfx(SFX_PICK); });
+
+    // карточка оружия
+    const OV = document.getElementById('wov'), WC = document.getElementById('wcard'); let lastW = null;
+    function openWeap(n, from){
+      const o = WEAP.weapons[n]; if (!o) return false; lastW = from || document.activeElement;
+      const rows = [['Базовая атака', o.atk], ['Доп. стат', o.sub]].filter(r => r[1]);
+      const wh = whoBtns(n);
+      WC.innerHTML = `<h3 class="ac-h" id="wcName">${esc(n)}<button class="ac-x" type="button" aria-label="Закрыть">×</button></h3>
+        <div class="ac-ban"><span class="ac-slot">${esc(o.t || '')}</span>${o.img ? `<img src="${esc(o.img)}" alt="">` : ''}<div class="ac-st" aria-label="${o.r||5} звёзд">${'★'.repeat(o.r||5)}</div></div>
+        ${rows.length ? `<div class="ac-b"><h4>Характеристики</h4><div class="wc-rows">${rows.map(r => `<div><i>${r[0]}</i><b>${esc(r[1])}</b></div>`).join('')}</div></div>` : ''}
+        <div class="ac-b"><h4>${o.pn ? esc(o.pn) : 'Пассивка'}</h4>${o.pt ? `<p class="wc-pt">${esc(o.pt)}</p>` : '<p class="none">Пока не заполнено</p>'}${o.j ? `<p class="ac-j">${esc(o.j)}</p>` : ''}</div>
+        ${wh ? `<div class="ac-b"><h4>Кому подходит</h4><div class="aset-who wc-who">${wh}</div></div>` : ''}`;
+      OV.hidden = false; sfx(SFX_OPEN); WC.querySelector('.ac-x').focus(); return true;
+    }
+    function closeWeap(){ if (OV.hidden) return; OV.hidden = true; sfx(SFX_CLOSE); if (lastW && lastW.focus) lastW.focus(); }
+    WC.addEventListener('click', e => { if (e.target.closest('.ac-x')) return closeWeap();
+      const w = e.target.closest('.who-a'); if (w){ closeWeap(); if (window.openChar) window.openChar(w.dataset.ch, w); } });
+    OV.addEventListener('click', e => { if (e.target === OV || e.target.classList.contains('aov-in')) closeWeap(); });
+    addEventListener('keydown', e => { if (e.key === 'Escape' && !OV.hidden){ e.stopPropagation(); closeWeap(); } }, true);
+    const wg = document.getElementById('wgrid');
+    wg.addEventListener('click', e => { const w = e.target.closest('.who-a'); if (w){ e.stopPropagation(); if (window.openChar) window.openChar(w.dataset.ch, w); return; } const c = e.target.closest('.wset'); if (c) openWeap(c.dataset.n, c); });
+    wg.addEventListener('keydown', e => { if (e.target.closest('.who-a')) return; const c = e.target.closest('.wset'); if (c && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); openWeap(c.dataset.n, c); } });
+    window.openWeapon = (n, from) => openWeap(n, from);
+    filters(); render();
   })();
   document.addEventListener('click', e => { const b = e.target.closest('.artlink, .artlink-alt'); if (b && window.openArtSet) window.openArtSet(b.dataset.set, b, b.dataset.who); });
 })();
