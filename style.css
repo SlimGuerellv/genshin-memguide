@@ -2091,9 +2091,36 @@ html.v-weap #charsv, html.v-weap header.top .tools{display:none}
 .wc-pt{font-size:14.5px; line-height:1.55}
 .wc-who{display:flex; flex-wrap:wrap; gap:6px; border:0; padding:0; margin:0}
 .wc-who .who-a{width:38px; height:38px}
-.wp-ic{width:28px; height:28px; object-fit:contain; vertical-align:middle; margin-right:8px}
+.syn-c.wp-has{display:flex; gap:12px; align-items:flex-start}
+.wp-ic{flex:none; width:60px; height:auto; align-self:flex-start; filter:drop-shadow(0 3px 6px rgb(0 0 0 / .4))}
+.wp-tx{min-width:0; flex:1}
 .wp-sg{margin-left:8px; padding:1px 8px; border-radius:999px; font-size:10.5px; letter-spacing:.06em; background:color-mix(in srgb, var(--gold) 25%, transparent); border:1px solid color-mix(in srgb, var(--gold) 55%, transparent); color:var(--gold); vertical-align:middle}
 .syn-c.wp-link{cursor:pointer; transition:transform .15s, box-shadow .15s}
 .syn-c.wp-link:hover{transform:translateY(-1px); box-shadow:0 0 0 1px color-mix(in srgb, var(--gold) 55%, transparent)}
 .syn-c.wp-link:focus-visible{outline:2px solid var(--gold); outline-offset:2px}
 .wp-go{display:block; margin-top:8px; font-size:12.5px; color:var(--gold)}
+
+/* каталог оружия: карточки как у персонажей, смужка по редкости (а не по стихии) */
+.wgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:68px 100px; margin-bottom:40px}
+@media (max-width:720px){ .wgrid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:34px 44px} }
+@media (max-width:380px){ .wgrid{grid-template-columns:repeat(2,minmax(0,1fr))} }
+.wgrid > .pl{z-index:0} .wgrid > .pl:hover, .wgrid > .pl:focus-within{z-index:3}
+.card.wk5{--c:#F2CF72} .card.wk4{--c:#B98CFF} .card.wk3{--c:#6EC1FF}
+.card.wk5 .strip{background:linear-gradient(160deg,#8a6420 0%,#F2CF72 30%,#FFF3C4 50%,#F2CF72 70%,#8a6420 100%); background-size:100% 250%; animation:lgStrip 3s ease-in-out infinite alternate}
+.card.wk5 .strip span{color:#2a1c04}
+.card.wk4 .strip{background:linear-gradient(160deg,#5b3a9a 0%,#B98CFF 32%,#E2CCFF 50%,#B98CFF 68%,#5b3a9a 100%); background-size:100% 250%; animation:lgStrip 3.4s ease-in-out infinite alternate}
+.card.wk4 .strip span{color:#1d0f3a}
+.card.wk3 .strip span{color:#06192b}
+.card.wk5{box-shadow:0 0 14px rgb(242 207 114 / .35), 0 8px 24px -14px rgb(0 0 0 / .8)}
+.card.wk4{box-shadow:0 0 12px rgb(185 140 255 / .3), 0 8px 24px -14px rgb(0 0 0 / .8)}
+.art img.photo.wph{object-fit:contain; object-position:50% 45%; padding:7% 8% 14%; transform:rotate(0deg)}
+.wk5 .art .aura{background:radial-gradient(58% 60% at 50% 50%, rgb(255 205 100 / .55) 0%, rgb(255 205 100 / .14) 55%, transparent 78%)}
+.wk4 .art .aura{background:radial-gradient(58% 60% at 50% 50%, rgb(185 140 255 / .5) 0%, rgb(185 140 255 / .14) 55%, transparent 78%)}
+.wtp{font-size:clamp(9px, 6.4cqw, 12px); color:#e8e2d4; opacity:.9; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; text-shadow:0 1px 2px rgb(0 0 0 / .9)}
+.wset mark{background:rgb(233 196 106 / .45); color:inherit; border-radius:3px}
+
+/* фон карточек оружия: один на все (рамка и свечение дают редкость) */
+.card.wset .art{background:url(wp_bg.webp?v=1) center/cover no-repeat}
+.card.wset .art .aura{display:none}
+.card.wset .art .meta{background:linear-gradient(transparent, rgb(20 10 2 / .78))}
+@media (max-width:720px){ .wtp{display:none} }

@@ -579,9 +579,9 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     const isSig = x => !!sg && (wpNorm(x.n) === sg.toLowerCase() || /сигнатур/i.test(x.n));
     if (sg && !list.some(isSig)) list.unshift({n: sg, sg: 1, t: 'Описание для этого персонажа пока не написано.'});
     return `<div class="syn">${list.map(x => { const k = wpKey(x) || (sg && isSig(x) && WEAP.weapons[sg] ? sg : null), w = k && WEAP.weapons[k];
-      const ic = w && w.img ? `<img class="wp-ic" src="${esc(w.img)}" alt="" loading="lazy">` : '';
+      const cd = w && (w.card || w.img), ic = cd ? `<img class="wp-ic" src="${esc(cd)}" alt="" loading="lazy">` : '';
       const tag = (x.sg || isSig(x)) ? '<span class="wp-sg">Сигнатурное</span>' : '';
-      return `<div class="syn-c${k ? ' wp-link' : ''}"${k ? ` role="button" tabindex="0" data-wp="${esc(k)}"` : ''}><h4>${ic}${x.r ? x.r + '. ' : ''}${esc(tag ? x.n.replace(/\s*\(сигнатурное\)\s*/i, '') : x.n)}${tag}</h4><p>${esc(x.t)}</p>${k ? '<span class="wp-go">Карточка оружия ›</span>' : ''}</div>`; }).join('')}${ch.wpn ? `<div class="syn-c syn-key"><h4>Разрыв между оружием</h4><p>${esc(ch.wpn)}</p></div>` : ''}</div>`; }
+      return `<div class="syn-c${k ? ' wp-link' : ''}${ic ? ' wp-has' : ''}"${k ? ` role="button" tabindex="0" data-wp="${esc(k)}"` : ''}>${ic}<div class="wp-tx"><h4>${x.r ? x.r + '. ' : ''}${esc(tag ? x.n.replace(/\s*\(сигнатурное\)\s*/i, '') : x.n)}${tag}</h4><p>${esc(x.t)}</p>${k ? '<span class="wp-go">Карточка оружия ›</span>' : ''}</div></div>`; }).join('')}${ch.wpn ? `<div class="syn-c syn-key"><h4>Разрыв между оружием</h4><p>${esc(ch.wpn)}</p></div>` : ''}</div>`; }
   // созвездия: фон по стихии, 6 кружков; по клику на кружок показывается описание (ch.con = [{c:'C0',t}, {c:'C1',t,n?,ic?}, ...])
   const CNSLUG = {'Пиро':'pyro','Гидро':'hydro','Анемо':'anemo','Гео':'geo','Электро':'electro','Дендро':'dendro','Крио':'cryo'};
   const CNPOS = [[1525,277],[1580,389],[1616,500],[1616,611],[1580,722],[1508,832]].map(([x,y]) => [((x-1380)/520*100).toFixed(2), ((y-215)/680*100).toFixed(2)]);
@@ -1398,7 +1398,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
         <div class="dtools"><label class="search" for="wq"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
         <input id="wq" type="search" placeholder="Найти оружие" autocomplete="off" aria-label="Поиск по оружию"></label></div></div>
       <div class="wfl" id="wfl" role="group" aria-label="Фильтр"></div>
-      <div class="dcount" id="wcount"></div><div class="agrid" id="wgrid"></div>`;
+      <div class="dcount" id="wcount"></div><div class="grid wgrid" id="wgrid" role="list"></div>`;
     let q = '', ft = '', fr = 0;
     const CHN = Object.fromEntries(CHARS.map(c => [c.n, c]));
     const hl = t => { if (!q) return esc(t); const i = t.toLowerCase().indexOf(q); return i < 0 ? esc(t) : esc(t.slice(0,i)) + '<mark>' + esc(t.slice(i,i+q.length)) + '</mark>' + esc(t.slice(i+q.length)); };
@@ -1421,10 +1421,12 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
         .sort((a,b) => (WEAP.weapons[b].r||0) - (WEAP.weapons[a].r||0) || a.localeCompare(b,'ru'));
       const k = list.length, w = k%10===1 && k%100!==11 ? 'позиция' : (k%10>=2 && k%10<=4 && (k%100<10 || k%100>=20)) ? 'позиции' : 'позиций';
       document.getElementById('wcount').textContent = `${k} ${w}`;
-      document.getElementById('wgrid').innerHTML = k ? list.map(n => { const o = WEAP.weapons[n];
-        const ic = o.img ? `<img src="${esc(o.img)}" alt="" loading="lazy">` : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 19 17 7m0 0h-5m5 0v5M4 20l3-1-2-2z"/></svg>`;
-        const wh = whoBtns(n);
-        return `<article class="aset wset" tabindex="0" role="button" data-n="${esc(n)}"><div class="art-c"><div class="art-ic">${ic}</div><div class="art-tx"><div class="art-n">${hl(n)}</div><p class="art-j">${esc(o.t || '')} · <span class="wst">${'★'.repeat(o.r||0)}</span></p></div></div>${wh ? `<div class="aset-who" aria-label="Кому подходит">${wh}</div>` : ''}</article>`; }).join('')
+      document.getElementById('wgrid').innerHTML = k ? list.map(n => { const o = WEAP.weapons[n], r = o.r || 0;
+        const cd = `<button class="card wset wk${r}${r===5||r===4 ? ' rr'+r : ''}" type="button" data-n="${esc(n)}" aria-label="${esc(n)}, ${esc(o.t || '')}, ${r} звёзд">
+          <div class="strip"><span style="--len:${n.length}">${hl(n)}</span></div>
+          <div class="art"><div class="aura" aria-hidden="true"></div>${o.img ? `<img class="photo wph" src="${esc(o.img)}" alt="" loading="lazy">` : ''}
+            <div class="meta"><span class="stars si${r}" role="img" aria-label="${r} звёзд"></span><span class="wtp">${esc(o.t || '')}</span></div></div></button>`;
+        return (r===5 || r===4) ? `<div class="pl pl${r}">${cd}</div>` : cd; }).join('')
         : `<div class="dempty">${NAMES().length ? 'Такого оружия нет. Наверное, его ещё не выбили.' : 'Каталог пока пуст: оружие добавляем пачками.'}</div>`;
     }
     document.getElementById('wq').addEventListener('input', e => { q = e.target.value.trim().toLowerCase(); render(); });
@@ -1450,8 +1452,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     OV.addEventListener('click', e => { if (e.target === OV || e.target.classList.contains('aov-in')) closeWeap(); });
     addEventListener('keydown', e => { if (e.key === 'Escape' && !OV.hidden){ e.stopPropagation(); closeWeap(); } }, true);
     const wg = document.getElementById('wgrid');
-    wg.addEventListener('click', e => { const w = e.target.closest('.who-a'); if (w){ e.stopPropagation(); if (window.openChar) window.openChar(w.dataset.ch, w); return; } const c = e.target.closest('.wset'); if (c) openWeap(c.dataset.n, c); });
-    wg.addEventListener('keydown', e => { if (e.target.closest('.who-a')) return; const c = e.target.closest('.wset'); if (c && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); openWeap(c.dataset.n, c); } });
+    wg.addEventListener('click', e => { const c = e.target.closest('.wset'); if (c) openWeap(c.dataset.n, c); });
     window.openWeapon = (n, from) => openWeap(n, from);
     filters(); render();
   })();
