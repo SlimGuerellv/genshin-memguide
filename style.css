@@ -2156,3 +2156,9 @@ html.v-weap #charsv, html.v-weap header.top .tools{display:none}
 .wgrid{grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:52px 60px}
 @media (max-width:720px){ .wgrid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:24px 26px} .card.wset{aspect-ratio:1.18/1} }
 @media (max-width:380px){ .wgrid{grid-template-columns:repeat(2,minmax(0,1fr))} }
+/* каталог оружия: без золота и без разделения по цвету; рамка, смужка и свечение нейтральные */
+.wgrid > .pl::before{background:linear-gradient(160deg,#4a5368,#2c3345 55%,#4a5368); box-shadow:0 6px 18px rgb(0 0 0 / .55)}
+.card.wset, .card.wk5, .card.wk4, .card.wk3{box-shadow:0 8px 24px -14px rgb(0 0 0 / .8)}
+.card.wset > .strip, .card.wk5 .strip, .card.wk4 .strip, .card.wk3 .strip{background:linear-gradient(160deg,#1f2535 0%,#3a4259 50%,#1f2535 100%); animation:none}
+.card.wset .strip span, .card.wk5 .strip span, .card.wk4 .strip span, .card.wk3 .strip span{color:#eef1f8}
+.card.wset .art .meta::before, .card.wset .art .meta::after{display:none!important; content:none!important}
