@@ -2177,3 +2177,4 @@ html.v-weap #charsv, html.v-weap header.top .tools{display:none}
 }
 /* Каталог оружия: 4 в ряд на ПК */
 @media (min-width:721px){ .wgrid{grid-template-columns:repeat(4,minmax(0,1fr)); gap:52px 40px} }
+@media (min-width:721px){ .card.wset .strip span{font-size:max(10px, min(calc(var(--wf,22px) * .85), calc((100cqh - 58px) / (var(--lw,8) * .6)), 36cqw))} }
