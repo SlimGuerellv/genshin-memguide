@@ -2180,3 +2180,18 @@ html.v-weap #charsv, html.v-weap header.top .tools{display:none}
 @media (min-width:721px){ .card.wset .strip span{font-size:max(10px, min(calc(var(--wf,22px) * .85), calc((100cqh - 58px) / (var(--lw,8) * .6)), 36cqw))} }
 /* 4★: фиолетовый фон плитки оружия */
 .card.wset.wk4 .art{background-image:url(wp_bg4.webp?v=1)}
+/* 1-3★ оружие: банер карточки, фон плитки, цвет рамки, звёзды */
+.wcard[data-r="1"] .ac-ban{background-image:url(wb1.webp?v=1); border-bottom-color:#6f8290}
+.wcard[data-r="2"] .ac-ban{background-image:url(wb2.webp?v=1); border-bottom-color:#3f9a72}
+.wcard[data-r="3"] .ac-ban{background-image:url(wb3.webp?v=1); border-bottom-color:#2f9bb3}
+.card.wk1{--c:#AEB8C4} .card.wk2{--c:#8FD3A8}
+.card.wset.wk1 .art{background-image:url(wp_bg1.webp?v=1)}
+.card.wset.wk2 .art{background-image:url(wp_bg2.webp?v=1)}
+.card.wset.wk3 .art{background-image:url(wp_bg3.webp?v=1)}
+.card.wk1{box-shadow:0 0 10px rgb(174 184 196 / .25), 0 8px 24px -14px rgb(0 0 0 / .8)}
+.card.wk2{box-shadow:0 0 10px rgb(143 211 168 / .28), 0 8px 24px -14px rgb(0 0 0 / .8)}
+.card.wk3{box-shadow:0 0 12px rgb(110 193 255 / .3), 0 8px 24px -14px rgb(0 0 0 / .8)}
+.card.wset > .strip, .card.wk2 .strip, .card.wk1 .strip{background:linear-gradient(#f1ebdf,#dcd3c1); border-right:0; padding-top:50px; animation:none}
+.card.wset .strip span, .card.wk2 .strip span, .card.wk1 .strip span{color:#3b4255}
+.stars.si3::before,.stars.si2::before,.stars.si1::before{display:block}
+.stars.si3::before{content:"\2605\2605\2605"} .stars.si2::before{content:"\2605\2605"} .stars.si1::before{content:"\2605"}

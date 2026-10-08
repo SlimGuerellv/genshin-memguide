@@ -1413,7 +1413,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     const whoBtns = k => usersOf(k).map(c => `<button type="button" class="who-a r${c.r||0}" data-ch="${esc(c.n)}" title="${esc(c.n)}" aria-label="${esc(c.n)}" style="--ec:${(byName[c.e]||ANY).c}"><img src="${c.img}" alt="" loading="lazy" decoding="async"></button>`).join('');
     function filters(){
       const types = WT.filter(t => NAMES().some(k => WEAP.weapons[k].t === t));
-      const stars = [5,4,3].filter(r => NAMES().some(k => WEAP.weapons[k].r === r));
+      const stars = [5,4,3,2,1].filter(r => NAMES().some(k => WEAP.weapons[k].r === r));
       document.getElementById('wfl').innerHTML = (types.length > 1 ? types.map(t => `<button type="button" class="chip" data-t="${t}" aria-pressed="${ft === t}">${t}</button>`).join('') : '')
         + (stars.length > 1 ? stars.map(r => `<button type="button" class="chip" data-r="${r}" aria-pressed="${fr === r}">${r}★</button>`).join('') : '');
     }
@@ -1440,6 +1440,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
       const o = WEAP.weapons[n]; if (!o) return false; lastW = from || document.activeElement;
       const rows = [['Базовая атака', o.atk], ['Доп. стат', o.sub]].filter(r => r[1]);
       const wh = whoBtns(n);
+      WC.dataset.r = o.r || 5;
       WC.innerHTML = `<h3 class="ac-h" id="wcName">${esc(n)}<button class="ac-x" type="button" aria-label="Закрыть">×</button></h3>
         <div class="ac-ban"><span class="ac-slot">${esc(o.t || '')}</span>${o.img ? `<img src="${esc(o.img)}" alt="">` : ''}<div class="ac-st" aria-label="${o.r||5} звёзд">${'★'.repeat(o.r||5)}</div></div>
         ${rows.length ? `<div class="ac-b"><h4>Характеристики</h4><div class="wc-rows">${rows.map(r => `<div><i>${r[0]}</i><b>${esc(r[1])}</b></div>`).join('')}</div></div>` : ''}
