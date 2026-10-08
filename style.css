@@ -2162,3 +2162,16 @@ html.v-weap #charsv, html.v-weap header.top .tools{display:none}
 .card.wset > .strip, .card.wk5 .strip, .card.wk4 .strip, .card.wk3 .strip{background:linear-gradient(160deg,#1f2535 0%,#3a4259 50%,#1f2535 100%); animation:none}
 .card.wset .strip span, .card.wk5 .strip span, .card.wk4 .strip span, .card.wk3 .strip span{color:#eef1f8}
 .card.wset .art .meta::before, .card.wset .art .meta::after{display:none!important; content:none!important}
+
+/* карточки оружия: кремовая смужка в стиле меню игры, значок типа, линия и ромб */
+.card.wset > .strip, .card.wk5 .strip, .card.wk4 .strip, .card.wk3 .strip{background:linear-gradient(#f1ebdf,#dcd3c1); border-right:0; padding-top:50px; animation:none}
+.card.wset .strip span, .card.wk5 .strip span, .card.wk4 .strip span, .card.wk3 .strip span{color:#3b4255}
+.card.wset .strip::before{content:""; position:absolute; left:30%; right:30%; top:52px; height:1px; background:#3b4255; opacity:.5}
+.card.wset .strip .wti{position:absolute; top:9px; left:50%; width:36px; height:36px; transform:translateX(-50%); pointer-events:none}
+.card.wset::after{content:""; position:absolute; top:50%; left:33%; width:9px; height:9px; background:#ece5d8; border:2px solid #3b4255; transform:translate(-50%,-50%) rotate(45deg); z-index:2; pointer-events:none}
+@media (max-width:720px){
+  .card.wset > .strip{padding-top:36px}
+  .card.wset .strip::before{top:38px}
+  .card.wset .strip .wti{width:26px; height:26px; top:7px}
+  .card.wset::after{width:7px; height:7px}
+}
