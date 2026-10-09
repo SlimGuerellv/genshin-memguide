@@ -2203,3 +2203,5 @@ html.v-weap #charsv, html.v-weap header.top .tools{display:none}
 .wcard[data-r="4"]{--wh:#A256E1; --wf:#7E45AD} .wcard[data-r="4"] .ac-ban{background-image:url(wb4.webp?v=2); border-bottom-color:#866796}
 .wcard[data-r="5"]{--wh:#BF6A33; --wf:#964F23} .wcard[data-r="5"] .ac-ban{background-image:url(wb5.webp?v=2); border-bottom-color:#9D7544}
 .wcard .ac-b h4{color:var(--wf,#964F23)} .wcard .ac-b h4::before{background:var(--wh,#BF6A33)} .wcard .ac-b h4::after{background:linear-gradient(90deg,var(--wf,#964F23),transparent); opacity:.4}
+/* Карточка оружия: ширина не зависит от длины текстов (без этого карточка без «Доп. стат» сжимается) */
+.aov-in .wcard{width:min(460px,100vw)}
