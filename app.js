@@ -370,16 +370,67 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     return `<div class="gwave w1" aria-hidden="true"></div><div class="gwave w2" aria-hidden="true"></div><div class="gwave w3" aria-hidden="true"></div>
       <div class="gorbit" aria-hidden="true">${cr}</div><div class="gbits" aria-hidden="true">${dust}</div>`;
   }
+  function zhongliHero(){
+    // стела Dominus Lapidis вырастает из земли: трещины от основания, янтарные кристаллы, печать гео (в стиле купола Нахиды)
+    const rnd = (a,b) => a + Math.random()*(b-a), f1 = n => n.toFixed(1);
+    const jag = (x0,y0,x1,y1,n,amp) => { const dx = x1-x0, dy = y1-y0, len = Math.hypot(dx,dy) || 1, nx = -dy/len, ny = dx/len, pts = [[x0,y0]];
+      for (let i=1;i<n;i++){ const t = i/n + rnd(-.03,.03), o = rnd(-amp,amp)*(1-t*.35); pts.push([x0+dx*t+nx*o, y0+dy*t+ny*o]); }
+      pts.push([x1,y1]); return pts; };
+    const taper = (pts,w) => { const L = [], R = [];
+      pts.forEach((p,i)=>{ const a = pts[Math.max(0,i-1)], b = pts[Math.min(pts.length-1,i+1)], dx = b[0]-a[0], dy = b[1]-a[1], l = Math.hypot(dx,dy) || 1, hw = w*Math.pow(1-i/(pts.length-1),.8) + .06;
+        L.push([p[0]-dy/l*hw, p[1]+dx/l*hw]); R.push([p[0]+dy/l*hw, p[1]-dx/l*hw]); });
+      return 'M' + L.concat(R.reverse()).map(p=>p.map(f1).join(' ')).join(' L') + ' Z'; };
+    const line = pts => 'M' + pts.map(p=>p.map(f1).join(' ')).join(' L');
+    const BX = 0, BY = 55;
+    // трещины: от основания стелы во все стороны, ломаные, сужаются к концу, с ответвлениями
+    const angs = [-4,-26,-52,-98,-128,-154,-176,184,16,38,142];
+    let cracks = '';
+    angs.forEach((deg,k)=>{
+      const a = deg*Math.PI/180, down = Math.sin(a) > .1, len = down ? rnd(26,40) : rnd(62,112) * (Math.abs(Math.cos(a))*.35 + .7);
+      const ex = BX + Math.cos(a)*len, ey = BY + Math.sin(a)*len*.95, main = jag(BX,BY,ex,ey,9,5.2), dl = (.5 + k*.012).toFixed(2);
+      let g = `<path class="zcr" d="${taper(main,3)}"/><path class="zcl" d="${line(main)}"/>`;
+      for (let b=0; b<(down?0:(len>80?2:1)); b++){
+        const si = 2 + Math.floor(rnd(0,3)), sp = main[si], ba = a + (b%2 ? -1 : 1) * rnd(.5,.85), bl = len*rnd(.3,.45),
+          br = jag(sp[0],sp[1], sp[0]+Math.cos(ba)*bl, sp[1]+Math.sin(ba)*bl, 5, 3);
+        g += `<path class="zcr" d="${taper(br,1.6)}"/><path class="zcl" d="${line(br)}"/>`; }
+      cracks += `<g class="zck" style="--dl:${dl}s">${g}</g>`;
+    });
+    // янтарные кристаллы вокруг основания
+    const cry = (x,y,w,h,rot,dl) => `<g transform="translate(${x} ${y}) rotate(${rot})"><g class="zcy" style="--dl:${dl}s">
+      <path d="M${-w} 0 L${-w} ${f1(-h*.62)} L0 ${-h} L0 0 Z" fill="url(#zcL)"/><path d="M0 0 L0 ${-h} L${w} ${f1(-h*.62)} L${w} 0 Z" fill="url(#zcR)"/>
+      <path class="zcs" d="M${-w} ${f1(-h*.62)} L0 ${-h} L${w} ${f1(-h*.62)} M0 ${-h} V0"/></g></g>`;
+    const back = [[-38,55,6,21,-20,.5],[36,55,6,23,18,.52],[-27,56,4.5,16,-32,.58],[27,56,4.5,15,30,.6],[-47,57,3.6,12,-26,.64],[47,57,3.8,13,24,.62]].map(a=>cry(...a)).join('');
+    const front = [[-14,60,5,15,-12,.62],[17,60,5.5,18,10,.56],[1,62,4,10,0,.68],[-25,61,3.6,10,-38,.7],[31,61,3.6,10,36,.72],[-7,64,3,7,-6,.76],[9,65,3,7,8,.78]].map(a=>cry(...a)).join('');
+    const defs = `<defs>
+      <linearGradient id="zsL" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#34291f"/><stop offset="1" stop-color="#5a4936"/></linearGradient>
+      <linearGradient id="zsR" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6a563f"/><stop offset="1" stop-color="#a38762"/></linearGradient>
+      <linearGradient id="zsT" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f1deb0"/><stop offset="1" stop-color="#b09468"/></linearGradient>
+      <linearGradient id="zAm" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6cf"/><stop offset=".45" stop-color="#ffc94a"/><stop offset="1" stop-color="#c47a12"/></linearGradient>
+      <linearGradient id="zcL" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#e09a1c"/><stop offset=".6" stop-color="#ffd24f"/><stop offset="1" stop-color="#fff2a8"/></linearGradient>
+      <linearGradient id="zcR" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#9a5a0a"/><stop offset=".6" stop-color="#d8920f"/><stop offset="1" stop-color="#f6c33e"/></linearGradient>
+      <clipPath id="zCard"><rect x="-97" y="-104" width="194" height="212" rx="12"/></clipPath>
+      <clipPath id="zGround"><rect x="-44" y="-80" width="88" height="140"/></clipPath>
+    </defs>`;
+    const R = 'matrix(1 -.5 0 1 0 0)', Lm = 'matrix(1 .5 0 1 0 0)';
+    const shards = [[-30,52,-1],[28,54,1],[-18,58,-1],[16,59,1],[-38,57,-1],[36,57,1]].map(([x,y,d],k)=>`<path class="zsh" style="--dx:${d*(14+k*3)}px;--dr:${d*(40+k*20)}deg;--dl:${(.46+k*.02).toFixed(2)}s" transform="translate(${x} ${y})" d="M-3 0 L0 -5 L4 -1 L2 3 Z"/>`).join('');
+    const body = `<g class="zcks" clip-path="url(#zCard)">${cracks}</g>${back}<ellipse class="zpool" cx="0" cy="54" rx="36" ry="9"/>
+      <g clip-path="url(#zGround)"><g class="zpil">
+        <path d="M-20 -42 L0 -32 L0 56 L-20 46Z" fill="url(#zsL)"/>
+        <path d="M0 -32 L20 -42 L20 46 L0 56Z" fill="url(#zsR)"/>
+        <path d="M0 -52 L20 -42 L0 -32 L-20 -42Z" fill="url(#zsT)"/>
+        <g transform="${Lm}" class="zgl dim"><path d="M-17 -26 H-3 M-17 -22 H-7 V-14 H-3 M-17 38 H-3 M-17 42 H-7 V50 H-3 M-14 6 H-6 V14 H-14 Z"/></g>
+        <g transform="${R}" class="zgl"><path d="M3 -26 H17 M3 42 H17 M10 -22 V-8 M10 24 V38"/><path d="M10 -8 L17 8 L10 24 L3 8 Z"/><path d="M10 -2 L14 8 L10 18 L6 8 Z"/><circle cx="10" cy="8" r="1.6" class="zdot"/></g>
+        <path class="zedge" d="M0 -32 V56"/><path class="zedge t" d="M-20 -42 L0 -52 L20 -42 L0 -32 Z"/>
+        <path class="zgem" d="M0 -48 L6 -42 L0 -36 L-6 -42 Z"/>
+      </g></g>${front}${shards}`;
+    return `<div class="zmet" aria-hidden="true"><div class="zaura"></div><svg class="zart" viewBox="-64 -64 128 128" overflow="visible">${defs}${body}</svg></div>`;
+  }
   function zhongliTop(){
     // метеор: скала с золотыми гео-рунами
-    const meteor = `<div class="ztrail" aria-hidden="true"></div><div class="zmet" aria-hidden="true"><div class="zaura"></div><img class="zfb" src="geocube.webp" alt=""></div>`;
-    const cracks = `<svg class="zcrack" viewBox="0 0 100 75" preserveAspectRatio="none" aria-hidden="true">
-      <path d="M50 37 L42 30 L38 18 L30 12 L26 2"/><path d="M50 37 L60 31 L66 20 L76 16 L82 4"/><path d="M50 37 L62 40 L74 38 L86 46 L98 44"/>
-      <path d="M50 37 L56 48 L54 60 L62 70 L64 75"/><path d="M50 37 L40 45 L30 44 L20 52 L4 50"/><path d="M50 37 L44 52 L36 60 L34 74"/>
-      <path d="M38 18 L32 22 L22 20"/><path d="M74 38 L78 30 L90 28"/><path d="M30 44 L28 34 L14 30"/></svg>`;
+    const meteor = zhongliHero();
     const deb = Array.from({length:12},(_,k)=>`<i class="zdeb" style="--a:${Math.round(k*30+Math.random()*20)}deg;--r:${Math.round(90+Math.random()*90)}px;--s:${Math.round(7+Math.random()*9)}px;--sp:${Math.round(Math.random()*720-360)}deg"></i>`).join('');
     return `<div class="morajump" aria-hidden="true"><img src="${ICONS.mora}" alt=""></div>${meteor}<div class="zflash" aria-hidden="true"></div>
-      <div class="zring" aria-hidden="true"></div><div class="zring r2" aria-hidden="true"></div>${cracks}${deb}`;
+      <div class="zring" aria-hidden="true"></div><div class="zring r2" aria-hidden="true"></div>${deb}`;
   }
   function ventiFx(){
     // анемо-вихрь за картой: спиральные потоки ветра + пёрышки
@@ -790,91 +841,6 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     function kick(){ if (!raf){ last = 0; raf = requestAnimationFrame(frame); } }
     document.addEventListener('pointerover', ev=>{ if (ev.target.closest && ev.target.closest('.ar-wrap.mavuika')) kick(); });
     document.addEventListener('focusin', ev=>{ if (ev.target.closest && ev.target.closest('.ar-wrap.mavuika')) kick(); });
-  })();
-  // ===== Гео-куб Чжун Ли как настоящая 3D-модель (three.js), крутится в полёте =====
-  (function zhongliCube3D(){
-    const URL3 = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
-    let S = null, loading = false;
-    function load(){ if (loading || window.THREE) { if (window.THREE && !S) init(); return; } loading = true;
-      const sc = document.createElement('script'); sc.src = URL3; sc.async = true; sc.onload = init; document.head.appendChild(sc); }
-    function stoneTex(glow){
-      const c = document.createElement('canvas'); c.width = c.height = 512; const x = c.getContext('2d');
-      if (glow){ x.fillStyle = '#000'; x.fillRect(0,0,512,512); }
-      else { x.fillStyle = '#4c3b30'; x.fillRect(0,0,512,512);
-        for (let i=0;i<5000;i++){ const v = Math.random()*28-14; x.fillStyle = `rgba(${v>0?255:0},${v>0?220:0},${v>0?180:0},${Math.abs(v)/260})`; x.fillRect(Math.random()*512,Math.random()*512,2,2); } }
-      // резные узоры: вложенные «уголки» и квадратные спирали, как на кубе
-      const line = (pts,w,col)=>{ x.strokeStyle = col; x.lineWidth = w; x.lineJoin = 'miter'; x.beginPath(); pts.forEach(([a,b],i)=>i?x.lineTo(a,b):x.moveTo(a,b)); x.stroke(); };
-      if (!glow){
-        for (let k=0;k<5;k++){ const o = 40+k*34; line([[o,256],[256,o],[512-o,256]],9,'#1e1612'); line([[o,264],[256,o+8],[512-o,264]],3,'rgba(220,185,150,.55)'); }
-        for (let k=0;k<4;k++){ const o = 300+k*26; line([[60,o],[60,o+160-k*40],[200-k*26,o+160-k*40]],6,'#1b1512'); line([[452,o],[452,o+160-k*40],[312+k*26,o+160-k*40]],6,'#1b1512'); }
-        line([[0,2],[512,2],[512,510],[0,510],[0,2]],6,'#15100d');
-      } else {
-        x.fillStyle = '#ffb21e'; [[248,100],[120,380],[380,380]].forEach(([a,b])=>x.fillRect(a,b,18,18));
-        line([[300,470],[470,470],[470,330]],7,'#ffb21e');
-      }
-      const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.encoding = THREE.sRGBEncoding; return t;
-    }
-    function init(){
-      if (S || !window.THREE) return;
-      const T = THREE, r = new T.WebGLRenderer({alpha:true, antialias:true});
-      r.setClearColor(0x000000, 0); r.outputEncoding = T.sRGBEncoding; r.toneMapping = T.ACESFilmicToneMapping; r.toneMappingExposure = 1.0;
-      r.domElement.className = 'zcube';
-      const scene = new T.Scene(), cam = new T.PerspectiveCamera(32, 1, .1, 100); cam.position.set(0, 0, 19);
-      scene.add(new T.AmbientLight(0xb89878, .7));
-      const d = new T.DirectionalLight(0xfff0d8, 1.6); d.position.set(-6, 8, 10); scene.add(d);
-      const d2 = new T.DirectionalLight(0xffa040, .5); d2.position.set(8, -4, 4); scene.add(d2);
-      const inner = new T.PointLight(0xffa21e, 3.2, 9, 1.5); scene.add(inner);
-      const stone = new T.MeshStandardMaterial({map:stoneTex(false), emissiveMap:stoneTex(true), emissive:0xffffff, emissiveIntensity:1, roughness:.62, metalness:.25});
-      const gold = new T.MeshStandardMaterial({color:0xffa81a, emissive:0xff8a00, emissiveIntensity:.28, roughness:.35, metalness:0}); gold.toneMapped = false;
-      // бруски с фаской (восьмигранное сечение), 3 пары вдоль осей — как «замок-головоломка»
-      const L = 5.6, h = 1, c = .36, sh = new T.Shape();
-      sh.moveTo(-h+c,-h); sh.lineTo(h-c,-h); sh.lineTo(h,-h+c); sh.lineTo(h,h-c); sh.lineTo(h-c,h); sh.lineTo(-h+c,h); sh.lineTo(-h,h-c); sh.lineTo(-h,-h+c); sh.closePath();
-      const bar = new T.ExtrudeGeometry(sh, {depth:L, bevelEnabled:true, bevelThickness:.08, bevelSize:.06, bevelSegments:2}); bar.translate(0,0,-L/2);
-      // развёртка UV для узора
-      const uv = bar.attributes.uv; for (let i=0;i<uv.count;i++) uv.setXY(i, uv.getX(i)*.2, uv.getY(i)*.2);
-      const cube = new T.Group();
-      const addBar = (axis, off) => { const m = new T.Mesh(bar, stone);
-        if (axis==='x'){ m.rotation.y = Math.PI/2; m.position.set(0, off, 0); }
-        if (axis==='y'){ m.rotation.x = Math.PI/2; m.position.set(0, 0, off); }
-        if (axis==='z'){ m.position.set(off, 0, 0); }
-        cube.add(m); };
-      [['x',1.02],['x',-1.02],['y',1.02],['y',-1.02],['z',1.02],['z',-1.02]].forEach(a=>addBar(...a));
-      // светящиеся жёлтые вставки в пустотах между брусками
-      const gb = new T.BoxGeometry(.95, .95, 1.3);
-      [[1,1,1],[-1,1,-1],[1,-1,-1],[-1,-1,1],[1,1,-1],[-1,-1,-1]].forEach(([a,b,cc],i)=>{ const m = new T.Mesh(gb, gold);
-        m.position.set(a*2.05, b*2.05, cc*2.05); m.rotation.set(i%2?Math.PI/2:0, i%3?Math.PI/2:0, 0); cube.add(m); });
-      [[0,3.1,0],[0,-3.1,0],[3.1,0,0]].forEach(p=>{ const m = new T.Mesh(new T.BoxGeometry(1,.6,1), gold); m.position.set(...p); cube.add(m); });
-      scene.add(cube);
-      S = {T, r, scene, cam, cube, gold, stone, inner, cur:null, t0:0, raf:0, base:Math.random()*6};
-      document.documentElement.classList.add('z3d');
-    }
-    function frame(ts){
-      const t = (ts - S.t0)/1000, fall = .52;
-      const k = Math.min(1, t/fall), ease = 1 - Math.pow(1-k, 2);
-      S.cube.rotation.y = S.base + ease*5.2 + Math.max(0, t-fall)*.5;
-      S.cube.rotation.x = .5 + ease*1.3 + Math.max(0, t-fall)*.2;
-      S.cube.rotation.z = .25 - ease*.4;
-      const hit = t > fall ? Math.exp(-(t-fall)*4) : 0;
-      S.gold.emissiveIntensity = .28 + hit*.9; S.inner.intensity = 3 + hit*5;
-      S.r.render(S.scene, S.cam);
-      S.raf = t < 1.9 ? requestAnimationFrame(frame) : 0;
-    }
-    function start(w){
-      const host = w.querySelector('.zmet'); if (!host) return;
-      if (S.r.domElement.parentNode !== host) host.appendChild(S.r.domElement);
-      const sz = host.getBoundingClientRect().width * 1.25, dpr = Math.min(2, devicePixelRatio||1);
-      S.r.setPixelRatio(dpr); S.r.setSize(sz, sz, false);
-      S.base = Math.random()*6; S.cur = w; S.t0 = performance.now();
-      if (!S.raf) S.raf = requestAnimationFrame(frame);
-    }
-    document.addEventListener('pointerover', ev=>{
-      const w = ev.target.closest && ev.target.closest('.ar-wrap.zhongli'); if (!w) return;
-      if (!S){ load(); return; }
-      const from = ev.relatedTarget; if (from && w.contains(from)) return;   // новое наведение, а не движение внутри
-      start(w);
-    });
-    const kick = () => { if (document.querySelector('.ar-wrap.zhongli')) load(); };
-    if ('requestIdleCallback' in window) requestIdleCallback(kick, {timeout:2500}); else setTimeout(kick, 1500);
   })();
 
   // ===== Живой фон =====
