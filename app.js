@@ -955,7 +955,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     function dictLoad(){
       DL.style.setProperty('--p','0%'); DL.classList.remove('ready'); DL.classList.add('on'); DP.textContent = 'Загрузка… 0%';
       // мем за баннером: еле видно, еле слышно, один раз; музыка главной на это время замолкает
-      window.gMusic && window.gMusic.hush();
+      try { window.gMusic && window.gMusic.hush(); } catch(e){}
       const MV = document.getElementById('dmeme');
       try { MV.currentTime = 0; } catch(e){}
       MV.volume = window.gMusic ? window.gMusic.memeVol() : .2; MV.muted = MV.volume === 0;
@@ -1174,7 +1174,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
             const s = ctx.createBufferSource(); s.buffer = b; s.loop = true; s.connect(wind.g); s.start(); }).catch(()=>{}); }
         wind.g.gain.setTargetAtTime(on ? WIND_LVL : 0, ctx.currentTime, on ? .8 : .35);
       } else {
-        if (!wind){ wind = {el: new Audio('wind.' + wext)}; wind.el.loop = true; }
+        if (!wind || !wind.el){ wind = {el: new Audio('wind.' + wext)}; wind.el.loop = true; }
         wind.el.volume = target() * WIND_LVL; on && !paused ? wind.el.play().catch(()=>{}) : wind.el.pause();
       }
     }
