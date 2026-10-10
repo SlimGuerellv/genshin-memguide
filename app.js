@@ -884,9 +884,10 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     const ease = k => k<.5 ? 2*k*k : 1-Math.pow(-2*k+2,2)/2;
     // персонажи: экран загрузки на фоне сайта
     const CL = document.getElementById('cload'), CROW = CL.querySelector('.elrow');
-    function charsLoad(){
+    function charsLoad(h, label){
+      h = h || 'chars'; CL.setAttribute('aria-label', label || 'Загрузка персонажей');
       setRow(CROW, 0); CL.classList.remove('ready'); root.classList.add('cl-on'); CL.classList.add('on');
-      location.hash = 'chars'; scrollTo(0,0);
+      location.hash = h; scrollTo(0,0);
       let t0 = performance.now(); const dur = 2600;
       (function step(ts){ const k = ease(Math.min(1, ((ts||t0)-t0)/dur)); setRow(CROW, k);
         if (k < 1){ requestAnimationFrame(step); return; }
@@ -906,7 +907,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
       setTimeout(cb, 520);                                  // экран загрузки появляется под полностью белым сиянием
       setTimeout(()=>{ FL.classList.remove('go'); flying = false; }, 1400);
     }
-    document.getElementById('goChars').addEventListener('click', ()=>fly(charsLoad));
+    document.getElementById('goChars').addEventListener('click', ()=>fly(()=>charsLoad('chars', 'Загрузка персонажей')));
     // карта (отдельная страница map.html): экран загрузки идёт ЗДЕСЬ, на главной. Пока полоса бежит, браузер тихо
     // докачивает всё для глобуса (только качает, не распаковывает — анимация не лагает). 100% — сразу переход на глобус.
     const ML = document.getElementById('mload'), MROW = ML.querySelector('.elrow'), MV2 = document.getElementById('mlvid');
@@ -978,8 +979,8 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
       img.complete ? go() : (img.onload = go, img.onerror = go);
     }
     document.getElementById('goDict').addEventListener('click', ()=>fly(dictLoad));
-    document.getElementById('goArts').addEventListener('click', ()=>fly(()=>{ location.hash = 'arts'; scrollTo(0,0); }));
-    document.getElementById('goWeap').addEventListener('click', ()=>fly(()=>{ location.hash = 'weapons'; scrollTo(0,0); }));
+    document.getElementById('goArts').addEventListener('click', ()=>fly(()=>charsLoad('arts', 'Загрузка артефактов')));
+    document.getElementById('goWeap').addEventListener('click', ()=>fly(()=>charsLoad('weapons', 'Загрузка оружия')));
     // звук кнопки «На главную»
     const HOME_SFX = new Audio('sfx_home.mp3'); HOME_SFX.preload = 'auto';
     // звук кнопок на главной: любая кнопка внутри .welcome (Словарь, Персонажи и будущие)
