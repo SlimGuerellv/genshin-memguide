@@ -74,7 +74,7 @@
 @media (min-width:521px){ .sheet-av{display:none} }
 .side-art{display:none}
 @media (min-width:521px){
-  .sheet.hasside{--aw:min(calc((100vh - 32px) * .4167), 38vw); display:flex; width:min(calc(560px + var(--aw)), 100%); height:calc(100vh - 32px); overflow:hidden}
+  .sheet.hasside{--aw:min(calc((100vh - 32px) * var(--par, .4167)), 46vw); display:flex; width:min(calc(560px + var(--aw)), 100%); height:calc(100vh - 32px); overflow:hidden}
   .sheet.hasside .side-art{display:block; flex:0 0 var(--aw); position:relative; background:#f3ead6 no-repeat center top / contain; border-radius:18px 0 0 18px}
   .sheet.hasside .sheet-sc{flex:1; min-width:0; overflow:auto; height:100%; max-height:none}
   .sheet.hasside .strip{display:none}

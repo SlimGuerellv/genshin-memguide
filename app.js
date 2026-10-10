@@ -692,6 +692,9 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
       </div>
       </div>`;
     spSkills = skills;
+    { const sd = ARTS.chars && ARTS.chars[ch.n] && ARTS.chars[ch.n].side, sh = $('sheet');   // ширина боковой арки = реальная пропорция постера
+      sh.style.removeProperty('--par');
+      if (sd) { const im = new Image(); im.onload = () => { if (im.naturalWidth && im.naturalHeight && sh.classList.contains('hasside')) sh.style.setProperty('--par', (im.naturalWidth / im.naturalHeight).toFixed(4)); }; im.src = sd; } }
     $('overlay').hidden = false;
     spRender(ch); nsArcs();
     window.dispatchEvent(new CustomEvent('hv:sheet', {detail:{name: ch.n}}));   // комментарии (модуль аккаунтов)
