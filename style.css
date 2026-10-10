@@ -2215,3 +2215,8 @@ html.v-weap #charsv, html.v-weap header.top .tools{display:none}
 .wcard .ac-b h4{color:var(--wf,#964F23)} .wcard .ac-b h4::before{background:var(--wh,#BF6A33)} .wcard .ac-b h4::after{background:linear-gradient(90deg,var(--wf,#964F23),transparent); opacity:.4}
 /* Карточка оружия: ширина не зависит от длины текстов (без этого карточка без «Доп. стат» сжимается) */
 .aov-in .wcard{width:min(460px,100vw)}
+
+/* панель «Оружие»: иконка крупнее, чтобы читались звёзды */
+.wp-ic{width:92px}
+.syn-c.wp-has{gap:14px}
+@media (max-width:720px){ .wp-ic{width:76px} .syn-c.wp-has{gap:12px} }
