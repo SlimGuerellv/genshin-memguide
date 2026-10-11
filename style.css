@@ -2220,3 +2220,7 @@ html.v-weap #charsv, html.v-weap header.top .tools{display:none}
 .wp-ic{width:92px}
 .syn-c.wp-has{gap:14px}
 @media (max-width:720px){ .wp-ic{width:76px} .syn-c.wp-has{gap:12px} }
+
+/* плашка над командой (например «Звёздные реакции»), справа; TOP остаётся слева */
+.tsec .team.tagged{margin-top:8px; padding-top:16px}
+.tsec .team-tag{position:absolute; top:-12px; right:14px; font-size:12.5px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; line-height:1; padding:6px 12px; border-radius:999px; background:linear-gradient(180deg, color-mix(in srgb, var(--c, #9b8cff) 70%, #fff), var(--c, #9b8cff)); color:#10131c; box-shadow:0 3px 10px rgb(0 0 0 / .5)}

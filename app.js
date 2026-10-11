@@ -542,7 +542,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
   const TROLE = {main:'Мейн ДД', sub:'Саб-ДД', sup:'Саппорт'};
   function teamBody(ch){
     const c = ARTS.chars && ARTS.chars[ch.n]; if (!c || !c.teams || !c.teams.length) return '';
-    const team = (tm, k) => { const top = (c.top || []).indexOf(k) + 1; return `<div class="team${top ? ' top' : ''}">${top ? `<span class="team-top">★ TOP ${top}</span>` : ''}${tm.map(m => { const p = CHARS.find(x => x.n === m[0]); if (!p) return '';
+    const team = (tm, k) => { const top = (c.top || []).indexOf(k) + 1; return `<div class="team${top ? ' top' : ''}${(c.tags || [])[k] ? ' tagged' : ''}">${top ? `<span class="team-top">★ TOP ${top}</span>` : ''}${(c.tags || [])[k] ? `<span class="team-tag">${esc(c.tags[k])}</span>` : ''}${tm.map(m => { const p = CHARS.find(x => x.n === m[0]); if (!p) return '';
       const e = byName[p.e] || ANY, cur = m[0] === ch.n;
       return `<button type="button" class="tm${m[1] === 'main' ? ' main' : ''}" data-tm="${esc(m[0])}" style="--tc:${e.c}"${cur ? ' disabled style="--tc:' + e.c + ';cursor:default"' : ''}><span class="tm-av"><img class="p" src="${p.img}" alt="${esc(m[0])}" loading="lazy" decoding="async">${e.emoji ? '' : `<span class="tm-el">${icon(e)}</span>`}${m[2] ? `<span class="tm-c">${esc(m[2])}</span>` : ''}</span><span class="tm-r">${TROLE[m[1]] || ''}</span><span class="tm-n">${esc(m[0])}</span><span class="tm-e">${esc(p.e)}</span></button>`; }).join('')}</div>`; };
     return `<div class="teams">${c.teams.map(team).join('')}</div>${c.tn && c.tn.length ? `<ul class="sk-notes">${c.tn.map(n => `<li>${esc(n)}</li>`).join('')}</ul>` : ''}`;
