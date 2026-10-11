@@ -2224,3 +2224,22 @@ html.v-weap #charsv, html.v-weap header.top .tools{display:none}
 /* плашка над командой (например «Звёздные реакции»), справа; TOP остаётся слева */
 .tsec .team.tagged{margin-top:8px; padding-top:16px}
 .tsec .team-tag{position:absolute; top:-12px; right:14px; font-size:12.5px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; line-height:1; padding:6px 12px; border-radius:999px; background:linear-gradient(180deg, color-mix(in srgb, var(--c, #9b8cff) 70%, #fff), var(--c, #9b8cff)); color:#10131c; box-shadow:0 3px 10px rgb(0 0 0 / .5)}
+
+/* заглушка в команде: просто значок стихии и подпись роли (без конкретного героя) */
+.tsec .tm.ph{cursor:default}
+.tsec .tm.ph:hover{background:none}
+.tsec .tm-ph{display:grid; place-items:center; width:100%; height:100%; border-radius:50%; border:2px dashed color-mix(in srgb, var(--tc) 60%, #24304f); background:radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--tc) 28%, #1a2238), #121a2e)}
+.tsec .tm-ph img{width:56%; height:56%; object-fit:contain}
+
+/* пока открыта карточка (персонажа, оружия, артефакта): страница под ней не прокручивается, колесо мыши крутит только саму карточку */
+html:has(#overlay:not([hidden])) body, html:has(.aov:not([hidden])) body{overflow:hidden}
+.overlay, .sheet, .sheet-sc, .spanel, .sp-body, .aov{overscroll-behavior:contain}
+
+/* слот команды со столбцом вариантов (несколько героев на выбор друг под другом) */
+.tsec .tm-col{display:flex; flex-direction:column; align-items:center; gap:2px; min-width:0; padding:6px 2px 4px}
+.tsec .tm.cp{padding:3px 2px}
+.tsec .tm.cp .tm-av{width:46px; height:46px; margin-bottom:2px}
+.tsec .tm.cp .tm-el{width:18px; height:18px}
+.tsec .tm.cp .tm-el img{width:11px; height:11px}
+.tsec .tm.cp .tm-n{font-size:12.5px}
+@media (max-width:480px){.tsec .tm.cp .tm-av{width:40px; height:40px}.tsec .tm.cp .tm-n{font-size:11.5px}}
