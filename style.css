@@ -2293,3 +2293,7 @@ html.v-map .news-dot{top:-2px; right:-2px; width:10px; height:10px; background:v
   .mapv .mhint{bottom:68px; padding:8px 12px; font-size:12px; gap:8px}   /* над плеером, чтобы не перекрывать его */
 }
 @media (prefers-reduced-motion:reduce){ .mchip, .mapv .mhint{transition:none} }
+
+/* ===== Фон глобуса: паралакс-слои (sp_far / sp_mid / sp_near) ===== */
+.gview .gpx{position:absolute; pointer-events:none; background:center / cover no-repeat; will-change:transform}
+.gview .gpx.near{opacity:.92}

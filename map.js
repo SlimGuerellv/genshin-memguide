@@ -302,6 +302,19 @@
     const MODE = document.getElementById('gmode'), HINT = MAPV.querySelector('.mhint .ht'), HINT0 = HINT.textContent, HP = MAPV.querySelector('.mhint'), HEAD = MAPV.querySelector('.mhead'),
           HT = matchMedia('(hover:none) and (pointer:coarse)').matches ? 'тяни — вращай, щипок — масштаб' : 'тяни — вращать, колесо — масштаб';
     HINT.textContent = HT;
+    // ===== фон-паралакс: 3 слоя (далёкая туманность с Бездной, звёзды, ближний туман), едут с разной скоростью от поворота глобуса и мыши =====
+    const PXF = () => matchMedia('(orientation:portrait)').matches ? ['sp_far_m.webp?v=1', 'sp_mid_m.webp?v=1', 'sp_near_m.webp?v=1'] : ['sp_far.webp?v=1', 'sp_mid.webp?v=1', 'sp_near.webp?v=1'];
+    const PXD = [.25, .6, 1.2], PXI = ['-3%', '-5%', '-8%'], PXR = matchMedia('(prefers-reduced-motion:reduce)').matches;
+    const PXE = ['far', 'mid', 'near'].map((n, i) => { const e = document.createElement('div'); e.className = 'gpx ' + n; e.setAttribute('aria-hidden', 'true'); e.style.inset = PXI[i]; return e; });
+    BG.after(PXE[0], PXE[1]); CV.after(PXE[2]);
+    let pxOk = false, pmx = 0, pmy = 0, pcx = 0, pcy = 0;
+    function pxReady(cb){ const L = PXF(); let n = 0, fired = false; const fin = () => { if (fired) return; fired = true; pxOk = true; L.forEach((u, i) => PXE[i].style.backgroundImage = 'url(' + u + ')'); cb(); };
+      const t = setTimeout(() => { if (!fired){ fired = true; cb(); } }, 7000);
+      L.forEach(u => { const im = new Image(); im.onload = im.onerror = () => { if (++n === L.length){ clearTimeout(t); fin(); } }; im.src = u; }); }
+    function pxMove(dt){ if (!pxOk || PXR) return; const k = Math.min(1, dt * 3), A = MOB ? 22 : 38;
+      pcx += ((Math.sin(lon * .5) * A + pmx * 22) - pcx) * k; pcy += ((lat * 28 + pmy * 14) - pcy) * k;
+      for (let i = 0; i < 3; i++) PXE[i].style.transform = 'translate3d(' + (-pcx * PXD[i]).toFixed(1) + 'px,' + (-pcy * PXD[i]).toFixed(1) + 'px,0)'; }
+    GV.addEventListener('pointermove', e => { if (e.pointerType !== 'mouse') return; const r = GV.getBoundingClientRect(); pmx = (e.clientX - r.left) / r.width * 2 - 1; pmy = (e.clientY - r.top) / r.height * 2 - 1; });
     const REG = [['mond','Мондштадт','#6FE3C1'],['liyue','Ли Юэ','#F5C84C'],['fontaine','Фонтейн','#4FD3F7'],['sumeru','Сумеру','#9BDB4E'],
                  ['nodkrai','Нод-Край','#B9B2FF'],['natlan','Натлан','#FF7B5C'],['snezh','Снежная','#A8EEF5'],['inazuma','Инадзума','#C58CFF']];
     const CRISP = new Set([1, 2, 3, 4, 5, 6, 7, 8]);   // регионы с новыми чёткими границами (grid.png по моим кордонам): 1 Мондштадт, 3 Фонтейн, 6 Натлан, 7 Снежная
@@ -319,7 +332,7 @@
     const MOB = matchMedia('(hover:none) and (pointer:coarse)').matches, SHN = MOB ? 4 : 8, SHA = (6.2831853 / SHN).toFixed(6); let lastR = 0;   // телефон: легче рендер
     function stars(){ const w = BG.clientWidth, h = BG.clientHeight, dpr = Math.min(devicePixelRatio || 1, 2); if (!w) return;
       BG.width = w * dpr; BG.height = h * dpr; const x = BG.getContext('2d'); x.scale(dpr, dpr);
-      x.fillStyle = '#040914'; x.fillRect(0, 0, w, h);
+      x.fillStyle = '#040914'; x.fillRect(0, 0, w, h); if (pxOk) return;
       let s = 7; const R = () => (s = (s * 16807) % 2147483647) / 2147483647;
       for (let i = 0; i < 260; i++){ const t = R(), px = w * (-.1 + t * 1.2), py = h * (.15 + t * .55) + (R() - .5) * h * .35, r = 40 + R() * 160;
         const g = x.createRadialGradient(px, py, 0, px, py, r), a = .05 + R() * .07, hue = R() < .25 ? '255,214,150' : (R() < .6 ? '70,190,255' : '40,120,230');
@@ -589,7 +602,7 @@
         if (k >= 1){ const f = fly.then; fly = null; f && f(); } }
       else if (!drag){ lon += vl * dt; lat += vt * dt; vl *= Math.pow(.04, dt); vt *= Math.pow(.04, dt);
         idle += dt; if (idle > 4 && !hover && !flown) lon += .05 * dt * Math.min(1, (idle - 4) / 2); }
-      lat = Math.max(-1.2, Math.min(1.25, lat));
+      lat = Math.max(-1.2, Math.min(1.25, lat)); pxMove(dt);
       liftV += ((hover ? 1 : 0) - liftV) * Math.min(1, dt * 12); U.lift.value = liftV; U.aur.value = hover === 7 ? liftV : 0; U.frost.value = hover === 7 ? 1 : 0; S.walls.visible = false;   // стенки убраны: «летящий остров» (тень + фокус)
       const g = new S.T.Euler(lat, -lon, 0, 'XYZ'); [S.earth, S.clouds, S.lift, S.walls, S.aur, S.hiG].forEach(m => m.rotation.copy(g));
       S.cam.position.set(0, 0, dist()); S.cam.lookAt(0, 0, 0);
@@ -663,12 +676,13 @@
         then: () => window.rpOpen && window.rpOpen(k, true)}; }
     // панель закрыли — камера отлетает назад
     new MutationObserver(() => { const P = document.getElementById('rpanel'); if (on && P.hidden && pend != null && pend >= 0){ const n = pend; pend = null; flown = false; focusPin(n); return; } pend = null; if (on && flown && P.hidden){ flown = false; hover = 0; S.U.hover.value = 0;
-      fly = {l0: lon, a0: lat, z0: zoom, lon: lon, lat: lat, zoom: 1, t0: performance.now(), dur: 700}; idle = 0; } })
+      fly = {l0: lon, a0: lat, z0: zoom, lon: lon, lat: lat, zoom: DZ(), t0: performance.now(), dur: 700}; idle = 0; } })
       .observe(document.getElementById('rpanel'), {attributes: true, attributeFilter: ['hidden']});
 
     // управление: тянуть — вращать, колесо/щипок — масштаб, клик — регион (на телефоне: первый тап подсвечивает)
     const pts = new Map(); let drag = false, st = null, moved = 0, pinch = null;
     const Z = z => Math.max(.75, Math.min(3, z));
+    const DZ = () => GV.clientWidth / (GV.clientHeight || 1) > 1 ? .87 : 1;   // стартовый масштаб: на широком экране глобус целиком помещается под шапкой
     GV.addEventListener('pointerdown', e => { if (!S || fly) return; clearChip(); pts.set(e.pointerId, [e.clientX, e.clientY]); moved = 0; idle = 0; vl = vt = 0;
       st = {x: e.clientX, y: e.clientY, lon, lat, t: performance.now()};
       if (pts.size === 2){ const [a, b] = [...pts.values()]; pinch = {d: Math.hypot(a[0] - b[0], a[1] - b[1]), z: zoom}; } });
@@ -690,7 +704,7 @@
     GV.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse' && !drag && !chipSel) setHover(0); });
     GV.addEventListener('wheel', e => { e.preventDefault(); if (fly || flown) return; idle = 0; zoom = Z(zoom * Math.exp(-e.deltaY * .0015)); }, {passive: false});
     box.querySelector('.tmzoom').addEventListener('click', e => { if (!on) return; const b = e.target.closest('button[data-z]'); if (!b || fly || flown) return; idle = 0;
-      const k = b.dataset.z; fly = {l0: lon, a0: lat, z0: zoom, lon: k === 'reset' ? 0 : lon, lat: k === 'reset' ? .35 : lat, zoom: k === 'reset' ? 1 : Z(zoom * (k === 'in' ? 1.5 : 1 / 1.5)), t0: performance.now(), dur: 450}; });
+      const k = b.dataset.z; fly = {l0: lon, a0: lat, z0: zoom, lon: k === 'reset' ? 0 : lon, lat: k === 'reset' ? .35 : lat, zoom: k === 'reset' ? DZ() : Z(zoom * (k === 'in' ? 1.5 : 1 / 1.5)), t0: performance.now(), dur: 450}; });
 
     // клик по метке босса: подлетаем и открываем плашку региона на слайде этого босса
     function bossGo(n){ const P = S && S.pins[n]; if (!P || fly) return; const k = P.k; if (!RD()[k]) return;
@@ -710,9 +724,9 @@
         HINT.textContent = HT; setHover && S && setHover(0); done && done(); return; }
       loadThree(ok => { if (!ok || !window.THREE){ done && done(); return; }
         const show = () => { on = true; window.__globeOn = true; MAPV.classList.add('globe'); MODE.textContent = '🗺 Карта'; MODE.setAttribute('aria-label', 'Показать плоскую карту');
-          HINT.textContent = HT; lon = 0.4644; lat = -0.0763; zoom = 1; vl = vt = 0; fly = null; flown = false; hover = 0; idle = 0;
+          HINT.textContent = HT; lon = 0.4644; lat = -0.0763; zoom = DZ(); vl = vt = 0; fly = null; flown = false; hover = 0; idle = 0;
           S.U.hover.value = 0; S.w = 0; start(); done && done(); };
-        if (S) show(); else { try { init(ok2 => show()); } catch(err){ done && done(); } } }); }
+        const go2 = () => pxReady(show); if (S) go2(); else { try { init(ok2 => go2()); } catch(err){ done && done(); } } }); }
     MODE.addEventListener('click', () => { window.rpSnd && window.rpSnd('sfx_btn.mp3');
       const to = !on; (window.mapSwitchLoad || ((l, w) => w(() => {})))(to ? 'Загрузка глобуса…' : 'Загрузка карты…', done => setMode(to, done)); });
     // плоской карты больше нет: в разделе «Карта» сразу глобус; ушли с карты — глобус останавливаем
