@@ -299,7 +299,9 @@
   (function globe(){
     const MAPV = document.getElementById('mapv'), box = MAPV.querySelector('.mbox'), GV = document.getElementById('gview');
     const BG = GV.querySelector('.gbg'), CV = GV.querySelector('.ggl'), LB = GV.querySelector('.glabels'), TIP = GV.querySelector('.gtip');
-    const MODE = document.getElementById('gmode'), HINT = MAPV.querySelector('.mhint'), HINT0 = HINT.textContent;
+    const MODE = document.getElementById('gmode'), HINT = MAPV.querySelector('.mhint .ht'), HINT0 = HINT.textContent, HP = MAPV.querySelector('.mhint'), HEAD = MAPV.querySelector('.mhead'),
+          HT = matchMedia('(hover:none) and (pointer:coarse)').matches ? 'тяни — вращай, щипок — масштаб' : 'тяни — вращать, колесо — масштаб';
+    HINT.textContent = HT;
     const REG = [['mond','Мондштадт','#6FE3C1'],['liyue','Ли Юэ','#F5C84C'],['fontaine','Фонтейн','#4FD3F7'],['sumeru','Сумеру','#9BDB4E'],
                  ['nodkrai','Нод-Край','#B9B2FF'],['natlan','Натлан','#FF7B5C'],['snezh','Снежная','#A8EEF5'],['inazuma','Инадзума','#C58CFF']];
     const CRISP = new Set([1, 2, 3, 4, 5, 6, 7, 8]);   // регионы с новыми чёткими границами (grid.png по моим кордонам): 1 Мондштадт, 3 Фонтейн, 6 Натлан, 7 Снежная
@@ -568,7 +570,9 @@
     }
 
     function size(){ if (!S) return; const w = GV.clientWidth, h = GV.clientHeight; if (!w || !h) return;
-      if (w !== S.w || h !== S.h){ S.w = w; S.h = h; S.ren.setSize(w, h, false); S.cam.aspect = w / h; S.cam.updateProjectionMatrix(); stars(); } }
+      const hh = HEAD ? HEAD.offsetHeight : 0, off = Math.round(Math.max(0, hh - 30) * .4);   // шапка лежить поверх глобуса: центр глобуса трохи нижче
+      if (w !== S.w || h !== S.h || off !== S.off){ S.w = w; S.h = h; S.off = off; S.ren.setSize(w, h, false); S.cam.aspect = w / h;
+        if (off) S.cam.setViewOffset(w, h, 0, -off, w, h); else S.cam.clearViewOffset(); S.cam.updateProjectionMatrix(); stars(); } }
     const dist = () => Math.max(4.6, 4.5 / (S.cam.aspect || 1)) / 1.2 / zoom;
     const eio = k => k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
     function frame(ts){
@@ -638,8 +642,23 @@
       GV.style.cursor = drag ? 'grabbing' : (id && RD()[REG[id - 1][0]] ? 'pointer' : 'grab');
       if (id && !RD()[REG[id - 1][0]]){ const r = GV.getBoundingClientRect(); TIP.textContent = REG[id - 1][1] + ' — скоро';
         TIP.style.transform = `translate(${cx - r.left + 14}px,${cy - r.top + 16}px)`; TIP.classList.add('on'); } else TIP.classList.remove('on'); }
+    // ===== чипси регіонів у шапці: клік крутить глобус до регіону, повторний клік відкриває його =====
+    const CH_ORDER = ['mond','liyue','inazuma','sumeru','fontaine','natlan','nodkrai','snezh'];
+    const CH_EL = {mond:'anemo', liyue:'geo', inazuma:'electro', sumeru:'dendro', fontaine:'hydro', natlan:'pyro', snezh:'cryo'};   // у Нод-Края нет стихии: полумесяц
+    const CHW = document.getElementById('mchips'); let chipSel = 0; const chipEl = {};
+    function clearChip(){ if (!chipSel) return; chipSel = 0; Object.keys(chipEl).forEach(i => chipEl[i].setAttribute('aria-pressed', 'false')); }
+    function hideHint(){ HP && HP.classList.add('gone'); }
+    CH_ORDER.forEach(k => { const id = REG.findIndex(r => r[0] === k) + 1, r = REG[id - 1]; if (!id || !CHW) return;
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'mchip'; b.setAttribute('aria-pressed', 'false'); b.style.setProperty('--c', r[2]);
+      b.innerHTML = '<span class="mi' + (CH_EL[k] ? '' : ' moon') + '" aria-hidden="true">' + (CH_EL[k] ? '<img src="el_' + CH_EL[k] + '.webp" alt="" draggable="false">' : '') + '</span><span class="ml">' + r[1] + '</span>';
+      b.addEventListener('click', () => { if (!S || !on || fly || flown) return; hideHint(); window.rpSnd && window.rpSnd('sfx_btn.mp3');
+        if (chipSel === id){ clearChip(); go(id); return; }
+        clearChip(); chipSel = id; b.setAttribute('aria-pressed', 'true'); idle = 0; vl = vt = 0; TIP.classList.remove('on');
+        const gr = GV.getBoundingClientRect(); setHover(id, gr.left + gr.width / 2, gr.top + gr.height / 2 + 40);
+        const [lo, la] = RPOS[id - 1]; fly = {l0: lon, a0: lat, z0: zoom, lon: lo, lat: Math.max(-1, Math.min(1, la)), zoom: Math.max(zoom, 1.35), t0: performance.now(), dur: 900}; });
+      chipEl[id] = b; CHW.appendChild(b); });
     function go(id){ const [k] = REG[id - 1]; if (!RD()[k]) return;
-      window.rpSnd && window.rpSnd('sfx_open.mp3'); flown = true; TIP.classList.remove('on');
+      hideHint(); window.rpSnd && window.rpSnd('sfx_open.mp3'); flown = true; TIP.classList.remove('on');
       const [lo, la] = RPOS[id - 1]; fly = {l0: lon, a0: lat, z0: zoom, lon: lo, lat: Math.max(-1, Math.min(1, la)), zoom: 2.1, t0: performance.now(), dur: 850,
         then: () => window.rpOpen && window.rpOpen(k, true)}; }
     // панель закрыли — камера отлетает назад
@@ -650,15 +669,15 @@
     // управление: тянуть — вращать, колесо/щипок — масштаб, клик — регион (на телефоне: первый тап подсвечивает)
     const pts = new Map(); let drag = false, st = null, moved = 0, pinch = null;
     const Z = z => Math.max(.75, Math.min(3, z));
-    GV.addEventListener('pointerdown', e => { if (!S || fly) return; pts.set(e.pointerId, [e.clientX, e.clientY]); moved = 0; idle = 0; vl = vt = 0;
+    GV.addEventListener('pointerdown', e => { if (!S || fly) return; clearChip(); pts.set(e.pointerId, [e.clientX, e.clientY]); moved = 0; idle = 0; vl = vt = 0;
       st = {x: e.clientX, y: e.clientY, lon, lat, t: performance.now()};
       if (pts.size === 2){ const [a, b] = [...pts.values()]; pinch = {d: Math.hypot(a[0] - b[0], a[1] - b[1]), z: zoom}; } });
     GV.addEventListener('pointermove', e => { if (!S) return; idle = 0;
-      if (!pts.has(e.pointerId)){ if (e.pointerType === 'mouse' && !fly && !flown) setHover(pick(e.clientX, e.clientY), e.clientX, e.clientY); return; }
+      if (!pts.has(e.pointerId)){ if (e.pointerType === 'mouse' && !fly && !flown && !chipSel) setHover(pick(e.clientX, e.clientY), e.clientX, e.clientY); return; }
       const prev = pts.get(e.pointerId); pts.set(e.pointerId, [e.clientX, e.clientY]);
       if (pinch && pts.size === 2){ const [a, b] = [...pts.values()]; zoom = Z(pinch.z * Math.hypot(a[0] - b[0], a[1] - b[1]) / pinch.d); moved = 99; return; }
       const dx = e.clientX - st.x, dy = e.clientY - st.y; moved = Math.max(moved, Math.hypot(dx, dy));
-      if (moved > 5){ if (!drag){ drag = true; try { GV.setPointerCapture(e.pointerId); } catch(_){} setHover(0); }
+      if (moved > 5){ if (!drag){ drag = true; try { GV.setPointerCapture(e.pointerId); } catch(_){} setHover(0); hideHint(); }
         const k = 2.4 / (S.h * zoom); lon = st.lon - dx * k; lat = st.lat + dy * k;
         const now = performance.now(), ddt = Math.max(.008, (now - (st.pt || st.t)) / 1000); vl = -(e.clientX - prev[0]) * k / ddt; vt = (e.clientY - prev[1]) * k / ddt; st.pt = now; } });
     const up = e => { if (!pts.has(e.pointerId)) return; pts.delete(e.pointerId); if (pts.size < 2) pinch = null;
@@ -668,7 +687,7 @@
       if (e.pointerType !== 'mouse' && id !== hover){ setHover(id, e.clientX, e.clientY); return; }
       S.pins.forEach(p => p.e.classList.remove('tap')); if (id) go(id); else setHover(0); };
     GV.addEventListener('pointerup', up); GV.addEventListener('pointercancel', up);
-    GV.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse' && !drag) setHover(0); });
+    GV.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse' && !drag && !chipSel) setHover(0); });
     GV.addEventListener('wheel', e => { e.preventDefault(); if (fly || flown) return; idle = 0; zoom = Z(zoom * Math.exp(-e.deltaY * .0015)); }, {passive: false});
     box.querySelector('.tmzoom').addEventListener('click', e => { if (!on) return; const b = e.target.closest('button[data-z]'); if (!b || fly || flown) return; idle = 0;
       const k = b.dataset.z; fly = {l0: lon, a0: lat, z0: zoom, lon: k === 'reset' ? 0 : lon, lat: k === 'reset' ? .35 : lat, zoom: k === 'reset' ? 1 : Z(zoom * (k === 'in' ? 1.5 : 1 / 1.5)), t0: performance.now(), dur: 450}; });
@@ -688,10 +707,10 @@
     // переключение режимов (под экраном загрузки)
     function setMode(g, done){
       if (!g){ on = false; window.__globeOn = false; stop(); MAPV.classList.remove('globe'); MODE.textContent = '🌐 Глобус'; MODE.setAttribute('aria-label', 'Показать глобус');
-        HINT.textContent = HINT0; setHover && S && setHover(0); done && done(); return; }
+        HINT.textContent = HT; setHover && S && setHover(0); done && done(); return; }
       loadThree(ok => { if (!ok || !window.THREE){ done && done(); return; }
         const show = () => { on = true; window.__globeOn = true; MAPV.classList.add('globe'); MODE.textContent = '🗺 Карта'; MODE.setAttribute('aria-label', 'Показать плоскую карту');
-          HINT.textContent = 'Выбери регион · тяни — вращать, колесо — масштаб'; lon = 0.4644; lat = -0.0763; zoom = 1; vl = vt = 0; fly = null; flown = false; hover = 0; idle = 0;
+          HINT.textContent = HT; lon = 0.4644; lat = -0.0763; zoom = 1; vl = vt = 0; fly = null; flown = false; hover = 0; idle = 0;
           S.U.hover.value = 0; S.w = 0; start(); done && done(); };
         if (S) show(); else { try { init(ok2 => show()); } catch(err){ done && done(); } } }); }
     MODE.addEventListener('click', () => { window.rpSnd && window.rpSnd('sfx_btn.mp3');
