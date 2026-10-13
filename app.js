@@ -1479,3 +1479,22 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
   if (document.body) mount(); else addEventListener('DOMContentLoaded', mount);
   window.addEventListener('load', place);
 })();
+
+// ===== Панель разделов: чипсы-навигация между персонажами, оружием, артефактами, словарём и глобусом =====
+(function sectionNav(){
+  const nav = document.getElementById('snav'); if (!nav) return;
+  const ic = {
+    chars:'<circle cx="12" cy="8" r="3.6"/><path d="M5 20c1-4 4-6 7-6s6 2 7 6"/>',
+    weapons:'<path d="M20 4l-9.5 9.5"/><path d="M15 4h5v5"/><path d="M7 11l6 6"/><path d="M5 19l-2 2"/><path d="M8 16l-3 3"/>',
+    arts:'<path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20"/><path d="M9 3l3 6 3-6"/>',
+    dict:'<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/><path d="M9 8h7M9 12h5"/>',
+    map:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c3.2 3 3.2 15 0 18"/><path d="M12 3c-3.2 3-3.2 15 0 18"/>'};
+  const S = [['chars','Персонажи','#6FE3C1'], ['weapons','Оружие','#FF7B5C'], ['arts','Артефакты','#C58CFF'], ['dict','Словарь','#4FD3F7'], ['map','Глобус','#9BDB4E']];
+  nav.innerHTML = S.map(s => '<button type="button" class="schip" data-s="' + s[0] + '" style="--c:' + s[2] + '"><span class="si" aria-hidden="true"><svg viewBox="0 0 24 24">' + ic[s[0]] + '</svg></span><span class="sl">' + s[1] + '</span></button>').join('');
+  const cur = () => { const h = decodeURI(location.hash); return /^#(dict|словарь)/i.test(h) ? 'dict' : /^#(arts|артефакты)/i.test(h) ? 'arts' : /^#(weapons|оружие)/i.test(h) ? 'weapons' : 'chars'; };
+  const mark = () => { const c = cur(); [].forEach.call(nav.children, b => { if (b.dataset.s === c) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); }); };
+  nav.addEventListener('click', e => { const b = e.target.closest('button[data-s]'); if (!b) return; const s = b.dataset.s;
+    if (s === 'map'){ const g = document.getElementById('goMap'); if (g) g.click(); else location.href = 'map.html'; return; }
+    if (s === cur()) return; location.hash = '#' + s; scrollTo(0, 0); });
+  addEventListener('hashchange', mark); addEventListener('popstate', mark); mark();
+})();
