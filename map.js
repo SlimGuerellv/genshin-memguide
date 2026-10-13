@@ -323,7 +323,7 @@
     const RD = () => window.rpRD || {};
     let on = false, S = null, raf = 0, last = 0;
     // вид: долгота/широта в центре, масштаб; анимация перелёта
-    let lon = 0.4644, lat = -0.0763, zoom = 1, vl = 0, vt = 0, fly = null, flown = false, idle = 0, hover = 0, liftV = 0, tIdx = 0;
+    let lon = 0.58, lat = -0.30, zoom = 1, vl = 0, vt = 0, fly = null, flown = false, idle = 0, hover = 0, liftV = 0, tIdx = 0;
     window.__globeOn = false;
 
     function loadThree(cb){ if (window.THREE) return cb(true);
@@ -724,7 +724,7 @@
         HINT.textContent = HT; setHover && S && setHover(0); done && done(); return; }
       loadThree(ok => { if (!ok || !window.THREE){ done && done(); return; }
         const show = () => { on = true; window.__globeOn = true; MAPV.classList.add('globe'); MODE.textContent = '🗺 Карта'; MODE.setAttribute('aria-label', 'Показать плоскую карту');
-          HINT.textContent = HT; lon = 0.4644; lat = -0.0763; zoom = DZ(); vl = vt = 0; fly = null; flown = false; hover = 0; idle = 0;
+          HINT.textContent = HT; lon = 0.58; lat = -0.30; zoom = DZ(); vl = vt = 0; fly = null; flown = false; hover = 0; idle = 0;
           S.U.hover.value = 0; S.w = 0; start(); done && done(); };
         const go2 = () => pxReady(show); if (S) go2(); else { try { init(ok2 => go2()); } catch(err){ done && done(); } } }); }
     MODE.addEventListener('click', () => { window.rpSnd && window.rpSnd('sfx_btn.mp3');
