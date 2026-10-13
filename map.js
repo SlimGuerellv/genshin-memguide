@@ -318,12 +318,43 @@
     const REG = [['mond','Мондштадт','#6FE3C1'],['liyue','Ли Юэ','#F5C84C'],['fontaine','Фонтейн','#4FD3F7'],['sumeru','Сумеру','#9BDB4E'],
                  ['nodkrai','Нод-Край','#B9B2FF'],['natlan','Натлан','#FF7B5C'],['snezh','Снежная','#A8EEF5'],['inazuma','Инадзума','#C58CFF']];
     const CRISP = new Set([1, 2, 3, 4, 5, 6, 7, 8]);   // регионы с новыми чёткими границами (grid.png по моим кордонам): 1 Мондштадт, 3 Фонтейн, 6 Натлан, 7 Снежная
-    const RPOS = [[0.4619,0.0038],[0.1212,-0.2736],[-0.4033,0.2207],[-0.4788,-0.5265],[-1.4106,0.2537],[-1.4674,-0.6397],[-0.9169,0.9892],[0.8945,-0.946]];
+    // РАСКЛАДКА КАРТЫ (азимутальная равнопромежуточная). Раньше плоская карта ложилась на сферу как Меркатор: на экваторе масштаб ~199°/высоту карты, у полюса вдвое меньше,
+    // поэтому Снежная была мелкой, а пустыня Сумеру огромной. Теперь расстояние от центра карты переходит в угол на сфере с ОДНИМ масштабом SC (градусов на высоту карты) по всей карте.
+    // Сами текстуры не тронуты: шейдер лишь иначе считает uv (игра формул ниже дублируется в GLSL), метки, пины, тайлы и клик по региону пересчитываются через inv / uv.
+    // Масштаб можно менять в адресе: ?sc=150 (больше = крупнее суша, но ближе к краю шара).
+    const SNL = (() => { const SC = Math.min(220, Math.max(90, parseFloat(new URLSearchParams(location.search).get('sc')) || 150)), s = SC * Math.PI / 180;
+      const a = 0.085125, b = 0.642092, A = 1.800681, B = 3.484241, ASP = 22528 / 19456, cx = -0.0034, cy = 0.0168;
+      const LO = -Math.PI + 2 * Math.PI * (a + b * (cx / ASP + .5));   // центр карты ставим на экватор, на прежнюю долготу
+      const C = [Math.sin(LO), 0, Math.cos(LO)], E = [Math.cos(LO), 0, -Math.sin(LO)], N = [0, 1, 0];
+      const vec = (lo, la) => [Math.cos(la) * Math.sin(lo), Math.sin(la), Math.cos(la) * Math.cos(lo)];
+      const ll = p => [Math.atan2(p[0], p[2]), Math.asin(Math.max(-1, Math.min(1, p[1])))];
+      const dot = (p, q) => p[0] * q[0] + p[1] * q[1] + p[2] * q[2];
+      return {
+        SC,
+        inv: (lo, la) => {   // [lon, lat] старой текстуры -> [lon, lat] на сфере (метки, пины, тайлы)
+          la = Math.max(-1.5, Math.min(1.5, la)); const u = (lo + Math.PI) / (2 * Math.PI), fx = (u - a) / b, fy = (A - Math.asinh(Math.tan(la))) / B;
+          const dx = (fx - .5) * ASP - cx, dy = cy - (fy - .5), r = Math.hypot(dx, dy); if (r < 1e-9) return ll(C);
+          const th = Math.min(s * r, Math.PI - .01), c = Math.cos(th), sn = Math.sin(th);
+          return ll([0, 1, 2].map(k => c * C[k] + sn * (dx / r * E[k] + dy / r * N[k]))); },
+        uv: (u, v) => {   // uv точки на сфере -> uv текстуры (клик по региону)
+          const p = vec(-Math.PI + u * 2 * Math.PI, (v - .5) * Math.PI), th = Math.acos(Math.max(-1, Math.min(1, dot(p, C)))), sn = Math.sin(th), k = sn < 1e-6 ? (th < 1 ? 1 : 1e4) : th / sn;
+          const fx = (cx + k * dot(p, E) / s) / ASP + .5, fy = (cy - k * dot(p, N) / s) + .5, uu = a + b * fx, la = Math.atan(Math.sinh(A - B * fy));
+          return [uu - Math.floor(uu), la / Math.PI + .5]; },
+        glsl: `const vec3 PC=vec3(${C.map(x => x.toFixed(7)).join(',')}), PE=vec3(${E.map(x => x.toFixed(7)).join(',')}), PN=vec3(0.,1.,0.);
+          const float PS=${s.toFixed(7)}, PA=${a}, PB=${b}, PAA=${A}, PBB=${B}, PASP=${ASP.toFixed(7)}, PCX=${cx}, PCY=${cy};
+          vec3 snLens(vec3 p){ return p; }
+          vec2 snUV(vec3 p){ float th=acos(clamp(dot(p,PC),-1.,1.)); float sn=sin(th); float k=sn<1e-5?(th<1.?1.:1e4):th/sn;
+            float fx=(PCX+k*dot(p,PE)/PS)/PASP+.5, fy=(PCY-k*dot(p,PN)/PS)+.5; float tt=clamp(PAA-PBB*fy,-15.,15.); float la=atan(.5*(exp(tt)-exp(-tt))); return vec2(PA+PB*fx, la/3.14159265+.5); }
+          vec2 snA(vec3 p, vec2 uv0){ return snUV(p); }
+          vec4 snT(sampler2D s, vec2 a){ return texture2D(s,a); }
+          ` };
+    })();
+    const RPOS = [[0.4619,0.0038],[0.1212,-0.2736],[-0.4033,0.2207],[-0.4788,-0.5265],[-1.4106,0.2537],[-1.4674,-0.6397],[-0.9169,0.9892],[0.8945,-0.946]].map(([lo, la]) => SNL.inv(lo, la));
     const URL3 = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
     const RD = () => window.rpRD || {};
     let on = false, S = null, raf = 0, last = 0;
     // вид: долгота/широта в центре, масштаб; анимация перелёта
-    let lon = 0.58, lat = -0.30, zoom = 1, vl = 0, vt = 0, fly = null, flown = false, idle = 0, hover = 0, liftV = 0, tIdx = 0;
+    let lon = -0.45, lat = 0.12, zoom = 1, vl = 0, vt = 0, fly = null, flown = false, idle = 0, hover = 0, liftV = 0, tIdx = 0;
     window.__globeOn = false;
 
     function loadThree(cb){ if (window.THREE) return cb(true);
@@ -350,7 +381,7 @@
       const TQ = MOB || mts < 8192 ? '2k' : (mts >= 16384 && mem >= 8 && scr > 1800 ? '16k' : '8k');   // новый глобус по официальной карте v7.1.50: 16k ПК / 8k средний / 2k телефон
       const tex = tl.load('gearth' + TQ + '.jpg?v=20'); tex.anisotropy = Math.min(8, ren.capabilities.getMaxAnisotropy());
       const landT = tl.load('gland' + TQ + '.png?v=20'), cloudT = tl.load('gcloud.png?v=21'); cloudT.minFilter = T.LinearFilter; cloudT.generateMipmaps = false;
-      const ridT = tl.load((TQ === '2k' ? 'grid.png' : 'grid8k.png') + '?v=21'); ridT.minFilter = ridT.magFilter = T.NearestFilter; ridT.generateMipmaps = false;
+      const ridT = tl.load((TQ === '2k' ? 'grid.png' : 'grid8k.png') + '?v=21'); ridT.minFilter = ridT.magFilter = T.NearestFilter; ridT.generateMipmaps = false; tex.wrapS = landT.wrapS = ridT.wrapS = T.RepeatWrapping;
       // карта регионов для клика (на процессоре)
       let RID = null; const ri = new Image(); ri.onload = () => { const c = document.createElement('canvas'); c.width = ri.width; c.height = ri.height;
         const x = c.getContext('2d'); x.drawImage(ri, 0, 0); RID = {w: ri.width, h: ri.height, d: x.getImageData(0, 0, ri.width, ri.height).data}; fillHoles(); }; ri.src = (TQ === '2k' ? 'grid.png' : 'grid8k.png') + '?v=21';
@@ -367,7 +398,7 @@
             if (x > x0) push(x - 1, y); if (x < x1) push(x + 1, y); if (y > y0) push(x, y - 1); if (y < y1) push(x, y + 1); }
           for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++){ const k = y * W + x; if (id[k] === 0 && seen[k] !== r){ id[k] = r; d[k * 4] = r * 30; } } }
         const px = new Uint8Array(W * H); for (let y = 0; y < H; y++) px.set(id.subarray((H - 1 - y) * W, (H - y) * W).map(v => v * 30), y * W);
-        const ft = new T.DataTexture(px, W, H, T.LuminanceFormat, T.UnsignedByteType); ft.minFilter = ft.magFilter = T.NearestFilter; ft.generateMipmaps = false; ft.needsUpdate = true;
+        const ft = new T.DataTexture(px, W, H, T.LuminanceFormat, T.UnsignedByteType); ft.minFilter = ft.magFilter = T.NearestFilter; ft.generateMipmaps = false; ft.wrapS = T.RepeatWrapping; ft.needsUpdate = true;
         U.rid.value = ft; }
       // сфера с долготой/широтой как у текстуры
       const NX = 256, NY = 128, pos = [], uv = [], idx = [];
@@ -378,9 +409,9 @@
       geo.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); geo.setAttribute('uv', new T.Float32BufferAttribute(uv, 2)); geo.computeBoundingSphere();
       const U = {map:{value:tex}, land:{value:landT}, rid:{value:ridT}, sun:{value:new T.Vector3(-.75, .35, .55).normalize()}, hover:{value:0}, crisp:{value:0}, rm:{value:null}, time:{value:0}, box:{value:new T.Vector4(0,0,1,1)}, hcol:{value:new T.Color('#6FE3C1')}, sl:{value:(() => { const t = tl.load('snzl.png?v=20'); t.minFilter = T.LinearFilter; t.generateMipmaps = false; return t; })()}, slb:{value:new T.Vector4(0.256996,0.661020,0.440172,0.907320)}, aur:{value:0}, frost:{value:0}, lift:{value:0}, cl:{value:cloudT}, cty:{value:(A => { const v = []; for (let i = 0; i < A.length; i += 3) v.push(new T.Vector3(A[i], A[i+1], A[i+2])); return v; })([0.5750,0.5053,0.0181,0.5595,0.4873,0.0075,0.6001,0.5100,0.0067,0.5595,0.5748,0.0093,0.5588,0.6135,0.0076,0.5408,0.3448,0.0168,0.5446,0.3930,0.0066,0.5452,0.3650,0.0055,0.4767,0.3795,0.0065,0.4783,0.2773,0.0056,0.4821,0.5141,0.0096,0.4720,0.4583,0.0054,0.4242,0.5771,0.0229,0.4441,0.5766,0.0084,0.4059,0.5393,0.0080,0.4303,0.4424,0.0062,0.4718,0.3588,0.0148,0.4605,0.3212,0.0060,0.4255,0.3046,0.0065,0.6812,0.2246,0.0122,0.6598,0.2550,0.0054,0.6728,0.1774,0.0055,0.6354,0.1371,0.0035,0.6208,0.2101,0.0045,0.6427,0.2101,0.0038,0.5744,0.2097,0.0045,0.2692,0.5595,0.0162,0.2839,0.5253,0.0079,0.2659,0.4726,0.0074,0.2486,0.4997,0.0067,0.2741,0.6972,0.0094,0.2668,0.3693,0.0071,0.2948,0.2843,0.0077,0.2569,0.2396,0.0066,0.3229,0.2724,0.0062,0.3107,0.3087,0.0059,0.2792,0.2504,0.0047,0.3573,0.8298,0.0279,0.3644,0.8013,0.0101,0.3371,0.8359,0.0103,0.3316,0.7739,0.0087,0.3940,0.8582,0.0104])}};   // города: u, v, радиус — ночью светятся только они
       const earth = new T.Mesh(geo, new T.ShaderMaterial({uniforms: U,
-        vertexShader:`varying vec2 vUv; varying vec3 vN; varying vec3 vW,vE,vNo; void main(){ vUv=uv; vN=normalize(mat3(modelMatrix)*position); vec3 le=normalize(vec3(position.z,0.,-position.x)+vec3(1e-5,0.,0.)); vE=normalize(mat3(modelMatrix)*le); vNo=normalize(mat3(modelMatrix)*cross(normalize(position),le)); vec4 w=modelMatrix*vec4(position,1.); vW=w.xyz; gl_Position=projectionMatrix*viewMatrix*w; }`,
-        fragmentShader:`uniform sampler2D map,land,rid,sl; uniform vec4 slb; uniform vec3 sun,hcol; uniform float hover,time,lift; uniform vec3 cty[42];
-          float rail(vec2 u){ vec2 q=(u-slb.xy)/(slb.zw-slb.xy); if(q.x<0.||q.y<0.||q.x>1.||q.y>1.) return 0.; vec3 r=texture2D(sl,q).rgb; return r.r*(.8+.2*sin(time*2.3+u.x*2400.))+r.g*.35; } varying vec2 vUv; varying vec3 vN,vW,vE,vNo;
+        vertexShader:`varying vec2 vUv0; varying vec3 vP; varying vec3 vN; varying vec3 vW,vE,vNo; void main(){ vUv0=uv; vP=position; vN=normalize(mat3(modelMatrix)*position); vec3 le=normalize(vec3(position.z,0.,-position.x)+vec3(1e-5,0.,0.)); vE=normalize(mat3(modelMatrix)*le); vNo=normalize(mat3(modelMatrix)*cross(normalize(position),le)); vec4 w=modelMatrix*vec4(position,1.); vW=w.xyz; gl_Position=projectionMatrix*viewMatrix*w; }`,
+        fragmentShader:`${SNL.glsl} uniform sampler2D map,land,rid,sl; uniform vec4 slb; uniform vec3 sun,hcol; uniform float hover,time,lift; uniform vec3 cty[42];
+          float rail(vec2 u){ vec2 q=(u-slb.xy)/(slb.zw-slb.xy); if(q.x<0.||q.y<0.||q.x>1.||q.y>1.) return 0.; vec3 r=texture2D(sl,q).rgb; return r.r*(.8+.2*sin(time*2.3+u.x*2400.))+r.g*.35; } varying vec2 vUv0; varying vec3 vP; varying vec3 vN,vW,vE,vNo;
           uniform sampler2D rm; uniform vec4 box; float mR(vec2 u){ vec2 q=(u-box.xy)/(box.zw-box.xy); if(q.x<0.||q.y<0.||q.x>1.||q.y>1.) return 0.; return texture2D(rm,q).r; }
           float fRid(vec2 u){ return smoothstep(.4,.6,mR(u)); }
           vec3 focus(vec3 c, vec2 u, vec3 n, vec3 e, vec3 no, float onLand){
@@ -399,8 +430,8 @@
             c=mix(c,vec3(.02,.05,.08)+vec3(g)*.12,inR*lift);   // под поднятым регионом — тёмная «яма»-тень, без второй копии карты c+=hcol*smoothstep(0.,.6,glow)*.45*lift;
             return c; }
           float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
-          void main(){ vec3 n=normalize(vN); vec3 v=normalize(cameraPosition-vW);
-            vec3 alb=texture2D(map,vUv).rgb; float L=texture2D(land,vUv).r;
+          void main(){ vec2 vUv=snA(normalize(vP),vUv0); vec3 n=normalize(vN); vec3 v=normalize(cameraPosition-vW);
+            vec3 alb=snT(map,vUv).rgb; float L=snT(land,vUv).r;
             vec3 sea=alb*vec3(1.25,1.75,1.85)+vec3(0.,.05,.09); vec3 col=mix(sea,alb*1.12,L);
             float nd=dot(n,sun); float day=smoothstep(-.18,.35,nd); float dif=max(nd,0.)*.85+.25;
             vec3 lit=col*dif; vec3 hv=normalize(sun+v); lit+=(1.-L)*pow(max(dot(n,hv),0.),60.)*vec3(.8,.95,1.)*.6*day;
@@ -413,7 +444,7 @@
       scene.add(earth);
       const clouds = new T.Mesh(new T.SphereGeometry(1.014, 160, 80), new T.ShaderMaterial({uniforms: U, transparent: true, depthWrite: false,
         vertexShader:`varying vec3 vP; varying vec3 vN; void main(){ vP=position; vN=normalize(mat3(modelMatrix)*normal); gl_Position=projectionMatrix*viewMatrix*modelMatrix*vec4(position,1.); }`,
-        fragmentShader:`uniform float time; uniform vec3 sun; uniform sampler2D cl; varying vec3 vP,vN;
+        fragmentShader:`${SNL.glsl} uniform float time; uniform vec3 sun; uniform sampler2D cl; varying vec3 vP,vN;
           vec3 hh(vec3 p){p=vec3(dot(p,vec3(127.1,311.7,74.7)),dot(p,vec3(269.5,183.3,246.1)),dot(p,vec3(113.5,271.9,124.6)));return fract(sin(p)*43758.5453)*2.-1.;}
           float nz(vec3 p){vec3 i=floor(p),f=fract(p);vec3 u=f*f*(3.-2.*f);
             return mix(mix(mix(dot(hh(i),f),dot(hh(i+vec3(1,0,0)),f-vec3(1,0,0)),u.x),mix(dot(hh(i+vec3(0,1,0)),f-vec3(0,1,0)),dot(hh(i+vec3(1,1,0)),f-vec3(1,1,0)),u.x),u.y),
@@ -425,7 +456,7 @@
             q=sw(q,normalize(vec3(.2,-.55,-.8)),3.,.3); q=sw(q,normalize(vec3(-.3,-.35,.9)),-2.4,.26);
             vec3 s=vec3(q.x*1.6,q.y*4.2,q.z*1.6)+vec3(time*.015,0.,0.);
             vec3 w=vec3(fbm(s*1.3+2.),fbm(s*1.3+5.2),fbm(s*1.3+9.1)); float d=fbm(s*1.9+w*1.4);
-            vec2 uv=vec2(atan(p.x,p.z)/6.2831853+.5, asin(clamp(p.y,-1.,1.))/3.14159265+.5); vec2 cm=texture2D(cl,uv).rg;
+            vec2 uv=snUV(snLens(p)); vec2 cm=texture2D(cl,uv).rg;
             float pol=smoothstep(.88,.98,abs(p.y));            // полюса
             float bo=.12*(1.-cm.g)*(1.-.6*smoothstep(.6,.85,abs(p.y)))+.2*pol;                     // вдали от регионов и у полюсов — гуще
             float a=smoothstep(-.06-bo,.22-bo,d); a*=mix(.6+.4*smoothstep(-.25,.25,fbm(p*3.+11.)),1.,.5*max(1.-cm.g,pol));
@@ -440,25 +471,25 @@
           float g=pow(smoothstep(0.,.62,r),3.); float s=.35+.65*smoothstep(-.4,.6,-dot(-vN,sun)+.2); float k=g*1.1*s; gl_FragColor=vec4(vec3(.3,.72,1.)*k,k); }`}));
       scene.add(atm);
       const lift = new T.Mesh(geo, new T.ShaderMaterial({uniforms: U, transparent: true, depthWrite: false,
-        vertexShader:`uniform float lift; varying vec2 vUv; varying vec3 vN; void main(){ vUv=uv; vN=normalize(mat3(modelMatrix)*position); gl_Position=projectionMatrix*viewMatrix*modelMatrix*vec4(position*(1.+0.035*lift),1.); }`,
-        fragmentShader:`uniform sampler2D map,rid,land; uniform vec3 sun,hcol; uniform float hover,time,lift,crisp,frost; varying vec2 vUv; varying vec3 vN;
+        vertexShader:`uniform float lift; varying vec2 vUv0; varying vec3 vP; varying vec3 vN; void main(){ vUv0=uv; vP=position; vN=normalize(mat3(modelMatrix)*position); gl_Position=projectionMatrix*viewMatrix*modelMatrix*vec4(position*(1.+0.035*lift),1.); }`,
+        fragmentShader:`${SNL.glsl} uniform sampler2D map,rid,land; uniform vec3 sun,hcol; uniform float hover,time,lift,crisp,frost; varying vec2 vUv0; varying vec3 vP; varying vec3 vN;
           uniform sampler2D rm; uniform vec4 box; float mR(vec2 u){ vec2 q=(u-box.xy)/(box.zw-box.xy); if(q.x<0.||q.y<0.||q.x>1.||q.y>1.) return 0.; return texture2D(rm,q).r; }
-          void main(){ float m=mR(vUv); float a=smoothstep(.44,.56,m); if(hover<.5||lift<.01||a<.01) discard;
+          void main(){ vec2 vUv=snA(normalize(vP),vUv0); float m=mR(vUv); float a=smoothstep(.44,.56,m); if(hover<.5||lift<.01||a<.01) discard;
             float edge=1.-smoothstep(.56,.8,m);
-            vec3 n=normalize(vN); vec3 c=texture2D(map,vUv).rgb*1.15*(max(dot(n,sun),0.)*.9+.3);
+            vec3 n=normalize(vN); vec3 c=snT(map,vUv).rgb*1.15*(max(dot(n,sun),0.)*.9+.3);
             float pul=.5+.5*sin(time*3.); c=mix(c,hcol,.05+.04*pul); c=mix(c,hcol*1.3,edge*.8);
             if(frost>.01){ c=mix(c,vec3(.93,.98,1.),edge*.45*frost); float sp=fract(sin(dot(floor(vUv*vec2(5200.,2600.)),vec2(12.9898,78.233)))*43758.5453); c+=vec3(.9,.97,1.)*frost*edge*step(.93,sp)*(.5+.5*sin(time*4.+sp*40.)); }   // Снежная: иней и искры по краю
             gl_FragColor=vec4(c,lift*a); }   // вода внутри региона (озёра/заливы, fillHoles) поднимается вместе с сушей`}));
       scene.add(lift);
       // белая «стенка» под поднятым регионом (стопка слоёв между поверхностью и поднятой сушей)
       const walls = new T.Group(), WN = 32;
-      const wv = `uniform float lift,wk; varying vec2 vUv; varying vec3 vN; void main(){ vUv=uv; vN=normalize(mat3(modelMatrix)*position); gl_Position=projectionMatrix*viewMatrix*modelMatrix*vec4(position*(1.+.06*lift*wk),1.); }`;
-      const wf = `uniform sampler2D rid,land; uniform vec3 sun; uniform vec4 box; uniform float hover,lift,wk,crisp; varying vec2 vUv; varying vec3 vN;
+      const wv = `uniform float lift,wk; varying vec2 vUv0; varying vec3 vP; varying vec3 vN; void main(){ vUv0=uv; vP=position; vN=normalize(mat3(modelMatrix)*position); gl_Position=projectionMatrix*viewMatrix*modelMatrix*vec4(position*(1.+.06*lift*wk),1.); }`;
+      const wf = `${SNL.glsl} uniform sampler2D rid,land; uniform vec3 sun; uniform vec4 box; uniform float hover,lift,wk,crisp; varying vec2 vUv0; varying vec3 vP; varying vec3 vN;
           float isr(vec2 u){ return abs(floor(texture2D(rid,u).r*255./30.+.5)-hover)<.5 ? 1. : 0.; }
-          void main(){ if(hover<.5||lift<.01||vUv.x<box.x||vUv.y<box.y||vUv.x>box.z||vUv.y>box.w) discard;
+          void main(){ vec2 vUv=snA(normalize(vP),vUv0); if(hover<.5||lift<.01||vUv.x<box.x||vUv.y<box.y||vUv.x>box.z||vUv.y>box.w) discard;
             vec2 px=vec2(1./4096.,1./2048.); float R=1.4+.8*(1.-wk)*(1.-wk); float m=isr(vUv);
             if(m<.5){ for(int i=0;i<16;i++){ float a=float(i)*.39269908; vec2 d=vec2(cos(a),sin(a))*px*R; m=max(m,isr(vUv+d)); } }
-            if(m<.5) discard; if(crisp>.5 && texture2D(land,vUv).r<.5) discard;
+            if(m<.5) discard; if(crisp>.5 && snT(land,vUv).r<.5) discard;
             vec3 n=normalize(vN); float nd=dot(n,sun); float day=smoothstep(-.18,.35,nd);
             float sh=mix(.58,1.,pow(wk,.8)); vec3 c=vec3(.94,.97,1.)*sh*(.62+.45*max(nd,0.));
             c=mix(c*.28,c,day); c+=vec3(.25,.55,.7)*(1.-sh)*.25;
@@ -468,11 +499,11 @@
       walls.visible = false; scene.add(walls); lift.renderOrder = 6;
       // северное сияние над Снежной при наведении (оболочка над поднятым регионом, аддитивно)
       const aur = new T.Mesh(geo, new T.ShaderMaterial({uniforms: U, transparent: true, depthWrite: false, blending: T.AdditiveBlending,
-        vertexShader:`uniform float aur; varying vec2 vUv; varying vec3 vN,vW; void main(){ vUv=uv; vN=normalize(mat3(modelMatrix)*position); vec4 w=modelMatrix*vec4(position*(1.+.085*aur),1.); vW=w.xyz; gl_Position=projectionMatrix*viewMatrix*w; }`,
-        fragmentShader:`uniform sampler2D rm; uniform vec4 box; uniform vec3 sun; uniform float aur,time; varying vec2 vUv; varying vec3 vN,vW;
+        vertexShader:`uniform float aur; varying vec2 vUv0; varying vec3 vP; varying vec3 vN,vW; void main(){ vUv0=uv; vP=position; vN=normalize(mat3(modelMatrix)*position); vec4 w=modelMatrix*vec4(position*(1.+.085*aur),1.); vW=w.xyz; gl_Position=projectionMatrix*viewMatrix*w; }`,
+        fragmentShader:`${SNL.glsl} uniform sampler2D rm; uniform vec4 box; uniform vec3 sun; uniform float aur,time; varying vec2 vUv0; varying vec3 vP; varying vec3 vN,vW;
           float mR(vec2 u){ vec2 q=(u-box.xy)/(box.zw-box.xy); if(q.x<0.||q.y<0.||q.x>1.||q.y>1.) return 0.; return texture2D(rm,q).r; }
           float hs(float x){ return fract(sin(x*127.1)*43758.5453); } float n1(float x){ float i=floor(x),f=fract(x); f=f*f*(3.-2.*f); return mix(hs(i),hs(i+1.),f); }
-          void main(){ if(aur<.01) discard;
+          void main(){ vec2 vUv=snA(normalize(vP),vUv0); if(aur<.01) discard;
             vec2 q=(vUv-box.xy)/(box.zw-box.xy); if(q.x<-.1||q.y<-.1||q.x>1.1||q.y>1.1) discard;
             float reg=smoothstep(.0,.5,mR(vUv)); reg=max(reg,.6*smoothstep(.0,.5,mR(vUv+vec2(.004,0.)))+.0); float x=q.x*6.+time*.05;
             float y0=.45+.22*(n1(x*.7+time*.08)-.5)+.12*sin(q.x*7.+time*.3);
@@ -524,7 +555,7 @@
             float fr=pow(1.-max(dot(n,v),0.),2.6); c+=vec3(.35,.75,1.)*fr*(.25+.9*day);
             gl_FragColor=vec4(c,a); }`;
       const sph = (fx, fy, r) => { const u = HM.a + HM.b * fx, lo = -Math.PI + u * 2 * Math.PI, la = Math.atan(Math.sinh(HM.A - HM.B * fy));
-        return [Math.cos(la) * Math.sin(lo) * r, Math.sin(la) * r, Math.cos(la) * Math.cos(lo) * r, u, .5 + la / Math.PI]; };
+        const q = SNL.inv(lo, la); return [Math.cos(q[1]) * Math.sin(q[0]) * r, Math.sin(q[1]) * r, Math.cos(q[1]) * Math.cos(q[0]) * r, u, .5 + la / Math.PI]; };
       const hiTiles = HM.list.map(([tx, ty]) => { const c = sph((tx + .5) * HM.ts / HM.W, (ty + .5) * HM.ts / HM.H, 1);
         return {tx, ty, c: new T.Vector3(c[0], c[1], c[2]), m: null, st: 0, seen: 0}; });
       function hiMesh(P, tex){ const N = 16, pos = [], uv = [], uv2 = [], idx = [];
@@ -576,7 +607,7 @@
           e.addEventListener('click', ev => { ev.stopPropagation();
             if (!matchMedia('(hover:hover)').matches && !e.classList.contains('tap')){ pins.forEach(p => p.e.classList.remove('tap')); e.classList.add('tap'); return; }
             bossGo(pins.indexOf(P)); });
-          const P = {e, k, ri, bi, lo: m.pin[0], la: m.pin[1]}; pins.push(P); PL.appendChild(e); }); });
+          const P = {e, k, ri, bi, lo: SNL.inv(m.pin[0], m.pin[1])[0], la: SNL.inv(m.pin[0], m.pin[1])[1]}; pins.push(P); PL.appendChild(e); }); });
       S = {T, ren, scene, cam, earth, clouds, atm, lift, walls, aur, hiG, hiUpdate, U, lbls, pins, rid: () => RID, ray: new T.Raycaster(), w: 0, h: 0};
       let fired = false; const go = () => { if (fired) return; fired = true; cb(true); };
       mgr.onLoad = go; mgr.onError = () => {}; setTimeout(go, 15000);
@@ -628,7 +659,7 @@
     function pick(cx, cy){ const R = S && S.rid(); if (!R) return 0; const r = GV.getBoundingClientRect();
       const m = new S.T.Vector2((cx - r.left) / r.width * 2 - 1, -((cy - r.top) / r.height) * 2 + 1);
       S.ray.setFromCamera(m, S.cam); const hit = S.ray.intersectObject(S.earth)[0]; if (!hit || !hit.uv) return 0;
-      const x = Math.min(R.w - 1, Math.floor(hit.uv.x * R.w)), y = Math.min(R.h - 1, Math.floor((1 - hit.uv.y) * R.h));
+      const q = SNL.uv(hit.uv.x, hit.uv.y), x = Math.min(R.w - 1, Math.floor(q[0] * R.w)), y = Math.min(R.h - 1, Math.floor((1 - q[1]) * R.h));
       return Math.round(R.d[(y * R.w + x) * 4] / 30); }
     // рамка региона в uv (для белой стенки — чтобы шейдер не считал весь шар)
     function rbox(id){ const R = S.rid(); if (!R) return [0, 0, 1, 1];
@@ -724,7 +755,7 @@
         HINT.textContent = HT; setHover && S && setHover(0); done && done(); return; }
       loadThree(ok => { if (!ok || !window.THREE){ done && done(); return; }
         const show = () => { on = true; window.__globeOn = true; MAPV.classList.add('globe'); MODE.textContent = '🗺 Карта'; MODE.setAttribute('aria-label', 'Показать плоскую карту');
-          HINT.textContent = HT; lon = 0.58; lat = -0.30; zoom = DZ(); vl = vt = 0; fly = null; flown = false; hover = 0; idle = 0;
+          HINT.textContent = HT; lon = -0.45; lat = 0.12; zoom = DZ(); vl = vt = 0; fly = null; flown = false; hover = 0; idle = 0;
           S.U.hover.value = 0; S.w = 0; start(); done && done(); };
         const go2 = () => pxReady(show); if (S) go2(); else { try { init(ok2 => go2()); } catch(err){ done && done(); } } }); }
     MODE.addEventListener('click', () => { window.rpSnd && window.rpSnd('sfx_btn.mp3');
