@@ -164,7 +164,7 @@
       document.getElementById('rpTitle').textContent = R.name;
       document.getElementById('rpSub').textContent = R.motto + ' · Архонт: ' + R.archon;
       document.getElementById('rpDiff').innerHTML = `Сложность<b>${'★'.repeat(R.diff)}<span>${'★'.repeat(5-R.diff)}</span></b>${E(R.diffText)}`;
-      NAV.querySelectorAll('.rp-tab[data-t=wood]').forEach(b => b.hidden = !(R.tabs && R.tabs.wood)); NAV.querySelectorAll('.rp-tab[data-t=curios]').forEach(b => b.hidden = !(R.tabs && R.tabs.curios)); P.dataset.region = id; P.hidden = false; render('hist'); snd('sfx_open.mp3'); document.getElementById('rpClose').focus();
+      NAV.querySelectorAll('.rp-tab[data-t=wood]').forEach(b => b.hidden = !(R.tabs && R.tabs.wood)); NAV.querySelectorAll('.rp-tab[data-t=curios]').forEach(b => b.hidden = !(R.tabs && R.tabs.curios)); NAV.querySelectorAll('.rp-tab').forEach(b => { const im = b.querySelector('img'), k = b.dataset.t, d = TABS.find(t => t[0] === k); if (im && d && /\.webp$/.test(d[2])) im.src = (R.tic && R.tic[k]) || (d[2] + '?v=1'); }); P.dataset.region = id; P.hidden = false; render('hist'); snd('sfx_open.mp3'); document.getElementById('rpClose').focus();
     }
 
     // боковые кнопки справа от плашки (для боссов): «Как бить» и «На карте» — действуют на текущий слайд
