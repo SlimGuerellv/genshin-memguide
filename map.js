@@ -308,7 +308,7 @@
     const PXE = ['far', 'neb', 'mid', 'ast'].map((n, i) => { const e = document.createElement('div'); e.className = 'gpx ' + n; e.setAttribute('aria-hidden', 'true'); e.style.inset = PXI[i]; return e; });
     BG.after(PXE[0], PXE[1], PXE[2], PXE[3]);
     let pxOk = false, pmx = 0, pmy = 0, pcx = 0, pcy = 0;
-    function pxReady(cb){ const L = PXF(); let n = 0, fired = false; const fin = () => { if (fired) return; fired = true; pxOk = true; L.forEach((u, i) => PXE[i].style.backgroundImage = 'url(' + u + ')'); cb(); };
+    function pxReady(cb){ const L = PXF(); let n = 0, fired = false; const fin = () => { if (fired) return; fired = true; pxOk = true; L.forEach((u, i) => PXE[i].style.backgroundImage = 'url(' + u + ')'); if (!matchMedia('(orientation:portrait)').matches){ PXE[3].style.backgroundSize = '34% auto'; PXE[3].style.backgroundPosition = '0% 80%'; } cb(); };
       const t = setTimeout(() => { if (!fired){ fired = true; cb(); } }, 7000);
       L.forEach(u => { const im = new Image(); im.onload = im.onerror = () => { if (++n === L.length){ clearTimeout(t); fin(); } }; im.src = u; }); }
     function pxMove(dt){ if (!pxOk || PXR) return; const k = Math.min(1, dt * 3), A = MOB ? 22 : 38;
