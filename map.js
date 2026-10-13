@@ -302,18 +302,18 @@
     const MODE = document.getElementById('gmode'), HINT = MAPV.querySelector('.mhint .ht'), HINT0 = HINT.textContent, HP = MAPV.querySelector('.mhint'), HEAD = MAPV.querySelector('.mhead'),
           HT = matchMedia('(hover:none) and (pointer:coarse)').matches ? 'тяни — вращай, щипок — масштаб' : 'тяни — вращать, колесо — масштаб';
     HINT.textContent = HT;
-    // ===== фон-паралакс: 3 слоя (далёкая туманность с Бездной, звёзды, ближний туман), едут с разной скоростью от поворота глобуса и мыши =====
-    const PXF = () => matchMedia('(orientation:portrait)').matches ? ['sp_far_m.webp?v=1', 'sp_mid_m.webp?v=1', 'sp_near_m.webp?v=1'] : ['sp_far.webp?v=1', 'sp_mid.webp?v=1', 'sp_near.webp?v=1'];
-    const PXD = [.25, .6, 1.2], PXI = ['-3%', '-5%', '-8%'], PXR = matchMedia('(prefers-reduced-motion:reduce)').matches;
-    const PXE = ['far', 'mid', 'near'].map((n, i) => { const e = document.createElement('div'); e.className = 'gpx ' + n; e.setAttribute('aria-hidden', 'true'); e.style.inset = PXI[i]; return e; });
-    BG.after(PXE[0], PXE[1]); CV.after(PXE[2]);
+    // ===== фон-паралакс: 4 слоя (далёкая туманность, золотые потоки, звёзды, астероиды), все за глобусом, едут с разной скоростью от поворота глобуса и мыши =====
+    const PXF = () => matchMedia('(orientation:portrait)').matches ? ['sp_far_m.webp?v=2', 'sp_neb_m.webp?v=2', 'sp_mid_m.webp?v=2', 'sp_ast_m.webp?v=2'] : ['sp_far.webp?v=2', 'sp_neb.webp?v=2', 'sp_mid.webp?v=2', 'sp_ast.webp?v=2'];
+    const PXD = [.25, .45, .6, 1.1], PXI = ['-3%', '-4%', '-5%', '-8%'], PXR = matchMedia('(prefers-reduced-motion:reduce)').matches;
+    const PXE = ['far', 'neb', 'mid', 'ast'].map((n, i) => { const e = document.createElement('div'); e.className = 'gpx ' + n; e.setAttribute('aria-hidden', 'true'); e.style.inset = PXI[i]; return e; });
+    BG.after(PXE[0], PXE[1], PXE[2], PXE[3]);
     let pxOk = false, pmx = 0, pmy = 0, pcx = 0, pcy = 0;
     function pxReady(cb){ const L = PXF(); let n = 0, fired = false; const fin = () => { if (fired) return; fired = true; pxOk = true; L.forEach((u, i) => PXE[i].style.backgroundImage = 'url(' + u + ')'); cb(); };
       const t = setTimeout(() => { if (!fired){ fired = true; cb(); } }, 7000);
       L.forEach(u => { const im = new Image(); im.onload = im.onerror = () => { if (++n === L.length){ clearTimeout(t); fin(); } }; im.src = u; }); }
     function pxMove(dt){ if (!pxOk || PXR) return; const k = Math.min(1, dt * 3), A = MOB ? 22 : 38;
       pcx += ((Math.sin(lon * .5) * A + pmx * 22) - pcx) * k; pcy += ((lat * 28 + pmy * 14) - pcy) * k;
-      for (let i = 0; i < 3; i++) PXE[i].style.transform = 'translate3d(' + (-pcx * PXD[i]).toFixed(1) + 'px,' + (-pcy * PXD[i]).toFixed(1) + 'px,0)'; }
+      for (let i = 0; i < 4; i++) PXE[i].style.transform = 'translate3d(' + (-pcx * PXD[i]).toFixed(1) + 'px,' + (-pcy * PXD[i]).toFixed(1) + 'px,0)'; }
     GV.addEventListener('pointermove', e => { if (e.pointerType !== 'mouse') return; const r = GV.getBoundingClientRect(); pmx = (e.clientX - r.left) / r.width * 2 - 1; pmy = (e.clientY - r.top) / r.height * 2 - 1; });
     const REG = [['mond','Мондштадт','#6FE3C1'],['liyue','Ли Юэ','#F5C84C'],['fontaine','Фонтейн','#4FD3F7'],['sumeru','Сумеру','#9BDB4E'],
                  ['nodkrai','Нод-Край','#B9B2FF'],['natlan','Натлан','#FF7B5C'],['snezh','Снежная','#A8EEF5'],['inazuma','Инадзума','#C58CFF']];
