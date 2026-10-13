@@ -21,6 +21,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
   let query = '';
 
   const PAGE = document.documentElement.dataset.page || 'main';
+  const SEC = document.documentElement.dataset.sec || '';   // отдельная страница раздела: chars / weapons / arts / dict (characters.html и т.д.)
   const STUB = {}, $ = id => document.getElementById(id) || (PAGE === 'map' ? (STUB[id] || (STUB[id] = document.createElement('div'))) : null);
   const esc = s => String(s).replace(/[&<>"]/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
 
@@ -662,8 +663,22 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     const steps = ch.rot.map((r,i)=>`<li><span class="rot-n">${i+1}</span><span class="rot-ch">${(r.s||[]).map(chip).join('<i class="rot-ar">›</i>')}</span><span class="rot-t">${esc(r.t)}</span></li>`).join('');
     return `<ol class="rot">${steps}</ol>${ch.rotn ? `<p class="rot-note">${esc(ch.rotn)}</p>` : ''}`;
   }
+  // «Хо-хо-хо» при открытии карточки Венти: только звук, музыка на это время замолкает, потом играет дальше
+  let hoBusy = false;
+  function ventiHo(){
+    const V = document.getElementById('dmeme'); if (!V || hoBusy) return;
+    const vol = (window.gMusic ? window.gMusic.memeVol() : .2) * .9;   // на 10% тише прежнего
+    if (!vol) return;
+    hoBusy = true;
+    const end = () => { if (!hoBusy) return; hoBusy = false; V.onended = V.onerror = null; try{ V.pause(); }catch(e){} try{ window.gMusic && window.gMusic.unhush(); }catch(e){} };
+    try { window.gMusic && window.gMusic.hush(); } catch(e){}
+    try { V.currentTime = 0; } catch(e){}
+    V.volume = Math.min(1, vol); V.muted = false; V.onended = V.onerror = end;
+    const pr = V.play(); pr && pr.catch && pr.catch(end);
+  }
   function openSheet(i, from, keepSp){
     const ch = CHARS[i], el = elOf(ch); lastFocus = from; if (!keepSp) spKey = null; spCh = ch;
+    if (!keepSp && (ch.fx === 'venti' || ch.n === 'Венти')) ventiHo();
     const tags = ch.e==='Любая'
       ? ELEMENTS.slice(1).map(e=>`<span class="tag" style="--tc:${e.c}">${icon(e)}${e.name}</span>`).join('')
       : `<span class="tag">${icon(el)}${esc(ch.e)}</span>`;
@@ -876,8 +891,8 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
   // ===== Главная ↔ персонажи =====
   (function views(){ if (!document.getElementById('welcome')) return;
     const root = document.documentElement, W = document.getElementById('welcome'), vid = document.getElementById('wvid'), wv = W.querySelector('.wv');
-    function apply(){ if (/^#(map|карта)/i.test(decodeURI(location.hash))){ location.replace('map.html'); return; }   // карта теперь на map.html
-      const h = decodeURI(location.hash), dict = /^#(dict|словарь)/i.test(h), map = /^#(map|карта)/i.test(h), arts = /^#(arts|артефакты)/i.test(h), weap = /^#(weapons|оружие)/i.test(h), home = !dict && !map && !arts && !weap && !/^#(chars|персонажи)/i.test(h); root.classList.toggle('v-home', home); root.classList.toggle('v-dict', dict); root.classList.toggle('v-map', map); root.classList.toggle('v-arts', arts); root.classList.toggle('v-weap', weap);
+    function apply(){ if (!SEC && /^#(map|карта)/i.test(decodeURI(location.hash))){ location.replace('map.html'); return; }   // карта теперь на map.html
+      const h = SEC ? '#' + SEC : decodeURI(location.hash), dict = /^#(dict|словарь)/i.test(h), map = /^#(map|карта)/i.test(h), arts = /^#(arts|артефакты)/i.test(h), weap = /^#(weapons|оружие)/i.test(h), home = !dict && !map && !arts && !weap && !/^#(chars|персонажи)/i.test(h); root.classList.toggle('v-home', home); root.classList.toggle('v-dict', dict); root.classList.toggle('v-map', map); root.classList.toggle('v-arts', arts); root.classList.toggle('v-weap', weap);
       if (home){ vid.play && vid.play().catch(()=>{}); } else { vid.pause && vid.pause(); } }
     // ряд стихий на экранах загрузки (как в Геншине): заполняются цветом слева направо, при заполнении — вспышка своим цветом
     const ELS = [['pyro','#FF7B5C'],['hydro','#4FD3F7'],['anemo','#6FE3C1'],['electro','#C58CFF'],['dendro','#9BDB4E'],['cryo','#A8EEF5'],['geo','#F5C84C']];
@@ -891,15 +906,13 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     function charsLoad(h, label){
       h = h || 'chars'; CL.setAttribute('aria-label', label || 'Загрузка персонажей');
       setRow(CROW, 0); CL.classList.remove('ready'); root.classList.add('cl-on'); CL.classList.add('on');
-      location.hash = h; scrollTo(0,0);
+      if (!SEC) location.hash = h; scrollTo(0,0);
       let t0 = performance.now(); const dur = 2600;
       (function step(ts){ const k = ease(Math.min(1, ((ts||t0)-t0)/dur)); setRow(CROW, k);
         if (k < 1){ requestAnimationFrame(step); return; }
-        CL.classList.add('ready');
-        const finish = e => { if (e.type==='keydown' && !['Enter',' ','Escape'].includes(e.key)) return;
-          CL.removeEventListener('click', finish); removeEventListener('keydown', finish);
-          CL.classList.remove('on'); root.classList.remove('cl-on'); };
-        setTimeout(()=>{ CL.addEventListener('click', finish); addEventListener('keydown', finish); }, 150);
+        // 100%: «Загрузка завершена…» мигает 2,8 с, потом страница открывается сама
+        CL.classList.add('ready'); CROW.classList.add('breathe');
+        setTimeout(()=>{ CL.classList.remove('on'); root.classList.remove('cl-on'); CROW.classList.remove('breathe'); }, 2800);
       })();
     }
     // «влёт» с главной в раздел
@@ -911,7 +924,10 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
       setTimeout(cb, 520);                                  // экран загрузки появляется под полностью белым сиянием
       setTimeout(()=>{ FL.classList.remove('go'); flying = false; }, 1400);
     }
-    document.getElementById('goChars').addEventListener('click', ()=>fly(()=>charsLoad('chars', 'Загрузка персонажей')));
+    // разделы живут на отдельных страницах: белая вспышка, переход, а загрузка идёт уже на новой странице
+    const PAGES = {chars: 'characters.html', weapons: 'weapons.html', arts: 'artifacts.html', dict: 'dictionary.html'};
+    function goPage(p){ try { window.gMusic && window.gMusic.leave(); } catch(e){} try { sessionStorage.setItem('hv_fromwhite', '1'); } catch(e){} location.href = p; }
+    document.getElementById('goChars').addEventListener('click', ()=>fly(()=>goPage(PAGES.chars)));
     // карта (отдельная страница map.html): экран загрузки идёт ЗДЕСЬ, на главной. Пока полоса бежит, браузер тихо
     // докачивает всё для глобуса (только качает, не распаковывает — анимация не лагает). 100% — сразу переход на глобус.
     const ML = document.getElementById('mload'), MROW = ML.querySelector('.elrow'), MV2 = document.getElementById('mlvid');
@@ -943,7 +959,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
         if (shown < 1){ requestAnimationFrame(step); return; }
         // 100%: «пожалуйста подождите», стихии «дышат» 2,8 с, потом переход на глобус
         const D = ML.querySelector('.done'); if (!D.dataset.t0) D.dataset.t0 = D.textContent;
-        D.textContent = 'Загрузка завершена, пожалуйста подождите'; ML.classList.add('wait'); MROW.classList.add('breathe');
+        D.textContent = 'Загрузка завершена…'; ML.classList.add('wait'); MROW.classList.add('breathe');
         setTimeout(() => {
           try { sessionStorage.setItem('hv_fromload', JSON.stringify({t: MV2.currentTime || 0, at: Date.now()})); } catch(e){}
           location.href = 'map.html';
@@ -959,12 +975,8 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     const DL = document.getElementById('dload'), DP = document.getElementById('dpct');
     function dictLoad(){
       DL.style.setProperty('--p','0%'); DL.classList.remove('ready'); DL.classList.add('on'); DP.textContent = 'Загрузка… 0%';
-      // мем за баннером: еле видно, еле слышно, один раз; музыка главной на это время замолкает
+      // «Хо-хо-хо» с загрузки убран: теперь он звучит при открытии карточки Венти (ventiHo)
       try { window.gMusic && window.gMusic.hush(); } catch(e){}
-      const MV = document.getElementById('dmeme');
-      try { MV.currentTime = 0; } catch(e){}
-      MV.volume = window.gMusic ? window.gMusic.memeVol() : .2; MV.muted = MV.volume === 0;
-      MV.classList.add('play'); MV.play().catch(()=>{});
       const img = DL.querySelector('.col'), DROW = DL.querySelector('.elrow'); setRow(DROW, 0); let t0 = 0, dur = 3200, raf = 0;
       const go = () => { t0 = performance.now(); raf = requestAnimationFrame(step); };
       function step(ts){
@@ -972,19 +984,20 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
         k = k<.5 ? 2*k*k : 1-Math.pow(-2*k+2,2)/2;             // плавно: медленно-быстро-медленно
         const p = (k*100).toFixed(1)+'%'; DL.style.setProperty('--p',p); DP.textContent = 'Загрузка… '+Math.round(k*100)+'%'; setRow(DROW, k);
         if (k < 1){ raf = requestAnimationFrame(step); return; }
-        DL.style.setProperty('--eo','0'); DL.classList.add('ready'); DP.textContent = '100%';
-        const finish = e => { if (e.type==='keydown' && !['Enter',' ','Escape'].includes(e.key)) return;
-          DL.removeEventListener('click', finish); removeEventListener('keydown', finish);
-          MV.pause(); MV.classList.remove('play');
-          location.hash = 'dict'; scrollTo(0,0); DL.classList.remove('on'); setTimeout(()=>DL.style.setProperty('--eo','1'),600);
-          window.gMusic && window.gMusic.unhush(); };
-        setTimeout(()=>{ DL.addEventListener('click', finish); addEventListener('keydown', finish); }, 150);
+        DL.style.setProperty('--eo','0'); DL.classList.add('ready'); DP.textContent = '100%'; DROW.classList.add('breathe');
+        // «Загрузка завершена…» мигает 2,8 с, потом словарь открывается сам
+        setTimeout(()=>{ DROW.classList.remove('breathe');
+          if (!SEC) location.hash = 'dict'; scrollTo(0,0); DL.classList.remove('on'); setTimeout(()=>DL.style.setProperty('--eo','1'),600);
+          window.gMusic && window.gMusic.unhush(); }, 2800);
       }
       img.complete ? go() : (img.onload = go, img.onerror = go);
     }
-    document.getElementById('goDict').addEventListener('click', ()=>fly(dictLoad));
-    document.getElementById('goArts').addEventListener('click', ()=>fly(()=>charsLoad('arts', 'Загрузка артефактов')));
-    document.getElementById('goWeap').addEventListener('click', ()=>fly(()=>charsLoad('weapons', 'Загрузка оружия')));
+    document.getElementById('goDict').addEventListener('click', ()=>fly(()=>goPage(PAGES.dict)));
+    document.getElementById('goArts').addEventListener('click', ()=>fly(()=>goPage(PAGES.arts)));
+    document.getElementById('goWeap').addEventListener('click', ()=>fly(()=>goPage(PAGES.weapons)));
+    // пришли на страницу раздела: загрузка, как у глобуса (не показываем при обновлении и «Назад»)
+    if (SEC && root.classList.contains('arrive')){ root.classList.remove('arrive');
+      if (SEC === 'dict') dictLoad(); else charsLoad(SEC, {chars: 'Загрузка персонажей', weapons: 'Загрузка оружия', arts: 'Загрузка артефактов'}[SEC]); }
     // звук кнопки «На главную»
     const HOME_SFX = new Audio('sfx_home.mp3'); HOME_SFX.preload = 'auto';
     // звук кнопок на главной: любая кнопка внутри .welcome (Словарь, Персонажи и будущие)
@@ -1000,6 +1013,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     document.getElementById('goHome').addEventListener('click', ()=>{
       const v = window.gMusic ? window.gMusic.sfxVol() : .5;
       if (v > 0){ const a = HOME_SFX.cloneNode(); a.volume = v; a.play().catch(()=>{}); }
+      if (SEC){ fly(()=>goPage('./')); return; }
       history.pushState(null,'',location.pathname+location.search); apply(); });
     addEventListener('hashchange', apply); addEventListener('popstate', apply); apply();
     // паралакс: видео рисуется в canvas на каждом кадре экрана (60/144 Гц) вместе со смещением —
@@ -1491,10 +1505,11 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     map:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c3.2 3 3.2 15 0 18"/><path d="M12 3c-3.2 3-3.2 15 0 18"/>'};
   const S = [['chars','Персонажи','#6FE3C1'], ['weapons','Оружие','#FF7B5C'], ['arts','Артефакты','#C58CFF'], ['dict','Словарь','#4FD3F7'], ['map','Глобус','#9BDB4E']];
   nav.innerHTML = S.map(s => '<button type="button" class="schip" data-s="' + s[0] + '" style="--c:' + s[2] + '"><span class="si" aria-hidden="true"><svg viewBox="0 0 24 24">' + ic[s[0]] + '</svg></span><span class="sl">' + s[1] + '</span></button>').join('');
-  const cur = () => { const h = decodeURI(location.hash); return /^#(dict|словарь)/i.test(h) ? 'dict' : /^#(arts|артефакты)/i.test(h) ? 'arts' : /^#(weapons|оружие)/i.test(h) ? 'weapons' : 'chars'; };
+  const PG = {chars: 'characters.html', weapons: 'weapons.html', arts: 'artifacts.html', dict: 'dictionary.html'};
+  const cur = () => { if (document.documentElement.dataset.sec) return document.documentElement.dataset.sec; const h = decodeURI(location.hash); return /^#(dict|словарь)/i.test(h) ? 'dict' : /^#(arts|артефакты)/i.test(h) ? 'arts' : /^#(weapons|оружие)/i.test(h) ? 'weapons' : 'chars'; };
   const mark = () => { const c = cur(); [].forEach.call(nav.children, b => { if (b.dataset.s === c) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); }); };
   nav.addEventListener('click', e => { const b = e.target.closest('button[data-s]'); if (!b) return; const s = b.dataset.s;
     if (s === 'map'){ const g = document.getElementById('goMap'); if (g) g.click(); else location.href = 'map.html'; return; }
-    if (s === cur()) return; location.hash = '#' + s; scrollTo(0, 0); });
+    if (s === cur()) return; try { window.gMusic && window.gMusic.leave(); } catch(e){} location.href = PG[s]; });
   addEventListener('hashchange', mark); addEventListener('popstate', mark); mark();
 })();
