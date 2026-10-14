@@ -14,7 +14,7 @@ window.HVDAILY = {"books":[{"id":"freedom","n":"Свобода","reg":"Монд�
   function isMine(c, coll){ return coll[c] === 'got' || coll[c] === 'main'; }
   function render(){
     var coll = mine(), hasMine = chars.some(function(c){ return isMine(c.n, coll); });
-    var m = mode || (hasMine ? 'my' : 'all');
+    var m = mode || 'all';   // по умолчанию показываем всех
     var days = $('.wd-days'); days.innerHTML = DAYS.map(function(d){
       return '<button type="button" class="wd-day'+(d[1]===sel?' on':'')+(d[1]===today?' now':'')+'" data-d="'+d[1]+'" role="tab" aria-selected="'+(d[1]===sel)+'" title="'+d[2]+(d[1]===today?' (сегодня)':'')+'">'+d[0]+'</button>';
     }).join('');
