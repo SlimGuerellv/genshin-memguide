@@ -926,7 +926,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     }
     // разделы живут на отдельных страницах: белая вспышка, переход, а загрузка идёт уже на новой странице
     const PAGES = {chars: 'characters.html', weapons: 'weapons.html', arts: 'artifacts.html', dict: 'dictionary.html'};
-    function goPage(p){ try { window.gMusic && window.gMusic.leave(); } catch(e){} try { sessionStorage.setItem('hv_fromwhite', '1'); } catch(e){} location.href = p; }
+    function goPage(p){ try { window.gMusic && window.gMusic.leave(); } catch(e){} try { const s = JSON.parse(sessionStorage.getItem('hv_sfx') || 'null'); if (s){ s.cut = Date.now(); sessionStorage.setItem('hv_sfx', JSON.stringify(s)); } } catch(e){} try { sessionStorage.setItem('hv_fromwhite', '1'); } catch(e){} location.href = p; }
     document.getElementById('goChars').addEventListener('click', ()=>fly(()=>goPage(PAGES.chars)));
     // карта (отдельная страница map.html): экран загрузки идёт ЗДЕСЬ, на главной. Пока полоса бежит, браузер тихо
     // докачивает всё для глобуса (только качает, не распаковывает — анимация не лагает). 100% — сразу переход на глобус.
@@ -998,6 +998,19 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     // пришли на страницу раздела: загрузка, как у глобуса (не показываем при обновлении и «Назад»)
     if (SEC && root.classList.contains('arrive')){ root.classList.remove('arrive');
       if (SEC === 'dict') dictLoad(); else charsLoad(SEC, {chars: 'Загрузка персонажей', weapons: 'Загрузка оружия', arts: 'Загрузка артефактов'}[SEC]); }
+    // звуки перехода (влёт, «буль-буль», «домой») длиннее, чем живёт страница после клика: передаём их новой странице,
+    // она подхватывает ровно с того места, где звук оборвался, и доигрывает до конца
+    function sfxHandoff(list, vol){ try { sessionStorage.setItem('hv_sfx', JSON.stringify({list, vol})); } catch(e){} }
+    (function resumeSfx(){ let o = null; try { o = JSON.parse(sessionStorage.getItem('hv_sfx') || 'null'); sessionStorage.removeItem('hv_sfx'); } catch(e){}
+      if (!o || !o.list || !o.cut || Date.now() - o.cut > 8000) return;
+      const v = window.gMusic ? window.gMusic.sfxVol() : o.vol; if (!(v > 0)) return;
+      o.list.forEach(([f, start]) => {
+        const off = Math.max(0, (o.cut - start) / 1000);      // с какого места звук оборвался на прошлой странице
+        const au = new Audio(f); au.preload = 'auto'; au.volume = v;
+        const go = () => { au.removeEventListener('canplay', go); if (off >= (au.duration || 0) - .05) return;
+          try { au.currentTime = off; } catch(e){} au.play().catch(()=>{}); };
+        au.addEventListener('canplay', go); au.load(); });
+    })();
     // звук кнопки «На главную»
     const HOME_SFX = new Audio('sfx_home.mp3'); HOME_SFX.preload = 'auto';
     // звук кнопок на главной: любая кнопка внутри .welcome (Словарь, Персонажи и будущие)
@@ -1008,11 +1021,12 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
       if (v > 0){ const a = BTN_SFX.cloneNode(); a.volume = v; a.play().catch(()=>{});
         // «влёт» при переходе в раздел (как загрузка в Геншине)
         if (b.id === 'goDict' || b.id === 'goChars' || b.id === 'goMap' || b.id === 'goArts' || b.id === 'goWeap'){ const w = WHOOSH.cloneNode(), u = BUBBLE.cloneNode(); w.volume = u.volume = v;
-          setTimeout(()=>{ w.play().catch(()=>{}); u.play().catch(()=>{}); }, 90);} }   // влёт + «буль-буль» телепорта, как в игре
+          setTimeout(()=>{ w.play().catch(()=>{}); u.play().catch(()=>{}); }, 90);
+          if (b.id !== 'goMap') sfxHandoff([['sfx_whoosh.mp3', Date.now() + 90], ['sfx_bubble.mp3', Date.now() + 90]], v); } } // влёт + «буль-буль» телепорта, как в игре; страница раздела дослушает их до конца
     }, true);
     document.getElementById('goHome').addEventListener('click', ()=>{
       const v = window.gMusic ? window.gMusic.sfxVol() : .5;
-      if (v > 0){ const a = HOME_SFX.cloneNode(); a.volume = v; a.play().catch(()=>{}); }
+      if (v > 0){ const a = HOME_SFX.cloneNode(); a.volume = v; a.play().catch(()=>{}); if (SEC) sfxHandoff([['sfx_home.mp3', Date.now()]], v); }
       if (SEC){ fly(()=>goPage('./')); return; }
       history.pushState(null,'',location.pathname+location.search); apply(); });
     addEventListener('hashchange', apply); addEventListener('popstate', apply); apply();
