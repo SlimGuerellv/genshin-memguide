@@ -897,22 +897,37 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     // ряд стихий на экранах загрузки (как в Геншине): заполняются цветом слева направо, при заполнении — вспышка своим цветом
     const ELS = [['pyro','#FF7B5C'],['hydro','#4FD3F7'],['anemo','#6FE3C1'],['electro','#C58CFF'],['dendro','#9BDB4E'],['cryo','#A8EEF5'],['geo','#F5C84C']];
     document.querySelectorAll('.elrow').forEach(r => r.innerHTML = ELS.map(([k,c]) => `<span class="eli" style="--ec:${c}"><img class="g" src="el_${k}.webp" alt=""><img class="c" src="el_${k}.webp" alt=""></span>`).join(''));
-    function setRow(row, k){ { const pc = row.parentNode && row.parentNode.querySelector('.pct'); if (pc) pc.textContent = (pc.dataset.t || 'Загрузка…') + ' ' + Math.round(k * 100) + '%'; }
+    function setRow(row, k){ try { if (row === CROW) CL.style.setProperty('--k', k.toFixed(3)); } catch(e){}
+      { const pc = row.parentNode && row.parentNode.querySelector('.pct'); if (pc) pc.textContent = (pc.dataset.t || 'Загрузка…') + ' ' + Math.round(k * 100) + '%'; }
       row.querySelectorAll('.eli').forEach((e,i)=>{ const f = Math.max(0, Math.min(1, k*ELS.length - i));
       e.style.setProperty('--f', (f*100).toFixed(1)+'%'); if (f >= 1) e.classList.add('lit'); else e.classList.remove('lit'); }); }
     const ease = k => k<.5 ? 2*k*k : 1-Math.pow(-2*k+2,2)/2;
     // персонажи: экран загрузки на фоне сайта
     const CL = document.getElementById('cload'), CROW = CL.querySelector('.elrow');
+    // мини-крутка: по экрану летит звезда, на 100% «выпадает» карточка с шуткой (3★ чаще всего, 5★ — редкость, как в игре)
+    const WISH = (() => { const w = document.createElement('div'); w.className = 'wish'; w.setAttribute('aria-hidden', 'true');
+      w.innerHTML = '<div class="wglow"></div><div class="wmeteor"></div><div class="wburst"></div><div class="wcard"><div class="wstars"></div><div class="wlbl"></div><div class="wjoke"></div></div>';
+      const box = CL.querySelector('.cbox'); box.insertBefore(w, box.firstChild); return w; })();
+    const WJ = {
+      3: ['Ничего не выпало. Как обычно', 'Три звезды. Зато честно', 'Мусор, но свой, родной', 'Удочка не виновата. Это рандом', 'Даже не 4★. Держись'],
+      4: ['Неплохо, но это не вайфу', 'Фиолетовый — тоже цвет надежды', 'Уже не пусто. Не расслабляйся'],
+      5: ['ВЫБИЛ?! Сохрани скриншот, пока не проснулся', 'Золото! Гарант даже не понадобился', 'Вселенная ошиблась, пользуйся']
+    };
+    const WLBL = {chars: 'Персонажи', weapons: 'Оружие', arts: 'Артефакты'};
+    function wishRoll(h){ const r = Math.random(), s = r < .06 ? 5 : r < .30 ? 4 : 3, j = WJ[s];
+      CL.classList.remove('r3', 'r4', 'r5'); CL.classList.add('r' + s); CL.style.setProperty('--k', 0);
+      WISH.querySelector('.wstars').textContent = '★'.repeat(s); WISH.querySelector('.wlbl').textContent = WLBL[h] || '';
+      WISH.querySelector('.wjoke').textContent = j[Math.floor(Math.random() * j.length)]; }
     function charsLoad(h, label, done){
       h = h || 'chars'; CL.setAttribute('aria-label', label || 'Загрузка персонажей');
-      setRow(CROW, 0); CL.classList.remove('ready'); root.classList.add('cl-on'); CL.classList.add('on');
+      wishRoll(h); setRow(CROW, 0); CL.classList.remove('ready'); root.classList.add('cl-on'); CL.classList.add('on');
       if (!SEC && !done) location.hash = h; scrollTo(0,0);
       let t0 = performance.now(); const dur = 2600;
       (function step(ts){ const k = ease(Math.min(1, ((ts||t0)-t0)/dur)); setRow(CROW, k);
         if (k < 1){ requestAnimationFrame(step); return; }
         // 100%: «Загрузка завершена…» мигает 2,8 с, потом страница открывается сама
         CL.classList.add('ready'); CROW.classList.add('breathe');
-        setTimeout(()=>{ if (done){ done(); return; } CL.classList.remove('on'); root.classList.remove('cl-on'); CROW.classList.remove('breathe'); }, 2800);
+        setTimeout(()=>{ if (done){ done(); return; } CL.classList.remove('on'); root.classList.remove('cl-on'); CROW.classList.remove('breathe'); }, done ? 1500 : 2800);
       })();
     }
     // «влёт» с главной в раздел
@@ -928,9 +943,10 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     const PAGES = {chars: 'characters.html', weapons: 'weapons.html', arts: 'artifacts.html', dict: 'dictionary.html'};
     function goPage(p){ try { window.gMusic && window.gMusic.leave(); } catch(e){} try { const s = JSON.parse(sessionStorage.getItem('hv_sfx') || 'null'); if (s){ s.cut = Date.now(); sessionStorage.setItem('hv_sfx', JSON.stringify(s)); } } catch(e){} try { sessionStorage.setItem('hv_fromwhite', '1'); } catch(e){} location.href = p; }
     // как у глобуса: экран загрузки идёт на главной (звуки «вшух» и «буль-буль» звучат целиком), потом открывается раздел без повторной загрузки
+    const warm = p => { try { fetch(p).catch(()=>{}); } catch(e){} };   // страница раздела подгружается, пока идёт загрузка, чтобы потом открыться сразу
     function homeGo(p){ try { window.gMusic && window.gMusic.leave(); } catch(e){} try { sessionStorage.setItem('hv_noload', '1'); } catch(e){} location.href = p; }
     const LBL = {chars: 'Загрузка персонажей', weapons: 'Загрузка оружия', arts: 'Загрузка артефактов'};
-    document.getElementById('goChars').addEventListener('click', ()=>fly(()=>charsLoad('chars', LBL.chars, ()=>homeGo(PAGES.chars))));
+    document.getElementById('goChars').addEventListener('click', ()=>{ warm(PAGES.chars); fly(()=>charsLoad('chars', LBL.chars, ()=>homeGo(PAGES.chars))); });
     // карта (отдельная страница map.html): экран загрузки идёт ЗДЕСЬ, на главной. Пока полоса бежит, браузер тихо
     // докачивает всё для глобуса (только качает, не распаковывает — анимация не лагает). 100% — сразу переход на глобус.
     const ML = document.getElementById('mload'), MROW = ML.querySelector('.elrow'), MV2 = document.getElementById('mlvid');
@@ -993,13 +1009,13 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
         setTimeout(()=>{ DROW.classList.remove('breathe');
           if (done){ done(); return; }
           if (!SEC) location.hash = 'dict'; scrollTo(0,0); DL.classList.remove('on'); setTimeout(()=>DL.style.setProperty('--eo','1'),600);
-          window.gMusic && window.gMusic.unhush(); }, 2800);
+          window.gMusic && window.gMusic.unhush(); }, done ? 600 : 2800);
       }
       img.complete ? go() : (img.onload = go, img.onerror = go);
     }
-    document.getElementById('goDict').addEventListener('click', ()=>fly(()=>dictLoad(()=>homeGo(PAGES.dict))));
-    document.getElementById('goArts').addEventListener('click', ()=>fly(()=>charsLoad('arts', LBL.arts, ()=>homeGo(PAGES.arts))));
-    document.getElementById('goWeap').addEventListener('click', ()=>fly(()=>charsLoad('weapons', LBL.weapons, ()=>homeGo(PAGES.weapons))));
+    document.getElementById('goDict').addEventListener('click', ()=>{ warm(PAGES.dict); fly(()=>dictLoad(()=>homeGo(PAGES.dict))); });
+    document.getElementById('goArts').addEventListener('click', ()=>{ warm(PAGES.arts); fly(()=>charsLoad('arts', LBL.arts, ()=>homeGo(PAGES.arts))); });
+    document.getElementById('goWeap').addEventListener('click', ()=>{ warm(PAGES.weapons); fly(()=>charsLoad('weapons', LBL.weapons, ()=>homeGo(PAGES.weapons))); });
     // пришли на страницу раздела: загрузка, как у глобуса (не показываем при обновлении и «Назад»)
     if (SEC && root.classList.contains('arrive')){ root.classList.remove('arrive');
       if (SEC === 'dict') dictLoad(); else charsLoad(SEC, {chars: 'Загрузка персонажей', weapons: 'Загрузка оружия', arts: 'Загрузка артефактов'}[SEC]); }
