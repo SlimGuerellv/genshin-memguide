@@ -2345,3 +2345,4 @@ header.top .tools{margin-left:auto}
 html.arrive .wrap{opacity:0; visibility:hidden}
 html.arrive:not([data-sec=dict]) .cload{opacity:1; visibility:visible}
 html.arrive[data-sec=dict] .dload{opacity:1; visibility:visible}
+.team-tag.lunar{--c:#5fb4ff; background:linear-gradient(180deg,#bfe3ff,#5fb4ff)}
