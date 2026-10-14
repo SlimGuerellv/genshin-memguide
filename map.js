@@ -703,8 +703,13 @@
       chipEl[id] = b; CHW.appendChild(b); });
     function go(id){ const [k] = REG[id - 1]; if (!RD()[k]) return;
       hideHint(); window.rpSnd && window.rpSnd('sfx_open.mp3'); flown = true; TIP.classList.remove('on');
+      // Мондштадт: ветер и Анемо поверх глобуса (anemo-fx.js), плашка открывается, когда эффект почти доиграл.
+      // Если модуль не загрузился, всё работает как раньше.
+      let fx = null;
+      if (k === 'mond' && window.AnemoFX){ const gr = GV.getBoundingClientRect();
+        fx = AnemoFX.play({x: gr.left + gr.width / 2, y: gr.top + gr.height / 2 + ((S && S.off) || 0), duration: 1800}); }
       const [lo, la] = RPOS[id - 1]; fly = {l0: lon, a0: lat, z0: zoom, lon: lo, lat: Math.max(-1, Math.min(1, la)), zoom: 2.1, t0: performance.now(), dur: 850,
-        then: () => window.rpOpen && window.rpOpen(k, true)}; }
+        then: () => { const open = () => window.rpOpen && window.rpOpen(k, true); if (fx) fx.then(open); else open(); }}; }
     // панель закрыли — камера отлетает назад
     new MutationObserver(() => { const P = document.getElementById('rpanel'); if (on && P.hidden && pend != null && pend >= 0){ const n = pend; pend = null; flown = false; focusPin(n); return; } pend = null; if (on && flown && P.hidden){ flown = false; hover = 0; S.U.hover.value = 0;
       fly = {l0: lon, a0: lat, z0: zoom, lon: lon, lat: lat, zoom: DZ(), t0: performance.now(), dur: 700}; idle = 0; } })
