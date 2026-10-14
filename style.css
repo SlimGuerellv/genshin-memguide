@@ -2462,3 +2462,14 @@ html.v-home.cl-on .welcome .wcenter, html.v-home.cl-on .welcome .wfoot{opacity:0
 .wd-wm span{flex:0 0 auto; font-size:11px; color:rgb(255 255 255 / .6); margin-right:4px; text-transform:uppercase; letter-spacing:.08em}
 .wd-wm img{width:26px; height:26px; object-fit:contain; flex:0 1 auto}
 @media (max-width:760px){ .wd-bi{width:28px; height:28px; flex-basis:28px} .wd-wm img{width:22px; height:22px} }
+.wsoon.wdaily{background:rgb(14 18 34 / .86); -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px)}
+.wd-kinds{display:grid; grid-template-columns:1fr 1fr; gap:0; border:1px solid rgb(255 255 255 / .25); border-radius:999px; overflow:hidden}
+.wd-k{appearance:none; border:0; background:transparent; color:rgb(255 255 255 / .75); font:inherit; font-size:13px; padding:5px 0; cursor:pointer}
+.wd-k.on{background:#f3cf73; color:#3b3228; font-weight:600}
+.wd-wmode .wd-modes{visibility:hidden}
+.wd-wmh{font-size:12px; color:rgb(255 255 255 / .6); text-transform:uppercase; letter-spacing:.08em; padding:2px 0 8px}
+.wd-wmg{display:grid; grid-template-columns:repeat(4,1fr); gap:10px 6px}
+.wd-wmi{display:flex; flex-direction:column; align-items:center; gap:3px; text-align:center}
+.wd-wmi img{width:48px; height:48px; object-fit:contain; filter:drop-shadow(0 1px 3px rgb(0 0 0 / .6))}
+.wd-wmi span{font-size:11px; color:rgb(255 255 255 / .75); line-height:1.1}
+@media (max-width:760px){ .wd-k{font-size:12px; padding:3px 0} .wd-wmi img{width:36px; height:36px} .wd-wmh{display:none} .wd-wmg{gap:6px 4px} }
