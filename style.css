@@ -2476,3 +2476,13 @@ html.v-home.cl-on .welcome .wcenter, html.v-home.cl-on .welcome .wfoot{opacity:0
 .wsoon.wdaily > .wd-top, .wsoon.wdaily > .wd-kinds, .wsoon.wdaily > .wd-t, .wsoon.wdaily > .wd-days{flex:0 0 auto}
 .wd-kinds{min-height:30px}
 @media (max-width:760px){ .wd-kinds{min-height:26px} }
+.wd-wrow{align-items:flex-start}
+.wd-wmat{flex:0 0 112px; display:flex; align-items:center; gap:8px}
+.wd-wl{display:flex; flex-wrap:wrap; gap:4px; flex:1 1 auto}
+.wd-w{width:40px; height:42px; object-fit:contain; border-radius:8px; padding:2px; box-sizing:border-box; background:rgb(255 255 255 / .07); border-bottom:3px solid #8a8f9f}
+.wd-w.r5{border-bottom-color:#e0a050; background:rgb(224 160 80 / .16)}
+.wd-w.r4{border-bottom-color:#a66ee0; background:rgb(166 110 224 / .16)}
+.wd-w.r3{border-bottom-color:#5b8fd6}
+.wd-w.r2{border-bottom-color:#3fa584}
+@media (max-width:760px){ .wd-wmat{flex-basis:96px} .wd-w{width:32px; height:34px} }
+@media (min-width:761px) and (max-width:1180px){ .wd-wmat{flex-basis:96px} }
