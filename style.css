@@ -2434,8 +2434,8 @@ html.v-home .cload{background:radial-gradient(90% 80% at 50% 45%, rgb(18 24 44 /
 html.v-home.cl-on .welcome .wcenter, html.v-home.cl-on .welcome .wfoot{opacity:0; visibility:hidden; transition:opacity .35s ease, visibility .35s}
 
 /* мини-крутка на экране загрузки: падающая звезда, на 100% выпадает карточка */
-.cload .elrow, .cload .done{display:none}
-.cload .wish{position:relative; width:min(560px,92vw); height:clamp(260px,44vh,380px); display:grid; place-items:center; --wc:#6f9bff; --wc2:#243c7a}
+.cload .wish{display:none!important}
+.cload .wish{position:relative; width:min(560px,92vw); height:clamp(240px,40vh,340px); display:grid; place-items:center; --wc:#6f9bff; --wc2:#243c7a}
 .cload.r4 .wish{--wc:#c18bff; --wc2:#4a2a7a}
 .cload.r5 .wish{--wc:#ffd36a; --wc2:#a8741a}
 .cload .wglow{position:absolute; inset:0; background:radial-gradient(closest-side, color-mix(in srgb, var(--wc) 38%, transparent), transparent); opacity:calc(.25 + var(--k,0) * .55); pointer-events:none}
