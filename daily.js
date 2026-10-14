@@ -7,6 +7,10 @@ window.HVDAILY = {"books":[{"id":"freedom","n":"Свобода","reg":"Монд�
   var DAYS = [['Пн',1,'Понедельник'],['Вт',2,'Вторник'],['Ср',3,'Среда'],['Чт',4,'Четверг'],['Пт',5,'Пятница'],['Сб',6,'Суббота'],['Вс',0,'Воскресенье']];
   function gameDay(){ return new Date(Date.now() + (SERVER_UTC - 4) * 3600e3).getUTCDay(); }
   var today = gameDay(), sel = today, mode = null;
+  var BKI = {freedom:104301,resistance:104304,ballad:104307,prosperity:104310,diligence:104313,gold:104316,transience:104320,elegance:104323,light:104326,admonition:104329,ingenuity:104332,praxis:104335,equity:104338,justice:104341,order:104344,contention:104347,kindling:104350,conflict:104353,moonlight:104356,elysium:104359,vagrancy:104362,charity:104365,fortitude:104368,glory:104371};
+  var WMI = {1:[114001,114013,114025,114037,114049,114061,114073,114085],2:[114005,114017,114029,114041,114053,114065,114077,114089],3:[114009,114021,114033,114045,114057,114069,114081,114093]};
+  var WREG = ['Мондштадт','Ли Юэ','Инадзума','Сумеру','Фонтейн','Натлан','Нод-Край','Снежная'];
+  function wmStrip(d){ var k = ((d-1)%3)+1, a = WMI[k]; if (!a) return ''; return '<div class="wd-wm"><span>Оружие</span>' + a.map(function(id,i){ return '<img src="dwm_'+id+'.webp" alt="" title="'+WREG[i]+'" loading="lazy" draggable="false">'; }).join('') + '</div>'; }
   var $ = function(s){ return root.querySelector(s); };
   var esc = function(s){ return String(s).replace(/[&<>"]/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]; }); };
   var chars = (window.HVD && window.HVD.data) || [];
@@ -28,10 +32,11 @@ window.HVDAILY = {"books":[{"id":"freedom","n":"Свобода","reg":"Монд�
       if (b.d.indexOf(sel) < 0) return;
       var list = chars.filter(function(c){ var w = D.who[c.n]; return w && w.indexOf(b.id) >= 0 && (m === 'all' || isMine(c.n, coll)); });
       if (!list.length) return; shown++;
-      html += '<div class="wd-row"><div class="wd-bk"><b>'+esc(b.n)+'</b><span>'+esc(b.reg)+'</span></div><div class="wd-av">' +
+      html += '<div class="wd-row"><img class="wd-bi" src="dbk_'+BKI[b.id]+'.webp" alt="" loading="lazy" draggable="false"><div class="wd-bk"><b>'+esc(b.n)+'</b><span>'+esc(b.reg)+'</span></div><div class="wd-av">' +
         list.map(function(c){ return '<img src="'+esc(c.img)+'" alt="'+esc(c.n)+'" title="'+esc(c.n)+'" loading="lazy" draggable="false" class="wd-c">'; }).join('') + '</div></div>';
     });
-    body.innerHTML = shown ? html : '<div class="wd-empty">Из твоих персонажей сегодня никому ничего не нужно.<br><small>Отметь «Выбил(а)» в разделе «Персонажи» или нажми «Все».</small></div>';
+    var strip = wmStrip(sel);
+    body.innerHTML = strip + (shown ? html : '<div class="wd-empty">Из твоих персонажей сегодня никому ничего не нужно.<br><small>Отметь «Выбил(а)» в разделе «Персонажи» или нажми «Все».</small></div>');
   }
   root.addEventListener('click', function(e){
     var d = e.target.closest('.wd-day'), m = e.target.closest('.wd-m');
