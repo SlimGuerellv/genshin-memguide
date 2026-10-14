@@ -2387,3 +2387,44 @@ html.arrive[data-sec=dict] .dload{opacity:1; visibility:visible}
 .wfoot .wlegal{flex:0 1 auto; text-align:center; margin:0 auto; max-width:min(760px, calc(100vw - 700px)); padding-bottom:clamp(12px,1.8vw,22px)}
 @media (max-width:1000px){ .wfoot{flex-direction:column; align-items:center; gap:4px; padding-bottom:0} .wfoot .wcredit{position:static; text-align:center} .wfoot .wlegal{max-width:calc(100vw - 32px); padding-bottom:10px; order:2} .wfoot .wcredit{order:1} }
 @media (max-width:760px){ .wfoot{padding-bottom:62px} .wfoot .wlegal{padding-bottom:0; text-align:center} }
+
+/* ежедневный сбор */
+.wsoon.wdaily{width:clamp(340px,35vw,520px); height:clamp(290px,40vh,360px); min-height:0; align-self:center; align-items:stretch; justify-content:flex-start; text-align:left; padding:14px 16px 12px; gap:8px}
+.wd-top{display:flex; align-items:center; justify-content:space-between; gap:10px}
+.wd-h{font-size:clamp(12px,1.1vw,14px); letter-spacing:.14em; text-transform:uppercase; color:var(--gold); text-shadow:0 1px 6px rgb(0 0 0 / .8)}
+.wd-modes{display:inline-flex; border:1px solid rgb(255 255 255 / .25); border-radius:999px; overflow:hidden}
+.wd-m{appearance:none; border:0; background:transparent; color:rgb(255 255 255 / .75); font:inherit; font-size:12px; padding:3px 12px; cursor:pointer}
+.wd-m.on{background:#f3cf73; color:#3b3228; font-weight:600}
+.wd-t{font-size:clamp(14px,1.3vw,17px); color:rgb(255 255 255 / .85); text-shadow:0 1px 6px rgb(0 0 0 / .8)}
+.wd-t b{color:#fff; font-family:var(--display); font-weight:400; font-size:1.25em}
+.wd-days{display:grid; grid-template-columns:repeat(7,1fr); gap:5px}
+.wd-day{appearance:none; cursor:pointer; font:inherit; font-size:13px; padding:5px 0; border-radius:10px; color:#fff; background:rgb(255 255 255 / .08); border:1px solid rgb(255 255 255 / .16); position:relative; transition:background .15s, transform .15s}
+.wd-day:hover{background:rgb(255 255 255 / .18)}
+.wd-day.on{background:#f3cf73; color:#3b3228; border-color:#f3cf73; font-weight:600}
+.wd-day.now::after{content:""; position:absolute; left:50%; bottom:2px; width:5px; height:5px; margin-left:-2.5px; border-radius:50%; background:#f3cf73}
+.wd-day.on.now::after{background:#3b3228}
+.wd-body{flex:1 1 auto; min-height:0; overflow-y:auto; overscroll-behavior:contain; padding-right:4px; scrollbar-width:thin; scrollbar-color:rgb(255 255 255 / .35) transparent}
+.wd-row{display:flex; align-items:center; gap:10px; padding:6px 0; border-top:1px solid rgb(255 255 255 / .1)}
+.wd-row:first-child{border-top:0}
+.wd-bk{flex:0 0 112px; display:flex; flex-direction:column; line-height:1.15}
+.wd-bk b{font-weight:600; font-size:14px; color:#fff; text-shadow:0 1px 5px rgb(0 0 0 / .8)}
+.wd-bk span{font-size:11px; color:rgb(255 255 255 / .6)}
+.wd-av{display:flex; flex-wrap:wrap; gap:4px}
+.wd-c{width:34px; height:34px; border-radius:50%; object-fit:cover; background:rgb(255 255 255 / .12); border:1.5px solid rgb(255 255 255 / .35)}
+.wd-sun{height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:8px}
+.wd-sun-t{font-family:var(--display); font-size:clamp(30px,3.2vw,44px); line-height:1.05; color:#f3cf73; text-shadow:var(--ol-t), 0 6px 30px rgb(10 20 40 / .7)}
+.wd-sun-s{font-size:clamp(14px,1.4vw,18px); color:#fff; text-shadow:0 1px 6px rgb(0 0 0 / .8)}
+.wd-empty{padding:18px 6px; text-align:center; color:rgb(255 255 255 / .85); font-size:14px; line-height:1.4}
+.wd-empty small{color:rgb(255 255 255 / .6)}
+@media (min-width:761px) and (max-width:1180px){ .wsoon.wdaily{width:clamp(300px,34vw,380px)} .wd-bk{flex-basis:96px} }
+@media (max-width:760px){
+  .wsoon.wdaily{width:min(100%,340px); height:210px; padding:10px 12px; gap:6px}
+  .wsoon.wdaily .wsoon-h{display:none}
+  .wd-h{display:block; font-size:11px} .wd-t{font-size:13px} .wd-c{width:28px; height:28px} .wd-bk{flex-basis:92px} .wd-day{padding:3px 0; font-size:12px}
+}
+@media (max-width:760px){
+  .wsoon.wdaily{height:160px; padding:8px 12px; gap:5px} .wd-t{display:none} .wd-row{padding:4px 0} .wd-c{width:26px; height:26px}
+  .wbtns .wdict{margin-top:54px} .wbtn{padding:7px 32px 7px 38px; font-size:15px} .wrow .wbtns{gap:7px} .wrow{gap:8px}
+  .wlogo{width:84px} .wcenter{gap:4px}
+  .wfoot{padding-bottom:56px} .wlegal{font-size:8.5px}
+}
