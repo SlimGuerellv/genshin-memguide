@@ -2346,3 +2346,17 @@ html.arrive .wrap{opacity:0; visibility:hidden}
 html.arrive:not([data-sec=dict]) .cload{opacity:1; visibility:visible}
 html.arrive[data-sec=dict] .dload{opacity:1; visibility:visible}
 .team-tag.lunar{--c:#5fb4ff; background:linear-gradient(180deg,#bfe3ff,#5fb4ff)}
+
+/* главная: кнопки слева, справа плашка «Скоро будет» (будущий «Ежедневный сбор») */
+.wrow{display:flex; align-items:stretch; justify-content:center; gap:clamp(28px,4vw,64px)}
+.wrow .wbtns{margin:0}
+.wsoon{box-sizing:border-box; width:clamp(300px,32vw,460px); min-height:300px; align-self:stretch; padding:24px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; text-align:center;
+  background:rgb(14 18 34 / .42); border:1.5px solid rgb(255 255 255 / .22); border-radius:22px;
+  -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); box-shadow:0 10px 40px rgb(0 0 0 / .4), inset 0 0 0 1px rgb(255 255 255 / .05); color:#fff}
+.wsoon-h{font-size:clamp(13px,1.3vw,16px); letter-spacing:.14em; text-transform:uppercase; color:var(--gold); text-shadow:0 1px 6px rgb(0 0 0 / .8)}
+.wsoon-t{font-family:var(--display); font-weight:400; font-size:clamp(30px,3.4vw,48px); line-height:1.05; text-shadow:var(--ol-t), 0 6px 30px rgb(10 20 40 / .7)}
+.wsoon-s{font-size:clamp(13px,1.3vw,16px); color:rgb(255 255 255 / .7); text-shadow:0 1px 6px rgb(0 0 0 / .8)}
+@media (max-width:760px){ .wrow{flex-direction:column; align-items:center; gap:22px} .wsoon{width:min(100%,340px); min-height:110px; padding:14px} .wsoon-t{font-size:26px} .wsoon-s{display:none} }
+@media (max-width:760px){ .wrow{gap:14px} .wrow .wbtns{gap:12px} .wsoon{min-height:0; padding:10px 14px; gap:4px} .wsoon-h{font-size:11px} .wsoon-t{font-size:22px} }
+@media (max-width:760px){ .wsoon-h{display:none} .wsoon{padding:8px 14px} }
+@media (min-width:761px) and (max-width:1180px){ .whand{max-width:140px; font-size:18px; right:calc(100% + 22px)} .wsoon{width:clamp(260px,30vw,360px)} }
