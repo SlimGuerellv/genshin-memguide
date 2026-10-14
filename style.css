@@ -2473,3 +2473,6 @@ html.v-home.cl-on .welcome .wcenter, html.v-home.cl-on .welcome .wfoot{opacity:0
 .wd-wmi img{width:48px; height:48px; object-fit:contain; filter:drop-shadow(0 1px 3px rgb(0 0 0 / .6))}
 .wd-wmi span{font-size:11px; color:rgb(255 255 255 / .75); line-height:1.1}
 @media (max-width:760px){ .wd-k{font-size:12px; padding:3px 0} .wd-wmi img{width:36px; height:36px} .wd-wmh{display:none} .wd-wmg{gap:6px 4px} }
+.wsoon.wdaily > .wd-top, .wsoon.wdaily > .wd-kinds, .wsoon.wdaily > .wd-t, .wsoon.wdaily > .wd-days{flex:0 0 auto}
+.wd-kinds{min-height:30px}
+@media (max-width:760px){ .wd-kinds{min-height:26px} }
