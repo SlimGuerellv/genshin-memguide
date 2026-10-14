@@ -2381,3 +2381,9 @@ html.arrive[data-sec=dict] .dload{opacity:1; visibility:visible}
 .wcenter{--wy:-3vh; transform:translateY(var(--wy)); animation-name:wIn2}
 .wlogo{width:clamp(150px,17vw,250px)}
 @media (max-width:760px){ .wcenter{--wy:0px} .wlogo{width:110px} .wbtn{padding:9px 34px 9px 40px; font-size:16px; gap:10px} .wbtn .wic{width:22px;height:22px} .wbtns .wdict{margin-top:44px} .wrow .wbtns{gap:9px} .wrow{gap:10px} .wfoot{padding-bottom:62px} }
+/* подвал: правовой текст строго по центру */
+.wfoot{padding-left:0; padding-right:0; justify-content:center}
+.wfoot .wcredit{position:absolute; left:clamp(14px,2vw,28px); bottom:clamp(12px,1.8vw,22px)}
+.wfoot .wlegal{flex:0 1 auto; text-align:center; margin:0 auto; max-width:min(760px, calc(100vw - 700px)); padding-bottom:clamp(12px,1.8vw,22px)}
+@media (max-width:1000px){ .wfoot{flex-direction:column; align-items:center; gap:4px; padding-bottom:0} .wfoot .wcredit{position:static; text-align:center} .wfoot .wlegal{max-width:calc(100vw - 32px); padding-bottom:10px; order:2} .wfoot .wcredit{order:1} }
+@media (max-width:760px){ .wfoot{padding-bottom:62px} .wfoot .wlegal{padding-bottom:0; text-align:center} }
