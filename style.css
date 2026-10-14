@@ -2360,3 +2360,10 @@ html.arrive[data-sec=dict] .dload{opacity:1; visibility:visible}
 @media (max-width:760px){ .wrow{gap:14px} .wrow .wbtns{gap:12px} .wsoon{min-height:0; padding:10px 14px; gap:4px} .wsoon-h{font-size:11px} .wsoon-t{font-size:22px} }
 @media (max-width:760px){ .wsoon-h{display:none} .wsoon{padding:8px 14px} }
 @media (min-width:761px) and (max-width:1180px){ .whand{max-width:140px; font-size:18px; right:calc(100% + 22px)} .wsoon{width:clamp(260px,30vw,360px)} }
+
+/* меню: слева Словарь+Глобус, по центру ежедневки, справа Персонажи/Оружие/Артефакты */
+.wrow{align-items:center}
+.wrow .wsoon{align-self:stretch}
+.wrow .wbtns{flex:0 0 auto}
+.wrow .wbtns.wleft,.wrow .wbtns.wright{width:max-content;min-width:clamp(170px,16vw,230px)}
+@media (max-width:760px){ .wrow .wbtns.wleft,.wrow .wbtns.wright{min-width:0} }
