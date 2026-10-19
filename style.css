@@ -2493,3 +2493,7 @@ html.v-home.cl-on .welcome .wcenter, html.v-home.cl-on .welcome .wfoot{opacity:0
 .wd-row.wd-wrow .wd-bk{flex:1 1 auto; min-width:0}
 .wd-row.wd-wrow .wd-bk b{font-size:14px; line-height:1.2}
 .wd-row.wd-wrow .wd-bk span{font-size:12px; line-height:1.25; margin-top:1px}
+
+/* Дайнслейф: Глаз Бога разбросан по карточке (слой создаёт app.js, ch.vis) */
+.vis-layer{position:absolute; inset:0; z-index:0; pointer-events:none; overflow:hidden; border-radius:inherit}
+.vis-layer img{position:absolute; height:auto; image-rendering:pixelated; user-select:none; filter:drop-shadow(0 0 3px rgb(0 0 0 / .55))}

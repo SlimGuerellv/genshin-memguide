@@ -683,7 +683,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     if (!keepSp && (ch.fx === 'venti' || ch.n === 'Венти')) ventiHo();
     const tags = ch.e==='Любая'
       ? ELEMENTS.slice(1).map(e=>`<span class="tag" style="--tc:${e.c}">${icon(e)}${e.name}</span>`).join('')
-      : `<span class="tag">${icon(el)}${esc(ch.e)}</span>`;
+      : ch.e ? `<span class="tag">${icon(el)}${esc(ch.e)}</span>` : '';   // без элемента (ещё не вышел) — тега нет
     const skills = ch.skx && ch.skx.length
       ? `<ul class="skills skx">${ch.skx.map(s=>`<li>${s.ic ? `<img class="sk-ic" src="${esc(s.ic)}" alt="" loading="lazy">` : ''}<span class="sk-tx"><b>${esc(s.n)}</b><span>${esc(s.t||'')}</span></span>${s.pas ? `<span class="prio pas"><small>ПАССИВ</small></span>` : `<span class="prio"><small>ПРИОР.</small>${s.p}</span>`}</li>`).join('')}</ul>`
         + (ch.skn && ch.skn.length ? `<ul class="sk-notes">${ch.skn.map(n=>`<li>${esc(n)}</li>`).join('')}</ul>` : '')
@@ -713,6 +713,12 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
       </div>
       </div>`;
     spSkills = skills;
+    if (ch.vis) {   // Дайнслейф: Глаз Бога случайно по всей карточке, случайные размеры (новая раскладка при каждом открытии)
+      const L = document.createElement('div'); L.className = 'vis-layer'; L.setAttribute('aria-hidden', 'true');
+      for (let k = 0; k < 28; k++) { const im = new Image(); const w = Math.round(14 + Math.pow(Math.random(), 1.6) * 80);
+        im.src = ch.vis; im.alt = ''; im.draggable = false; im.style.cssText = `width:${w}px;left:${(Math.random() * 94).toFixed(1)}%;top:${(Math.random() * 94).toFixed(1)}%;opacity:${(0.45 + Math.random() * 0.5).toFixed(2)}`; L.appendChild(im); }
+      $('sheet').appendChild(L); }
+    if (ch.stub) { $('sheet').querySelectorAll('.sheet-body > :not(#cmt)').forEach(e => e.remove()); const cm = $('cmt'); if (cm) cm.hidden = true; }   // stub: только имя и постер, без коллекции/навыков/комментариев
     { const sd = ARTS.chars && ARTS.chars[ch.n] && ARTS.chars[ch.n].side, sh = $('sheet');   // ширина боковой арки = реальная пропорция постера
       sh.style.removeProperty('--par');
       if (sd) { const im = new Image(); im.onload = () => { if (im.naturalWidth && im.naturalHeight && sh.classList.contains('hasside')) sh.style.setProperty('--par', (im.naturalWidth / im.naturalHeight).toFixed(4)); }; im.src = sd; } }
