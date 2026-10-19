@@ -2486,3 +2486,9 @@ html.v-home.cl-on .welcome .wcenter, html.v-home.cl-on .welcome .wfoot{opacity:0
 .wd-w.r2{border-bottom-color:#3fa584}
 @media (max-width:760px){ .wd-wmat{flex-basis:96px} .wd-w{width:32px; height:34px} }
 @media (min-width:761px) and (max-width:1180px){ .wd-wmat{flex-basis:96px} }
+
+/* ежедневки: подпись материала оружия над иконками */
+.wd-row.wd-wrow{flex-direction:column; align-items:stretch; gap:6px}
+.wd-row.wd-wrow .wd-wmat{flex:0 0 auto; width:100%}
+.wd-row.wd-wrow .wd-bk{flex:1 1 auto; min-width:0}
+.wd-row.wd-wrow .wd-bk b{font-size:13px; line-height:1.2}
