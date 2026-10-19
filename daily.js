@@ -18,7 +18,7 @@ window.HVDAILY = {"books":[{"id":"freedom","n":"Свобода","reg":"Монд�
     WREG.forEach(function(rg,r){
       var g = WPG[r*3+k]; if (!g || !g.length) return;
       var mat = WMI[k+1][r];
-      html += '<div class="wd-row wd-wrow"><div class="wd-wmat"><img class="wd-bi" src="dwm_'+mat+'.webp" alt="" loading="lazy" draggable="false"><div class="wd-bk"><b>'+esc(WMN[r*3+k])+'</b><span>'+esc(rg)+' · '+g.length+' шт.</span></div></div><div class="wd-wl">' +
+      html += '<div class="wd-row wd-wrow"><div class="wd-wmat"><img class="wd-bi" src="dwm_'+mat+'.webp" alt="" loading="lazy" draggable="false"><div class="wd-bk"><b>'+esc(rg)+'</b><span>'+esc(WMN[r*3+k])+' · '+g.length+' шт.</span></div></div><div class="wd-wl">' +
         g.map(function(i){ var w = WPL[i]; return '<img class="wd-w r'+w[2]+'" src="'+esc(w[1])+'" alt="'+esc(w[0])+'" title="'+esc(w[0])+' · '+w[2]+'★" loading="lazy" draggable="false">'; }).join('') + '</div></div>';
     });
     return html;

@@ -2491,4 +2491,5 @@ html.v-home.cl-on .welcome .wcenter, html.v-home.cl-on .welcome .wfoot{opacity:0
 .wd-row.wd-wrow{flex-direction:column; align-items:stretch; gap:6px}
 .wd-row.wd-wrow .wd-wmat{flex:0 0 auto; width:100%}
 .wd-row.wd-wrow .wd-bk{flex:1 1 auto; min-width:0}
-.wd-row.wd-wrow .wd-bk b{font-size:13px; line-height:1.2}
+.wd-row.wd-wrow .wd-bk b{font-size:14px; line-height:1.2}
+.wd-row.wd-wrow .wd-bk span{font-size:12px; line-height:1.25; margin-top:1px}
