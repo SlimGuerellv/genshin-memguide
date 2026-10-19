@@ -2497,3 +2497,11 @@ html.v-home.cl-on .welcome .wcenter, html.v-home.cl-on .welcome .wfoot{opacity:0
 /* Дайнслейф: Глаз Бога разбросан по карточке (слой создаёт app.js, ch.vis) */
 .vis-layer{position:absolute; inset:0; z-index:0; pointer-events:none; overflow:hidden; border-radius:inherit}
 .vis-layer img{position:absolute; height:auto; image-rendering:pixelated; user-select:none; filter:drop-shadow(0 0 3px rgb(0 0 0 / .55))}
+
+/* Дайнслейф: чёрно-синее пламя по периметру (canvas.dfire, app.js dainsFire) + пульсирующая синяя рамка */
+.ar-wrap.dains .dfire{position:absolute; left:-90px; top:-90px; width:calc(100% + 180px); height:calc(100% + 180px); z-index:0; pointer-events:none}
+.ar-wrap.dains .card{border-color:#4a6bff; animation:dnPulse 2.4s ease-in-out infinite}
+@keyframes dnPulse{0%,100%{box-shadow:0 0 0 1px #4a6bff, inset 0 0 18px 3px #2a46ffaa, 0 0 22px #1b2cff66}50%{box-shadow:0 0 0 1px #7aa0ff, inset 0 0 30px 6px #3a5cffcc, 0 0 34px #2a3cff99}}
+.sheet.dains{border-color:#4a6bff; animation:dnSheet 2.4s ease-in-out infinite}
+@keyframes dnSheet{0%,100%{box-shadow:0 0 0 1px #4a6bff, 0 0 24px 2px #1b2cff66, 0 30px 80px -20px rgb(0 0 0 / .9)}50%{box-shadow:0 0 0 1px #7aa0ff, 0 0 40px 6px #2a3cff99, 0 30px 80px -20px rgb(0 0 0 / .9)}}
+@media (prefers-reduced-motion: reduce){.ar-wrap.dains .card,.sheet.dains{animation:none}}

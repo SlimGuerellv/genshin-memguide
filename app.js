@@ -484,6 +484,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     if (ch.fx==='furina') return `<div class="ar-wrap furina">${furinaFx()}${html}${furinaTop()}</div>`;
     if (ch.fx==='nahida') return `<div class="ar-wrap nahida">${nahidaFx()}${html}${nahidaTop()}</div>`;
     if (ch.fx==='raiden') return `<div class="ar-wrap raiden">${raidenFx()}${html}${raidenTop()}</div>`;
+    if (ch.fx==='dainsleif') return `<div class="ar-wrap dains"><canvas class="dfire" aria-hidden="true"></canvas>${html}</div>`;
     if (ch.fx==='mavuika') return `<div class="ar-wrap mavuika">${mavuikaFx()}${html}</div>`;
     if (ch.fx==='zhongli') return `<div class="ar-wrap zhongli">${zhongliFx()}${html}${zhongliTop()}</div>`;
     if (ch.fx==='venti') return `<div class="ar-wrap venti">${ventiFx()}${html}${ventiTop()}</div>`;
@@ -693,6 +694,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
       : `<p class="none">Пока не заполнено</p>`;
     $('sheet').style.setProperty('--c', el.c);
     $('sheet').classList.toggle('legendary', !!ch.legend);
+    $('sheet').classList.toggle('dains', ch.fx === 'dainsleif');
     $('sheet').classList.toggle('hasside', !!(ARTS.chars && ARTS.chars[ch.n] && ARTS.chars[ch.n].side));
     $('sheet').innerHTML = `
       <button class="close" type="button" id="close" aria-label="Закрыть">×</button>
@@ -871,6 +873,49 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     function kick(){ if (!raf){ last = 0; raf = requestAnimationFrame(frame); } }
     document.addEventListener('pointerover', ev=>{ if (ev.target.closest && ev.target.closest('.ar-wrap.mavuika')) kick(); });
     document.addEventListener('focusin', ev=>{ if (ev.target.closest && ev.target.closest('.ar-wrap.mavuika')) kick(); });
+  })();
+
+  // ===== Дайнслейф: чёрно-синее пламя по периметру карточки (только стиль, не стихия) =====
+  (function dainsFire(){
+    if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const PAD = 90, R = (a,b)=>a+Math.random()*(b-a);
+    const COL = (t,a) => t<.2 ? `rgba(120,165,255,${a})` : t<.45 ? `rgba(70,120,255,${a})` : t<.75 ? `rgba(28,48,200,${a})` : `rgba(8,10,60,${a})`;
+    const mk = fn => { const c = document.createElement('canvas'); c.width = c.height = 64; fn(c.getContext('2d')); return c; };
+    const SP = Array.from({length:6}, (_,i) => mk(x => { const t = i/6 + .08, g = x.createRadialGradient(32,32,0,32,32,32);
+      g.addColorStop(0, COL(t,1)); g.addColorStop(.55, COL(t+.25,.5)); g.addColorStop(1, COL(1,0)); x.fillStyle = g; x.fillRect(0,0,64,64); }));
+    const SMOKE = mk(x => { const g = x.createRadialGradient(32,32,0,32,32,32); g.addColorStop(0,'rgba(2,4,22,1)'); g.addColorStop(1,'rgba(2,4,22,0)'); x.fillStyle = g; x.fillRect(0,0,64,64); });
+    const states = new Map(); let raf = 0, last = 0, poll = 0;
+    function st(w){ let s = states.get(w); if (s) return s; const cv = w.querySelector('canvas.dfire'); if (!cv) return null;
+      s = {cv, ctx:cv.getContext('2d'), p:[], inten:.45, acc:0}; states.set(w, s); return s; }
+    function step(w, s, dt){
+      const dpr = Math.min(2, devicePixelRatio||1), r = s.cv.getBoundingClientRect(), W = r.width, H = r.height;
+      if (W < 20) return;
+      const cw = Math.round(W*dpr), ch = Math.round(H*dpr); if (s.cv.width !== cw || s.cv.height !== ch){ s.cv.width = cw; s.cv.height = ch; }
+      const hov = w.matches(':hover, :focus-within'); s.inten += ((hov ? 1 : .45) - s.inten) * Math.min(1, dt*4);
+      const x0 = PAD, y0 = PAD, cwid = W - 2*PAD, chei = H - 2*PAD, sc = Math.max(.6, Math.min(1.4, cwid/200));
+      s.acc += dt * 620 * s.inten;
+      while (s.acc > 1){ s.acc--; const q = R(0, 2*(cwid+chei)); let x, y, vx = 0, vy = -R(70,150)*sc;
+        if (q < cwid){ x = x0+q; y = y0+6; } else if (q < cwid+chei){ x = x0+cwid-2; y = y0+(q-cwid); vx = R(40,100)*sc; vy = -R(40,100)*sc; }
+        else if (q < 2*cwid+chei){ x = x0+(q-cwid-chei); y = y0+chei-4; vy = -R(10,50)*sc; vx = R(-15,15)*sc; } else { x = x0+2; y = y0+(q-2*cwid-chei); vx = -R(40,100)*sc; vy = -R(40,100)*sc; }
+        s.p.push({x, y, vx, vy, r:R(12,26)*sc, life:0, max:R(.6,1.2), w:R(5,10), ph:R(0,6)}); }
+      const c = s.ctx; c.setTransform(dpr,0,0,dpr,0,0); c.clearRect(0,0,W,H);
+      for (let i = s.p.length-1; i >= 0; i--){ const p = s.p[i]; p.life += dt; if (p.life >= p.max){ s.p.splice(i,1); continue; }
+        p.x += p.vx*dt + Math.sin(p.life*p.w + p.ph)*60*dt; p.y += p.vy*dt; }
+      for (const p of s.p){ const t = p.life/p.max; if (t < .3) continue; const rr = p.r*.9; c.globalAlpha = (t-.3)*.55; c.drawImage(SMOKE, p.x-rr, p.y-6-rr*1.5, rr*2, rr*3); }
+      c.globalCompositeOperation = 'lighter';
+      for (const p of s.p){ const t = p.life/p.max, rr = p.r*(1-t*.55); c.globalAlpha = Math.min(1, (1-t)*.7); c.drawImage(SP[Math.min(5, Math.floor(t*6))], p.x-rr, p.y-rr*1.7, rr*2, rr*3.4); }
+      c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
+    }
+    function frame(ts){
+      const dt = Math.min(.05, last ? (ts-last)/1000 : .016); last = ts;
+      const ws = document.querySelectorAll('.ar-wrap.dains');
+      if (!ws.length || document.hidden){ raf = 0; last = 0; schedule(); return; }
+      for (const w of ws){ const s = st(w); if (s) step(w, s, dt); }
+      for (const w of states.keys()) if (!w.isConnected) states.delete(w);
+      raf = requestAnimationFrame(frame);
+    }
+    function schedule(){ clearTimeout(poll); poll = setTimeout(() => { if (!raf && document.querySelector('.ar-wrap.dains') && !document.hidden){ last = 0; raf = requestAnimationFrame(frame); } else schedule(); }, 400); }
+    schedule();
   })();
 
   // ===== Живой фон =====
