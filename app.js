@@ -679,9 +679,23 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     V.volume = Math.min(1, vol); V.muted = false; V.onended = V.onerror = end;
     const pr = V.play(); pr && pr.catch && pr.catch(end);
   }
+  // Звук при открытии карточки (поле ch.snd): музыка на это время замолкает, потом играет дальше
+  let sndA = null, sndBusy = false;
+  function charSnd(src){
+    if (sndBusy) return;
+    const vol = Math.min(1, (window.gMusic ? window.gMusic.memeVol() : .2) * 1.6); if (!vol) return;
+    sndBusy = true;
+    try { if (!sndA || sndA.dataset.src !== src) { sndA = new Audio(src); sndA.dataset.src = src; } } catch(e){ sndBusy = false; return; }
+    const end = () => { if (!sndBusy) return; sndBusy = false; sndA.onended = sndA.onerror = null; try{ sndA.pause(); }catch(e){} try{ window.gMusic && window.gMusic.unhush(); }catch(e){} };
+    try { window.gMusic && window.gMusic.hush(); } catch(e){}
+    try { sndA.currentTime = 0; } catch(e){}
+    sndA.volume = vol; sndA.onended = sndA.onerror = end;
+    const pr = sndA.play(); pr && pr.catch && pr.catch(end);
+  }
   function openSheet(i, from, keepSp){
     const ch = CHARS[i], el = elOf(ch); lastFocus = from; if (!keepSp) spKey = null; spCh = ch;
     if (!keepSp && (ch.fx === 'venti' || ch.n === 'Венти')) ventiHo();
+    if (!keepSp && ch.snd) charSnd(ch.snd);
     const tags = ch.e==='Любая'
       ? ELEMENTS.slice(1).map(e=>`<span class="tag" style="--tc:${e.c}">${icon(e)}${e.name}</span>`).join('')
       : ch.e ? `<span class="tag">${icon(el)}${esc(ch.e)}</span>` : '';   // без элемента (ещё не вышел) — тега нет
