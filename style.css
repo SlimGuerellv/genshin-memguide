@@ -2505,3 +2505,5 @@ html.v-home.cl-on .welcome .wcenter, html.v-home.cl-on .welcome .wfoot{opacity:0
 .sheet.dains{border-color:#4a6bff; animation:dnSheet 2.4s ease-in-out infinite}
 @keyframes dnSheet{0%,100%{box-shadow:0 0 0 1px #4a6bff, 0 0 24px 2px #1b2cff66, 0 30px 80px -20px rgb(0 0 0 / .9)}50%{box-shadow:0 0 0 1px #7aa0ff, 0 0 40px 6px #2a3cff99, 0 30px 80px -20px rgb(0 0 0 / .9)}}
 @media (prefers-reduced-motion: reduce){.ar-wrap.dains .card,.sheet.dains{animation:none}}
+
+.flag.soon{background:linear-gradient(180deg,#0e1a3d,#060b1c) !important; color:#bcd0ff !important; border:1px solid #4a6bff !important; box-shadow:0 0 8px rgb(74 107 255 / .5)}

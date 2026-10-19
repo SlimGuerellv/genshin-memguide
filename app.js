@@ -476,7 +476,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
         ${myBadge(ch)}
         ${ch.legend ? '<div class="frostrim" aria-hidden="true"></div>' : ''}
         ${ch.vid ? `<video class="photo vid" autoplay muted loop playsinline preload="auto" aria-hidden="true"><source src="${esc(ch.vid)}.webm" type="video/webm"><source src="${esc(ch.vid)}.mp4" type="video/mp4"></video>` : ch.img ? `<div class="aura" aria-hidden="true"></div><img class="photo" src="${esc(ch.img)}" alt="" loading="lazy">` : ch.e ? `<div class="glyph" aria-hidden="true">${ch.e==='Любая' ? '🌟' : icon(el)}</div>` : ''}
-        ${ch.flag ? `<span class="flag legend"><span class="lt">${esc(ch.flag)}</span></span>` : ch.bad ? `<span class="flag">Бесполезное говно</span>` : ''}
+        ${ch.flag ? `<span class="flag ${ch.soon?'soon':'legend'}"><span class="lt">${esc(ch.flag)}</span></span>` : ch.bad ? `<span class="flag">Бесполезное говно</span>` : ''}
         <div class="meta"><span class="stars si${ch.r}" role="img" aria-label="${ch.r} звезды"></span>${(ch.e==='Любая' || !ch.e) ? '' : `<span class="eic" aria-hidden="true">${icon(el)}</span>`}</div>
       </div></button>`;
     const ELC = {'Пиро':'pyro','Гидро':'hydro','Анемо':'anemo','Электро':'electro','Дендро':'dendro','Крио':'cryo','Гео':'geo'}[ch.e];
