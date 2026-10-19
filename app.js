@@ -475,9 +475,9 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
       <div class="art">
         ${myBadge(ch)}
         ${ch.legend ? '<div class="frostrim" aria-hidden="true"></div>' : ''}
-        ${ch.vid ? `<video class="photo vid" autoplay muted loop playsinline preload="auto" aria-hidden="true"><source src="${esc(ch.vid)}.webm" type="video/webm"><source src="${esc(ch.vid)}.mp4" type="video/mp4"></video>` : ch.img ? `<div class="aura" aria-hidden="true"></div><img class="photo" src="${esc(ch.img)}" alt="" loading="lazy">` : `<div class="glyph" aria-hidden="true">${ch.e==='Любая' ? '🌟' : icon(el)}</div>`}
+        ${ch.vid ? `<video class="photo vid" autoplay muted loop playsinline preload="auto" aria-hidden="true"><source src="${esc(ch.vid)}.webm" type="video/webm"><source src="${esc(ch.vid)}.mp4" type="video/mp4"></video>` : ch.img ? `<div class="aura" aria-hidden="true"></div><img class="photo" src="${esc(ch.img)}" alt="" loading="lazy">` : ch.e ? `<div class="glyph" aria-hidden="true">${ch.e==='Любая' ? '🌟' : icon(el)}</div>` : ''}
         ${ch.flag ? `<span class="flag legend"><span class="lt">${esc(ch.flag)}</span></span>` : ch.bad ? `<span class="flag">Бесполезное говно</span>` : ''}
-        <div class="meta"><span class="stars si${ch.r}" role="img" aria-label="${ch.r} звезды"></span>${ch.e==='Любая' ? '' : `<span class="eic" aria-hidden="true">${icon(el)}</span>`}</div>
+        <div class="meta"><span class="stars si${ch.r}" role="img" aria-label="${ch.r} звезды"></span>${(ch.e==='Любая' || !ch.e) ? '' : `<span class="eic" aria-hidden="true">${icon(el)}</span>`}</div>
       </div></button>`;
     const ELC = {'Пиро':'pyro','Гидро':'hydro','Анемо':'anemo','Электро':'electro','Дендро':'dendro','Крио':'cryo','Гео':'geo'}[ch.e];
     if (ELC && !ch.fx && !ch.legend && !ch.trav) return `<div class="el-wrap el-${ELC}">${electroSmoke()}${html}</div>`;
@@ -891,7 +891,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
       const dpr = Math.min(2, devicePixelRatio||1), r = s.cv.getBoundingClientRect(), W = r.width, H = r.height;
       if (W < 20) return;
       const cw = Math.round(W*dpr), ch = Math.round(H*dpr); if (s.cv.width !== cw || s.cv.height !== ch){ s.cv.width = cw; s.cv.height = ch; }
-      const hov = w.matches(':hover, :focus-within'); s.inten += ((hov ? 1 : .45) - s.inten) * Math.min(1, dt*4);
+      const hov = w.matches(':hover, :focus-within'); s.inten += ((hov ? 1 : 0) - s.inten) * Math.min(1, dt*(hov ? 4 : 2.5));
       const x0 = PAD, y0 = PAD, cwid = W - 2*PAD, chei = H - 2*PAD, sc = Math.max(.6, Math.min(1.4, cwid/200));
       s.acc += dt * 620 * s.inten;
       while (s.acc > 1){ s.acc--; const q = R(0, 2*(cwid+chei)); let x, y, vx = 0, vy = -R(70,150)*sc;
