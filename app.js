@@ -52,9 +52,10 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     {id:'reg', title:'Регион', opts:['Мондштадт','Ли Юэ','Игрок','Инадзума','Другое','Сумеру','Фонтейн','Натлан','Нод-Край','Снежная'].map(v=>({v,label:v}))},
     {id:'f',   title:'Фракция', opts:[...['Архонт','Фатуи','Ордо Фавониус','Адепты','Драконы','Комиссия Инадзумы','Академия Сумеру','Суд Фонтейна'].map(v=>({v,label:v})),
                                       {v:'ЛЕГЕНДА КОТОРУЮ МЫ НЕ ЗАСЛУЖИЛИ', label:'ЛЕГЕНДА КОТОРУЮ МЫ НЕ ЗАСЛУЖИЛИ', legend:true}]},
+    {id:'o',   title:'Происхождение', opts:[{v:'Иномирец',label:'Иномирец'},{v:'Бездна',label:'Из Бездны'},{v:'Селестия',label:'Селестия'},{v:'Ангелы',label:'Ангелы'}]},   // ch.o — массив меток (Скирк: Иномирец + Бездна)
     {id:'my',  title:'Моя коллекция', opts:['main','got','want','none'].map(v=>({v, label:ST[v].label, my:true}))},
   ];
-  const sel = {el:new Set(), r:new Set(), w:new Set(), reg:new Set(), f:new Set(), my:new Set()};
+  const sel = {el:new Set(), r:new Set(), w:new Set(), reg:new Set(), f:new Set(), o:new Set(), my:new Set()};
   try{ const h = location.hash.slice(1); const e = EL_LIST.find(e=>e.key===h); if (e) sel.el.add(e.name); }catch(e){}
 
   const test = {
@@ -63,6 +64,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     w:   (ch,v) => ch.w===v,
     reg: (ch,v) => ch.reg===v || (ch.reg2||[]).includes(v),   // reg2 — доп. регионы (Беннет: Мондштадт + Натлан)
     f:   (ch,v) => (ch.f||[]).includes(v),
+    o:   (ch,v) => (ch.o||[]).includes(v),
     my:  (ch,v) => v==='got' ? ['got','main'].includes(stOf(ch)) : stOf(ch)===v,
   };
   const pass = (ch, skip) => GROUPS.every(g => g.id===skip || !sel[g.id].size || [...sel[g.id]].some(v=>test[g.id](ch,v)));
@@ -492,7 +494,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
   function render(){ if (PAGE === 'map') return;   // на карте нет сетки персонажей
     syncChips();
     const list = CHARS.map((ch,i)=>[ch,i]).filter(([ch])=>pass(ch) && (!query || ch.n.toLowerCase().includes(query)))
-      .sort((a,b)=>(!!a[0].legend - !!b[0].legend) || a[0].n.localeCompare(b[0].n,'ru'));   // по алфавиту, Капитано (legend) — в самом низу
+      .sort((a,b)=>{ const w = c => c.legend ? 2 : c.last ? 1 : 0; return (w(a[0]) - w(b[0])) || a[0].n.localeCompare(b[0].n,'ru'); });   // по алфавиту; внизу «ещё не вышедшие» (last) и после них Капитано (legend)
     const active = GROUPS.flatMap(g=>g.opts.filter(o=>sel[g.id].has(o.v)).map(o=>o.label));
     const nSel = Object.values(sel).reduce((a,s)=>a+s.size,0);
     $('fbadge').hidden = !nSel; $('fbadge').textContent = nSel;
@@ -697,9 +699,9 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
       ${(() => { const sd = ARTS.chars && ARTS.chars[ch.n] && ARTS.chars[ch.n].side, s2 = sd && ARTS.chars[ch.n].side2; return sd ? `<div class="side-art" aria-hidden="true" style="background-image:url('${esc(sd)}')">${s2 ? `<div class="sa2" style="background-image:url('${esc(s2)}')"></div>` : ''}</div>` : ''; })()}
       <div class="sheet-sc">
       <div class="sheet-head">
-        ${(ARTS.chars && ARTS.chars[ch.n] && ARTS.chars[ch.n].side) ? `<div class="sheet-av"><img src="${ch.img}" alt="${esc(ch.n)}"></div>` : `<div class="strip"><span style="--len:${ch.n.length}">${esc(ch.n)}</span></div>`}
+        ${(ARTS.chars && ARTS.chars[ch.n] && ARTS.chars[ch.n].side && ch.img) ? `<div class="sheet-av"><img src="${ch.img}" alt="${esc(ch.n)}"></div>` : `<div class="strip"><span style="--len:${ch.n.length}">${esc(ch.n)}</span></div>`}
         <div class="sheet-title"><h2 id="sheet-name">${esc(ch.n)}</h2>
-          <div class="tags">${tags}${ch.r ? `<span class="tag" style="--tc:var(--gold)">${'★'.repeat(ch.r)}</span>` : ''}<span class="tag" style="--tc:var(--muted)">${esc(ch.w||'')}</span><span class="tag" style="--tc:var(--muted)">${esc(ch.reg||'')}</span>${(ch.reg2||[]).map(r=>`<span class="tag" style="--tc:var(--muted)">${esc(r)}</span>`).join('')}${(ch.f||[]).map(f=>`<span class="tag" style="--tc:${f.startsWith('ЛЕГЕНДА')?'var(--gold)':'#B9A8FF'}">${esc(f)}</span>`).join('')}</div></div>
+          <div class="tags">${tags}${ch.r ? `<span class="tag" style="--tc:var(--gold)">${'★'.repeat(ch.r)}</span>` : ''}${ch.w ? `<span class="tag" style="--tc:var(--muted)">${esc(ch.w)}</span>` : ''}${ch.reg ? `<span class="tag" style="--tc:var(--muted)">${esc(ch.reg)}</span>` : ''}${(ch.reg2||[]).map(r=>`<span class="tag" style="--tc:var(--muted)">${esc(r)}</span>`).join('')}${(ch.f||[]).map(f=>`<span class="tag" style="--tc:${f.startsWith('ЛЕГЕНДА')?'var(--gold)':'#B9A8FF'}">${esc(f)}</span>`).join('')}</div></div>
       </div>
       <div class="sheet-body">
         <div class="sec"><h3>Моя коллекция</h3><div class="mypick" role="group" aria-label="Моя коллекция">${['want','got','main','none'].map(k=>`<button type="button" class="mypb" data-st="${k}" style="--mc:${ST[k].c}" aria-pressed="${stOf(ch)===k}">${ST[k].ic?`<i>${ST[k].ic}</i>`:''}${ST[k].label}</button>`).join('')}</div></div>
