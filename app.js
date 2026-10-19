@@ -1011,7 +1011,11 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
           if (!SEC) location.hash = 'dict'; scrollTo(0,0); DL.classList.remove('on'); setTimeout(()=>DL.style.setProperty('--eo','1'),600);
           window.gMusic && window.gMusic.unhush(); }, done ? 600 : 2800);
       }
-      img.complete ? go() : (img.onload = go, img.onerror = go);
+      // цветной баннер .col спрятан clip-path'ом на 0% и стоит с loading="lazy": браузер не считает его видимым и не грузит,
+      // onload не приходит, смужка зависала на 0%. Делаем его eager и подстраховываемся таймером, старт только один раз.
+      let started = false; const once = () => { if (started) return; started = true; go(); };
+      try { img.loading = 'eager'; } catch(e){}
+      img.complete ? once() : (img.onload = once, img.onerror = once, setTimeout(once, 1200));
     }
     document.getElementById('goDict').addEventListener('click', ()=>{ warm(PAGES.dict); fly(()=>dictLoad(()=>homeGo(PAGES.dict))); });
     document.getElementById('goArts').addEventListener('click', ()=>{ warm(PAGES.arts); fly(()=>charsLoad('arts', LBL.arts, ()=>homeGo(PAGES.arts))); });
