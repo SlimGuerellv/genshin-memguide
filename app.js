@@ -1318,7 +1318,11 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
       windSet(m === 'home');
       if (m === mode) return; mode = m;
       if (m === 'home') play(HOME, true); else if (m.startsWith('reg:')) next(); else if (m === 'map') next(); else { if (!seq.length) last = HOME; next(); } }   // из главной не начинаем снова с главной темы
+    // телефон/планшет (тач без hover): фоновой музыки и ветра нет вообще, плеер скрыт; остаются звуки интерфейса, мемы и звуки загрузки
+    const MOB = matchMedia('(hover:none) and (pointer:coarse)').matches;
+    if (MOB) root.classList.add('no-music');
     async function start(){
+      if (MOB){ removeEventListener('pointerdown', first, true); removeEventListener('keydown', first, true); return; }
       if (started) return; started = true; box.classList.remove('hint'); removeEventListener('pointerdown', first, true); removeEventListener('keydown', first, true);
       try { ctx = new (window.AudioContext || window.webkitAudioContext)(); gain = ctx.createGain(); gain.gain.value = target(); gain.connect(ctx.destination); }
       catch(e){ ctx = gain = null; useEl = true; }
@@ -1578,6 +1582,8 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
   btn.type = 'button'; btn.id = 'newsBtn'; btn.className = 'news-btn'; btn.setAttribute('aria-label', 'Что нового'); btn.title = 'Что нового';
   btn.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 2.5l2.2 6.3 6.3 2.2-6.3 2.2L12 19.5l-2.2-6.3L3.5 11l6.3-2.2z" fill="currentColor"/><path d="M19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9z" fill="currentColor" opacity=".7"/></svg><span class="news-lb">Что нового</span><i class="news-dot" aria-hidden="true"></i>';
   btn.classList.toggle('has-new', unread > 0);
+  const gn = () => document.getElementById('goNews');   // телефон: кнопка «Что нового» в меню главной (как остальные); красная точка синхронизируется с плавающей кнопкой
+  const sync = () => { const g = gn(); if (g) g.classList.toggle('has-new', btn.classList.contains('has-new')); };
   const ov = document.createElement('div'); ov.className = 'news-ov'; ov.hidden = true;
   ov.innerHTML = '<div class="news-sheet" role="dialog" aria-modal="true" aria-labelledby="newsTitle"><button class="close" type="button" aria-label="Закрыть">×</button><h2 id="newsTitle">Что нового</h2><div class="news-body"></div></div>';
   const body = ov.querySelector('.news-body');
@@ -1586,9 +1592,10 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
   }
   let opener = null;
   const open = () => { render(unread); opener = document.activeElement; ov.hidden = false; document.documentElement.classList.add('news-open'); body.scrollTop = 0;
-    LS.set(NEWS[0].id); btn.classList.remove('has-new'); const c = ov.querySelector('.close'); c && c.focus(); };
+    LS.set(NEWS[0].id); btn.classList.remove('has-new'); sync(); const c = ov.querySelector('.close'); c && c.focus(); };
   const close = () => { if (ov.hidden) return; ov.hidden = true; document.documentElement.classList.remove('news-open'); unread = 0; if (opener && opener.focus) try { opener.focus(); } catch(e){} };
   btn.addEventListener('click', open);
+  { const g = gn(); if (g) g.addEventListener('click', open); sync(); }
   ov.addEventListener('click', e => { if (e.target === ov || e.target.closest('.close')) close(); });
   addEventListener('keydown', e => { if (e.key === 'Escape' && !ov.hidden){ e.stopImmediatePropagation(); close(); } }, true);
   // кнопка стоит левее кнопки входа (на главной): ширину кнопки входа берём с неё самой

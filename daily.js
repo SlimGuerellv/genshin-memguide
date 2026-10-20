@@ -62,3 +62,28 @@ window.HVDAILY = {"books":[{"id":"freedom","n":"Свобода","reg":"Монд�
   document.addEventListener('visibilitychange', function(){ if (!document.hidden){ var t = gameDay(); if (t !== today){ if (sel === today) sel = t; today = t; } render(); } });
   render();
 })();
+
+// Телефон: таблица «Ежедневный сбор» спрятана, открывается кнопкой «Ежедневки» как окно с крестиком.
+// На время открытия таблица переезжает в body (внутри .wcenter fixed не работает из-за transform), при закрытии возвращается на место.
+(function(){
+  var root = document.getElementById('wdaily'), btn = document.getElementById('goDaily'); if (!root || !btn) return;
+  var home = root.parentNode, next = root.nextSibling, back = null, x = null, opened = false;
+  function open(){
+    if (opened) return; opened = true;
+    back = document.createElement('div'); back.className = 'wd-back';
+    x = document.createElement('button'); x.type = 'button'; x.className = 'wd-x'; x.setAttribute('aria-label', 'Закрыть'); x.textContent = '×';
+    root.classList.add('wd-pop'); root.insertBefore(x, root.firstChild);
+    document.body.appendChild(back); document.body.appendChild(root);
+    document.documentElement.classList.add('daily-open');
+    back.addEventListener('click', close); x.addEventListener('click', close);
+  }
+  function close(){
+    if (!opened) return; opened = false;
+    root.classList.remove('wd-pop'); if (x && x.parentNode) x.parentNode.removeChild(x); if (back && back.parentNode) back.parentNode.removeChild(back);
+    home.insertBefore(root, next && next.parentNode === home ? next : null);
+    document.documentElement.classList.remove('daily-open');
+  }
+  btn.addEventListener('click', open);
+  addEventListener('keydown', function(e){ if (e.key === 'Escape') close(); });
+  addEventListener('resize', function(){ if (opened && innerWidth > 760) close(); });
+})();
