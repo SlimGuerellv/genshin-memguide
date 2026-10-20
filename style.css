@@ -2507,3 +2507,57 @@ html.v-home.cl-on .welcome .wcenter, html.v-home.cl-on .welcome .wfoot{opacity:0
 @media (prefers-reduced-motion: reduce){.ar-wrap.dains .card,.sheet.dains{animation:none}}
 
 .flag.soon{background:linear-gradient(180deg,#0e1a3d,#060b1c) !important; color:#bcd0ff !important; border:1px solid #4a6bff !important; box-shadow:0 0 8px rgb(74 107 255 / .5)}
+
+/* главная: ежедневки слева и крупнее, все 5 кнопок в одной колонке справа */
+@media (min-width:761px){
+  .wrow{gap:clamp(32px,4.5vw,84px); align-items:center}
+  .wrow .wbtns.wright{min-width:clamp(190px,17vw,250px); gap:20px}
+  .wsoon.wdaily{width:clamp(460px,46vw,700px); height:clamp(400px,58vh,540px); padding:20px 24px 16px; gap:12px; align-self:center;
+    background:linear-gradient(165deg, rgb(24 30 56 / .9), rgb(12 15 30 / .9));
+    border:1.5px solid rgb(243 207 115 / .38);
+    box-shadow:0 18px 60px rgb(0 0 0 / .55), 0 0 40px rgb(243 207 115 / .10), inset 0 1px 0 rgb(255 255 255 / .12), inset 0 0 0 1px rgb(255 255 255 / .04)}
+  .wd-h{font-size:clamp(14px,1.15vw,17px)}
+  .wd-m{font-size:13px; padding:5px 16px}
+  .wd-kinds{min-height:40px}
+  .wd-k{font-size:15px; padding:8px 0}
+  .wd-t{font-size:clamp(16px,1.4vw,20px)}
+  .wd-days{gap:7px}
+  .wd-day{font-size:15px; padding:9px 0; border-radius:12px}
+  .wd-day.now::after{width:6px; height:6px; margin-left:-3px; bottom:3px}
+  .wd-body{padding-right:6px}
+  .wd-row{gap:14px; padding:10px 0}
+  .wd-bi{flex:0 0 46px; width:46px; height:46px}
+  .wd-bk{flex:0 0 150px}
+  .wd-bk b{font-size:16px}
+  .wd-bk span{font-size:12.5px}
+  .wd-av{gap:6px}
+  .wd-c{width:44px; height:44px}
+  .wd-row.wd-wrow{gap:8px}
+  .wd-row.wd-wrow .wd-bk{flex:1 1 auto}
+  .wd-row.wd-wrow .wd-bk b{font-size:16px}
+  .wd-row.wd-wrow .wd-bk span{font-size:13px}
+  .wd-wl{gap:6px}
+  .wd-w{width:54px; height:56px; border-radius:10px; padding:3px}
+  .wd-wmi img{width:58px; height:58px}
+  .wd-wmi span{font-size:12.5px}
+  .wd-sun-t{font-size:clamp(34px,3.6vw,50px)}
+  .wd-sun-s{font-size:clamp(15px,1.5vw,19px)}
+  /* подсказка к «Словарю» теперь справа от кнопки, стрелка влево */
+  .whand{left:calc(100% + 22px); right:auto; top:calc(50% + 20px); transform:rotate(2deg); max-width:135px; font-size:clamp(17px,1.35vw,24px)}
+  .whand svg{left:auto; right:calc(50% - 14px); transform:scaleX(-1)}
+}
+@media (min-width:761px) and (max-width:1180px){
+  .wsoon.wdaily{width:clamp(400px,50vw,520px); height:clamp(380px,56vh,480px)}
+  .wd-bk{flex-basis:120px}
+  .whand{display:none}
+}
+@media (max-width:760px){
+  /* телефон: порядок как раньше — Словарь, Глобус, ежедневки, остальные кнопки */
+  .wrow .wbtns.wright{display:contents}
+  .wrow .wdict{order:1; width:min(100%,210px)}
+  .wrow #goMap{order:2}
+  .wrow .wsoon.wdaily{order:3}
+  .wrow #goChars,.wrow #goWeap,.wrow #goArts{order:4}
+  .wrow .wbtn{width:min(100%,210px); box-sizing:border-box; justify-content:center}
+  .wrow .wdict .wbtn{width:100%}
+}
