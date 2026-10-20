@@ -87,3 +87,9 @@ window.HVDAILY = {"books":[{"id":"freedom","n":"Свобода","reg":"Монд�
   addEventListener('keydown', function(e){ if (e.key === 'Escape') close(); });
   addEventListener('resize', function(){ if (opened && innerWidth > 760) close(); });
 })();
+
+// телефон: кнопка «Отзыв / баг» в меню главной открывает то же окно, что плавающая (её на телефоне нет)
+(function(){
+  var g = document.getElementById('goFb'); if (!g) return;
+  g.addEventListener('click', function(){ var b = document.getElementById('fbBtn'); if (b) b.click(); });
+})();
