@@ -35,8 +35,8 @@ window.HVDAILY = {"books":[{"id":"freedom","n":"Свобода","reg":"Монд�
     if (today === 0) h += '<span class="wds-sun">Йо, фармила! Сегодня всё открыто</span>';
     else {
       var bs = D.books.filter(function(b){ return b.d.indexOf(today) >= 0; });
-      bs.slice(0,4).forEach(function(b){ h += '<span class="wds-c"><img src="dbk_'+BKI[b.id]+'.webp" alt="" draggable="false">'+esc(b.n)+'</span>'; });
-      if (bs.length > 4) h += '<span class="wds-more">+'+(bs.length-4)+'</span>';
+      bs.slice(0,2).forEach(function(b){ h += '<span class="wds-c"><img src="dbk_'+BKI[b.id]+'.webp" alt="" draggable="false">'+esc(b.n)+'</span>'; });
+      if (bs.length > 2) h += '<span class="wds-more">+'+(bs.length-2)+'</span>';
     }
     strip.innerHTML = h + '</span><svg class="wds-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
   }

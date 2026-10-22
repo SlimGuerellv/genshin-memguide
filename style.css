@@ -2626,23 +2626,25 @@ html.no-music .snd,html.no-music .snd-toast{display:none!important}
 :root{--ol-thin:0.016em 0em 0 #000, -0.016em 0em 0 #000, 0em 0.016em 0 #000, 0em -0.016em 0 #000, 0.0112em 0.0112em 0 #000, -0.0112em 0.0112em 0 #000, 0.0112em -0.0112em 0 #000, -0.0112em -0.0112em 0 #000}
 .wd-strip{display:none}
 @media (min-width:761px){
-  .wcenter{--wy:-1vh}
-  .wlogo{width:clamp(120px,12vw,190px); margin-bottom:2px}
-  .wtitle{font-size:clamp(30px,3.8vw,60px); font-weight:700; text-shadow:var(--ol-thin), 0 3px 26px rgb(0 0 0 / .8)}
+  .welcome{place-items:center start}
+  .wcenter{--wy:-1vh; width:clamp(400px,31vw,520px); margin-left:clamp(36px,5.5vw,100px); padding:24px 0; align-items:flex-start; text-align:left}
+  .wlogo{width:clamp(120px,11vw,180px); margin:0 0 4px}
+  .wtitle{font-size:clamp(30px,3.3vw,54px); font-weight:700; text-shadow:var(--ol-thin), 0 3px 26px rgb(0 0 0 / .8)}
   .wtitle span{text-shadow:var(--ol-thin), 0 0 22px rgb(255 210 120 / .4), 0 3px 26px rgb(0 0 0 / .8)}
-  .wsub{margin:2px 0 4px; font-size:clamp(13px,1.2vw,16px); color:#dcd8cc; text-shadow:var(--ol-thin), 0 2px 12px #000}
-  .welcome .wshade{background:radial-gradient(70% 60% at 50% 45%, rgb(8 10 20 / .5), rgb(8 10 20 / .08) 80%), linear-gradient(to top, rgb(8 10 20 / .82), transparent 38%)}
-  .wrow{flex-direction:column; align-items:center; gap:clamp(18px,3.4vh,34px)}
-  .wd-strip{display:flex; align-items:center; gap:14px; max-width:min(92vw,780px); appearance:none; cursor:pointer; font:inherit; color:#f4efe3;
+  .wsub{margin:2px 0 4px; font-size:clamp(13px,1.15vw,16px); color:#dcd8cc; text-shadow:var(--ol-thin), 0 2px 12px #000}
+  .welcome .wshade{background:linear-gradient(90deg, rgb(7 10 20 / .88) 0%, rgb(7 10 20 / .7) 30%, rgb(7 10 20 / .12) 55%, transparent 70%), linear-gradient(to top, rgb(7 10 20 / .75), transparent 28%)}
+  .wrow{flex-direction:column; align-items:stretch; width:100%; gap:clamp(14px,2.6vh,28px)}
+  .wd-strip{display:flex; align-items:center; gap:12px; width:100%; box-sizing:border-box; appearance:none; cursor:pointer; font:inherit; color:#f4efe3;
     background:rgb(14 18 34 / .66); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); border:1px solid rgb(255 255 255 / .16); border-radius:999px;
     padding:9px 18px; box-shadow:0 10px 30px rgb(0 0 0 / .4); transition:border-color .2s, transform .2s}
   .wd-strip:hover{border-color:rgb(243 207 115 / .65); transform:translateY(-1px)}
   .wd-strip:focus-visible{outline:2px solid #f3cf73; outline-offset:3px}
   .wds-l{font-weight:800; letter-spacing:.12em; text-transform:uppercase; font-size:12px; color:#f3cf73; white-space:nowrap}
   .wds-l b{color:#fff; letter-spacing:.04em}
-  .wds-m{display:flex; gap:8px; min-width:0; align-items:center}
+  .wds-m{display:flex; gap:8px; min-width:0; flex:1; align-items:center; overflow:hidden}
   .wds-c{display:flex; align-items:center; gap:7px; background:rgb(255 255 255 / .07); border-radius:999px; padding:3px 13px 3px 4px; font-size:13.5px; font-weight:600; white-space:nowrap}
   .wds-c img{width:26px; height:26px; border-radius:50%; object-fit:cover}
+  .wds-c{flex:none}
   .wds-more,.wds-sun{font-size:13.5px; font-weight:700; color:#cfd3e2; white-space:nowrap}
   .wds-chev{width:16px; height:16px; flex:none; color:#aeb4c8}
   /* таблица ежедневок: окно по клику на смужку (механика та же, что у «Ежедневки» на телефоне) */
@@ -2652,16 +2654,52 @@ html.no-music .snd,html.no-music .snd-toast{display:none!important}
   .wd-x{position:absolute; top:12px; right:12px; z-index:2; width:34px; height:34px; border-radius:50%; appearance:none; cursor:pointer; font:400 22px/1 system-ui,sans-serif; color:#fff; background:rgb(255 255 255 / .12); border:1px solid rgb(255 255 255 / .3); display:grid; place-items:center; padding:0}
   .wd-x:hover{background:rgb(255 255 255 / .22)}
   .wd-pop .wd-top{padding-right:44px}
-  /* меню: ряд стеклянных кнопок, золото только при наведении */
-  .wrow .wbtns.wright{flex-direction:row; flex-wrap:wrap; justify-content:center; align-items:center; gap:12px; width:auto; min-width:0}
-  .wrow .wbtns .wbtn{width:auto; justify-content:center; font-family:var(--display); font-weight:700; font-size:clamp(15px,1.45vw,20px); letter-spacing:.02em; gap:10px; padding:10px 24px 10px 12px;
-    color:#f4efe3; background:rgb(14 18 34 / .62); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); border:1px solid rgb(255 255 255 / .16); box-shadow:0 8px 24px rgb(0 0 0 / .35)}
+  /* меню: вертикальный список с тонкими линиями, золото при наведении */
+  .wrow .wbtns.wright{flex-direction:column; flex-wrap:nowrap; align-items:stretch; gap:0; width:min(100%,300px); min-width:0; margin:0}
+  .wrow .wbtns .wbtn{width:100%; justify-content:flex-start; gap:14px; padding:clamp(9px,1.5vh,14px) 0; border-radius:0; border:0; border-bottom:1px solid rgb(255 255 255 / .16); box-shadow:none; background:none;
+    -webkit-backdrop-filter:none; backdrop-filter:none; color:#f4efe3; font-family:var(--display); font-weight:700; font-size:clamp(18px,1.6vw,25px); letter-spacing:.02em; text-shadow:0 1px 10px rgb(0 0 0 / .8); transition:padding .25s, color .25s, border-color .25s}
+  .wrow .wdict{border-top:1px solid rgb(255 255 255 / .16)}
   .wrow .wbtn::before,.wrow .wbtn::after{display:none}
-  .wrow .wbtn .wic{width:22px; height:22px; background:rgb(243 207 115 / .18)}
-  .wrow .wbtn .wic i{width:7px; height:7px; border-color:#f3cf73}
-  .wrow .wbtn:hover{background:#f3cf73; color:#241a06; border-color:#f3cf73; transform:translateY(-2px); box-shadow:0 10px 30px rgb(243 207 115 / .35)}
-  .wrow .wbtn:hover .wic{background:rgb(36 26 6 / .15)}
-  .wrow .wbtn:hover .wic i{border-color:#241a06}
+  .wrow .wbtn .wic{width:22px; height:22px; border-radius:0; background:#f3cf73; flex:none; display:block; -webkit-mask:var(--wi) center/contain no-repeat; mask:var(--wi) center/contain no-repeat}
+  .wrow .wbtn .wic i{display:none}
+  .wrow .wbtns .wbtn:hover{background:none; box-shadow:none; transform:none; padding-left:10px; color:#f3cf73; border-bottom-color:#f3cf73}
+  .wrow .wbtn:focus-visible{outline:2px solid #f3cf73; outline-offset:2px}
+  #goDict .wic{--wi:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 4h11a3 3 0 013 3v13H8a3 3 0 01-3-3z'/%3E%3Cpath d='M5 17a3 3 0 013-3h11'/%3E%3C/svg%3E")}
+  #goMap .wic{--wi:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18'/%3E%3C/svg%3E")}
+  #goChars .wic{--wi:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='8' r='4'/%3E%3Cpath d='M4 21c1-5 5-7 8-7s7 2 8 7'/%3E%3C/svg%3E")}
+  #goWeap .wic{--wi:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 4l6 0 0 6L9 21l-3-3zM4 20l3-3'/%3E%3C/svg%3E")}
+  #goArts .wic{--wi:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3l8 5-3 12H7L4 8z'/%3E%3C/svg%3E")}
+  #goDaily .wic{--wi:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4' y='5' width='16' height='15' rx='2'/%3E%3Cpath d='M4 10h16M9 3v4M15 3v4'/%3E%3C/svg%3E")}
+  #goNews .wic{--wi:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3l2.2 6.3L21 11l-6.8 1.7L12 19l-2.2-6.3L3 11l6.8-1.7z'/%3E%3C/svg%3E")}
+  #goFb .wic{--wi:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 5h16v11H9l-5 4z'/%3E%3C/svg%3E")}
   .whand{display:none!important}
 }
-@media (min-width:761px) and (max-width:1000px){ .wds-c:nth-child(n+3){display:none} }
+
+/* ===== главная, телефон (22.10): меню списком с тонкими линиями, как на ПК-варианте ===== */
+@media (max-width:760px){
+  html .wtitle,html .wtitle span{text-shadow:var(--ol-thin), 0 2px 18px rgb(0 0 0 / .8)}
+  html .wsub{text-shadow:var(--ol-thin), 0 2px 10px #000}
+  html .wrow{gap:0}
+  html .wrow .wdict,html .wrow .wbtn{width:min(86vw,320px); margin:0}
+  html .wrow .wdict{margin-top:14px; border-top:1px solid rgb(255 255 255 / .16)}
+  html .wrow .wdict .wbtn{width:100%}
+  html .wrow .wdict,html .wrow .wbtn{background:rgb(9 12 24 / .5); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px)}
+  html .wrow .wdict .wbtn{background:none; -webkit-backdrop-filter:none; backdrop-filter:none}
+  html .wrow .wbtn{position:relative; box-sizing:border-box; justify-content:flex-start; gap:14px; padding:12px 14px; border-radius:0; border:0; border-bottom:1px solid rgb(255 255 255 / .16);
+    box-shadow:none; color:#f4efe3; font-family:var(--display); font-weight:700; font-size:19px; letter-spacing:.02em; text-shadow:0 1px 8px rgb(0 0 0 / .8); transition:color .2s, background .2s}
+  html .wrow .wbtn::before,html .wrow .wbtn::after{display:none}
+  html .wrow .wbtn:hover,html .wrow .wbtn:active,html .wrow .wbtn:focus{transform:none; box-shadow:none; background:rgb(243 207 115 / .18); color:#f3cf73}
+  html .wrow .wbtn:focus-visible{outline:2px solid #f3cf73; outline-offset:-2px}
+  html .wrow .wbtn .wic{width:22px; height:22px; border-radius:0; background:#f3cf73; flex:none; display:block; -webkit-mask:var(--wi) center/contain no-repeat; mask:var(--wi) center/contain no-repeat}
+  html .wrow .wbtn .wic i{display:none}
+  html .wrow #goNews .news-dot{top:50%; right:14px; margin-top:-6px}
+  #goDict .wic{--wi:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 4h11a3 3 0 013 3v13H8a3 3 0 01-3-3z'/%3E%3Cpath d='M5 17a3 3 0 013-3h11'/%3E%3C/svg%3E")}
+  #goMap .wic{--wi:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18'/%3E%3C/svg%3E")}
+  #goChars .wic{--wi:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='8' r='4'/%3E%3Cpath d='M4 21c1-5 5-7 8-7s7 2 8 7'/%3E%3C/svg%3E")}
+  #goWeap .wic{--wi:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 4l6 0 0 6L9 21l-3-3zM4 20l3-3'/%3E%3C/svg%3E")}
+  #goArts .wic{--wi:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3l8 5-3 12H7L4 8z'/%3E%3C/svg%3E")}
+  #goDaily .wic{--wi:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4' y='5' width='16' height='15' rx='2'/%3E%3Cpath d='M4 10h16M9 3v4M15 3v4'/%3E%3C/svg%3E")}
+  #goNews .wic{--wi:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3l2.2 6.3L21 11l-6.8 1.7L12 19l-2.2-6.3L3 11l6.8-1.7z'/%3E%3C/svg%3E")}
+  #goFb .wic{--wi:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 5h16v11H9l-5 4z'/%3E%3C/svg%3E")}
+}
+@media (min-width:761px) and (max-width:1359px){ .wds-c:nth-child(n+2),.wds-more{display:none} }
