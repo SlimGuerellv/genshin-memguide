@@ -431,7 +431,8 @@
             return c; }
           float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
           void main(){ vec2 vUv=snA(normalize(vP),vUv0); vec3 n=normalize(vN); vec3 v=normalize(cameraPosition-vW);
-            vec3 alb=snT(map,vUv).rgb; float L=snT(land,vUv).r;
+            float wA=1.-smoothstep(2.55,2.95,acos(clamp(dot(normalize(vP),PC),-1.,1.)));   // антипод центра карты: проекция схлопывается, uv уходит за текстуру → лучи; там плавно ровный океан
+            vec3 alb=mix(vec3(.082,.278,.36),snT(map,vUv).rgb,wA); float L=snT(land,vUv).r*wA;
             vec3 sea=alb*vec3(1.25,1.75,1.85)+vec3(0.,.05,.09); vec3 col=mix(sea,alb*1.12,L);
             float nd=dot(n,sun); float day=smoothstep(-.18,.35,nd); float dif=max(nd,0.)*.85+.25;
             vec3 lit=col*dif; vec3 hv=normalize(sun+v); lit+=(1.-L)*pow(max(dot(n,hv),0.),60.)*vec3(.8,.95,1.)*.6*day;
@@ -466,6 +467,46 @@
             vec3 c=mix(vec3(.75,.85,.95),vec3(1.),smoothstep(.2,.6,d))*(.3+.8*max(nd,0.));
             gl_FragColor=vec4(c,min(a*1.05,.92+.06*pol)*mix(.06,1.,day)); }`}));
       scene.add(clouds);
+      // ===== пухкі хмари (22.10): другий шар над основними. Об'ємне освітлення (світла сторона до сонця, сіра низина), золотий край на терміні, тінь на нижній шар, свій дрейф для паралаксу =====
+      const NZG = `
+          vec3 hh(vec3 p){p=vec3(dot(p,vec3(127.1,311.7,74.7)),dot(p,vec3(269.5,183.3,246.1)),dot(p,vec3(113.5,271.9,124.6)));return fract(sin(p)*43758.5453)*2.-1.;}
+          float nz(vec3 p){vec3 i=floor(p),f=fract(p);vec3 u=f*f*(3.-2.*f);
+            return mix(mix(mix(dot(hh(i),f),dot(hh(i+vec3(1,0,0)),f-vec3(1,0,0)),u.x),mix(dot(hh(i+vec3(0,1,0)),f-vec3(0,1,0)),dot(hh(i+vec3(1,1,0)),f-vec3(1,1,0)),u.x),u.y),
+                       mix(mix(dot(hh(i+vec3(0,0,1)),f-vec3(0,0,1)),dot(hh(i+vec3(1,0,1)),f-vec3(1,0,1)),u.x),mix(dot(hh(i+vec3(0,1,1)),f-vec3(0,1,1)),dot(hh(i+vec3(1,1,1)),f-vec3(1,1,1)),u.x),u.y),u.z);}
+          float fb3(vec3 p){float a=.5,s=0.;for(int i=0;i<3;i++){s+=a*nz(p);p=p*2.07+vec3(1.7,9.2,3.1);a*=.5;}return s;}
+          float fbb(vec3 p){float a=.5,s=0.;for(int i=0;i<4;i++){s+=a*abs(nz(p));p=p*2.1+vec3(1.7,9.2,3.1);a*=.5;}return s;}   // «бугристый» шум: круглые кучки с ложбинками между ними
+          vec3 fs(vec3 p,float t){ return vec3(p.x,p.y*1.2,p.z)*3.6+vec3(t*.03,0.,0.); }              // координаты шума пухлых облаков (дрейф быстрее нижнего слоя)
+          vec2 fw(vec3 s){ return vec2(fb3(s*.8+vec3(1.3,2.1,.4)),fb3(s*.8+vec3(6.7,1.9,3.3))); }       // лёгкое искажение формы
+          float fd(vec3 s,vec2 w){ return fbb(s+vec3(w.x,w.y,w.x-w.y)*.9)-.15; }                        // плотность: >0 внутри облака
+          vec3 fL(vec3 p,vec3 so){ vec3 l=so-p*dot(so,p); return l/max(length(l),1e-4); }               // направление на солнце вдоль поверхности (в системе шара)
+          float ant(vec3 p){ return 1.-smoothstep(2.55,2.95,acos(clamp(dot(p,PC),-1.,1.))); }       // 0 у антипода центра карты (проекция там схлопывается)`;
+      const FVS = `uniform vec3 sun; varying vec3 vP; varying vec3 vN; varying vec3 vS; varying vec3 vV; void main(){ vP=position; vV=normalize(cameraPosition-(modelMatrix*vec4(position,1.)).xyz); vN=normalize(mat3(modelMatrix)*normal); vS=normalize(sun*mat3(modelMatrix)); gl_Position=projectionMatrix*viewMatrix*modelMatrix*vec4(position,1.); }`;
+      const fshadow = new T.Mesh(new T.SphereGeometry(1.006, 128, 64), new T.ShaderMaterial({uniforms: U, transparent: true, depthWrite: false, vertexShader: FVS,
+        fragmentShader:`${SNL.glsl} uniform float time; uniform vec3 sun; uniform sampler2D cl; varying vec3 vP,vN,vS,vV; ${NZG}
+          void main(){ vec3 p=normalize(vP); vec3 ps=normalize(p+fL(p,vS)*.07); vec3 s=fs(ps,time);
+            float a=smoothstep(0.,.07,fd(s,fw(s)));
+            vec2 cm=texture2D(cl,snUV(p)).rg; cm=mix(vec2(0.,1.),cm,ant(p));
+            a*=1.-.7*max(cm.g,cm.r);
+            float day=smoothstep(-.1,.35,dot(normalize(vN),sun));
+            gl_FragColor=vec4(.015,.04,.09,a*.27*day); }`}));
+      scene.add(fshadow); fshadow.renderOrder = 1;
+      const fluff = new T.Mesh(new T.SphereGeometry(1.034, 160, 80), new T.ShaderMaterial({uniforms: U, transparent: true, depthWrite: false, vertexShader: FVS,
+        fragmentShader:`${SNL.glsl} uniform float time; uniform vec3 sun; uniform sampler2D cl; varying vec3 vP,vN,vS,vV; ${NZG}
+          void main(){ vec3 p=normalize(vP); vec3 s=fs(p,time); vec2 w=fw(s);
+            float d0=fd(s,w)+.025*nz(s*7.+4.);                                    // плотность + мелкие «барашки» по краю
+            float d1=fd(fs(normalize(p+fL(p,vS)*.045),time),w);                   // плотность на шаг к солнцу: растёт к солнцу = это тыльный, затенённый склон кучки
+            float cov=smoothstep(0.,.055,d0);
+            float slope=smoothstep(-.02,.06,d1-d0), core=smoothstep(.02,.16,d0);
+            float sh=clamp(slope*.75+core*.3,0.,1.);
+            vec3 n=normalize(vN); float nd=dot(n,sun); float day=smoothstep(-.15,.3,nd);
+            vec3 c=mix(vec3(1.,.99,.97),vec3(.68,.78,.92),sh)*(.42+.72*max(nd,0.));
+            float gold=1.-smoothstep(0.,.42,abs(nd-.06)); c=mix(c,vec3(1.,.76,.5)*(.95-.3*sh),.4*gold*(1.-.6*sh));   // золотая кромка у терминатора
+            vec2 cm=texture2D(cl,snUV(p)).rg; cm=mix(vec2(0.,1.),cm,ant(p));
+            float a=cov*(1.-.8*max(cm.g,cm.r));                                   // над регионами и сушей почти пусто, чтобы они оставались видны
+            a*=mix(.3,1.,smoothstep(0.,.3,dot(n,normalize(vV))));                  // у края шара слой тает (иначе тёмная кайма вокруг планеты)
+            gl_FragColor=vec4(c,min(a,.95)*mix(.05,1.,day)); }`}));
+      scene.add(fluff); fluff.renderOrder = 3;
+      if (matchMedia('(hover:none) and (pointer:coarse)').matches) fshadow.visible = false;   // на телефоне тень от пухлых облаков не рисуем (экономим GPU)
       const atm = new T.Mesh(new T.SphereGeometry(1.18, 96, 48), new T.ShaderMaterial({uniforms: U, transparent: true, side: T.BackSide, depthWrite: false, blending: T.AdditiveBlending,
         vertexShader:`varying vec3 vN,vW; void main(){ vN=normalize(mat3(modelMatrix)*normal); vec4 w=modelMatrix*vec4(position,1.); vW=w.xyz; gl_Position=projectionMatrix*viewMatrix*w; }`,
         fragmentShader:`uniform vec3 sun; varying vec3 vN,vW; void main(){ vec3 v=normalize(cameraPosition-vW); float r=dot(-vN,v);
@@ -609,7 +650,7 @@
             if (!matchMedia('(hover:hover)').matches && !e.classList.contains('tap')){ pins.forEach(p => p.e.classList.remove('tap')); e.classList.add('tap'); return; }
             bossGo(pins.indexOf(P)); });
           const P = {e, k, ri, bi, lo: SNL.inv(m.pin[0], m.pin[1])[0], la: SNL.inv(m.pin[0], m.pin[1])[1]}; pins.push(P); PL.appendChild(e); }); });
-      S = {T, ren, scene, cam, earth, clouds, atm, lift, walls, aur, hiG, hiUpdate, U, lbls, pins, rid: () => RID, ray: new T.Raycaster(), w: 0, h: 0};
+      S = {T, ren, scene, cam, earth, clouds, fluff, fshadow, atm, lift, walls, aur, hiG, hiUpdate, U, lbls, pins, rid: () => RID, ray: new T.Raycaster(), w: 0, h: 0};
       let fired = false; const go = () => { if (fired) return; fired = true; cb(true); };
       mgr.onLoad = go; mgr.onError = () => {}; setTimeout(go, 15000);
     }
@@ -636,7 +677,7 @@
         idle += dt; if (idle > 4 && !hover && !flown) lon += .05 * dt * Math.min(1, (idle - 4) / 2); }
       lat = Math.max(-1.2, Math.min(1.25, lat)); pxMove(dt);
       liftV += ((hover ? 1 : 0) - liftV) * Math.min(1, dt * 12); U.lift.value = liftV; U.aur.value = hover === 7 ? liftV : 0; U.frost.value = hover === 7 ? 1 : 0; S.walls.visible = false;   // стенки убраны: «летящий остров» (тень + фокус)
-      const g = new S.T.Euler(lat, -lon, 0, 'XYZ'); [S.earth, S.clouds, S.lift, S.walls, S.aur, S.hiG].forEach(m => m.rotation.copy(g));
+      const g = new S.T.Euler(lat, -lon, 0, 'XYZ'); [S.earth, S.clouds, S.fluff, S.fshadow, S.lift, S.walls, S.aur, S.hiG].forEach(m => m.rotation.copy(g));
       S.cam.position.set(0, 0, dist()); S.cam.lookAt(0, 0, 0);
       S.hiUpdate(g, S.cam.position, ts, dt);
       S.ren.render(S.scene, S.cam);
