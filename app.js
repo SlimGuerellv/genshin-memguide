@@ -1052,7 +1052,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
         }, 2800);
       })();
     }
-    document.getElementById('goMap').addEventListener('click', ()=>{ window.gMusic && window.gMusic.leave(); new Image().src = 'loading.jpg?v=2'; fly(mapLoad); });
+    document.getElementById('goMap').addEventListener('click', ()=>{ window.gMusic && window.gMusic.leave(); new Image().src = 'loading.jpg?v=3'; fly(mapLoad); });
     // «Назад» с карты: страница может вернуться из кеша браузера — убираем вспышку и экран загрузки, музыка снова
     addEventListener('pageshow', e => { if (!e.persisted) return; document.getElementById('wflash').classList.remove('go'); flying = false;
       try { CL.classList.remove('on','ready'); root.classList.remove('cl-on'); CROW.classList.remove('breathe'); DL.classList.remove('on','ready'); } catch(x){}

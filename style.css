@@ -1206,8 +1206,8 @@ html.v-map .mapv{display:flex}
 .mload.on{opacity:1; visibility:visible}
 .mload video, .mload .mposter{position:absolute; inset:0; width:100%; height:100%; max-width:none; object-fit:cover}
 .mload .mposter{background:#050a14 center/cover no-repeat}
-.mload:is(.on,.hold,.ready,.sw) .mposter{background-image:url(loading.jpg?v=2)}
-@media (hover:none) and (pointer:coarse) and (orientation:portrait){.mload:is(.on,.hold,.ready,.sw) .mposter{background-image:url(loading_m.jpg?v=2)}}   /* картинка качается, только когда экран загрузки показан */
+.mload:is(.on,.hold,.ready,.sw) .mposter{background-image:url(loading.jpg?v=3)}
+@media (hover:none) and (pointer:coarse) and (orientation:portrait){.mload:is(.on,.hold,.ready,.sw) .mposter{background-image:url(loading_m.jpg?v=3)}}   /* картинка качается, только когда экран загрузки показан */
 .mload .cbox{position:relative; align-self:end; margin-bottom:max(6vh,24px); display:flex; flex-direction:column; align-items:center; gap:20px}
 .mload .done{opacity:0; transform:translateY(6px); transition:opacity .5s ease, transform .5s ease; color:#fff; font-size:clamp(15px,1.8vw,19px); text-align:center;
   text-shadow:0 1px 3px rgb(0 0 0 / .8), 0 0 12px rgb(255 215 120 / .6); min-height:1.5em}
@@ -2728,4 +2728,12 @@ html .wrow #goDaily .wic,html .wrow #goNews .wic,html .wrow #goFb .wic{margin-in
   html .wrow #goDaily .wic,html .wrow #goNews .wic,html .wrow #goFb .wic{margin:0; width:20px; height:20px}
   html .wrow #goNews .news-dot{top:2px; right:2px; margin:0; width:10px; height:10px}
   html .wrow #goDaily:hover,html .wrow #goNews:hover,html .wrow #goFb:hover,html .wrow #goDaily:active,html .wrow #goNews:active,html .wrow #goFb:active{background:rgb(243 207 115 / .3)}
+}
+
+/* ===== главная, ПК: футер в одну строку — «Сделано Бро и Мужыком…» золотым, дальше дисклеймер ===== */
+@media (min-width:761px){
+  .wfoot{display:block; text-align:center; padding:0 clamp(250px,18vw,300px) clamp(12px,1.8vh,22px) clamp(24px,3vw,48px); box-sizing:border-box}
+  .wfoot .wcredit{position:static; display:inline; font-size:clamp(11px,.95vw,13px); letter-spacing:.03em; white-space:nowrap}
+  .wfoot .wcredit::after{content:" · "; color:rgb(255 255 255 / .45); letter-spacing:0}
+  .wfoot .wlegal{display:inline; max-width:none; margin:0; padding:0; font-size:clamp(10px,.82vw,11.5px); text-align:center}
 }
