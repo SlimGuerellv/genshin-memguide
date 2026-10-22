@@ -475,36 +475,36 @@
                        mix(mix(dot(hh(i+vec3(0,0,1)),f-vec3(0,0,1)),dot(hh(i+vec3(1,0,1)),f-vec3(1,0,1)),u.x),mix(dot(hh(i+vec3(0,1,1)),f-vec3(0,1,1)),dot(hh(i+vec3(1,1,1)),f-vec3(1,1,1)),u.x),u.y),u.z);}
           float fb3(vec3 p){float a=.5,s=0.;for(int i=0;i<3;i++){s+=a*nz(p);p=p*2.07+vec3(1.7,9.2,3.1);a*=.5;}return s;}
           float fbb(vec3 p){float a=.5,s=0.;for(int i=0;i<4;i++){s+=a*abs(nz(p));p=p*2.1+vec3(1.7,9.2,3.1);a*=.5;}return s;}   // «бугристый» шум: круглые кучки с ложбинками между ними
-          vec3 fs(vec3 p,float t){ return vec3(p.x,p.y*1.2,p.z)*3.6+vec3(t*.03,0.,0.); }              // координаты шума пухлых облаков (дрейф быстрее нижнего слоя)
+          vec3 fs(vec3 p,float t){ return vec3(p.x,p.y*1.2,p.z)*4.4+vec3(t*.03,0.,0.); }              // координаты шума пухлых облаков (дрейф быстрее нижнего слоя)
           vec2 fw(vec3 s){ return vec2(fb3(s*.8+vec3(1.3,2.1,.4)),fb3(s*.8+vec3(6.7,1.9,3.3))); }       // лёгкое искажение формы
-          float fd(vec3 s,vec2 w){ return fbb(s+vec3(w.x,w.y,w.x-w.y)*.9)-.15; }                        // плотность: >0 внутри облака
+          float fd(vec3 s,vec2 w){ return fbb(s+vec3(w.x,w.y,w.x-w.y)*.9)-.13; }                        // плотность: >0 внутри облака
           vec3 fL(vec3 p,vec3 so){ vec3 l=so-p*dot(so,p); return l/max(length(l),1e-4); }               // направление на солнце вдоль поверхности (в системе шара)
           float ant(vec3 p){ return 1.-smoothstep(2.55,2.95,acos(clamp(dot(p,PC),-1.,1.))); }       // 0 у антипода центра карты (проекция там схлопывается)`;
       const FVS = `uniform vec3 sun; varying vec3 vP; varying vec3 vN; varying vec3 vS; varying vec3 vV; void main(){ vP=position; vV=normalize(cameraPosition-(modelMatrix*vec4(position,1.)).xyz); vN=normalize(mat3(modelMatrix)*normal); vS=normalize(sun*mat3(modelMatrix)); gl_Position=projectionMatrix*viewMatrix*modelMatrix*vec4(position,1.); }`;
       const fshadow = new T.Mesh(new T.SphereGeometry(1.006, 128, 64), new T.ShaderMaterial({uniforms: U, transparent: true, depthWrite: false, vertexShader: FVS,
         fragmentShader:`${SNL.glsl} uniform float time; uniform vec3 sun; uniform sampler2D cl; varying vec3 vP,vN,vS,vV; ${NZG}
           void main(){ vec3 p=normalize(vP); vec3 ps=normalize(p+fL(p,vS)*.07); vec3 s=fs(ps,time);
-            float a=smoothstep(0.,.07,fd(s,fw(s)));
+            float a=smoothstep(-.03,.12,fd(s,fw(s)));
             vec2 cm=texture2D(cl,snUV(p)).rg; cm=mix(vec2(0.,1.),cm,ant(p));
-            a*=1.-.7*max(cm.g,cm.r);
+            a*=1.-.5*max(cm.g,cm.r);
             float day=smoothstep(-.1,.35,dot(normalize(vN),sun));
-            gl_FragColor=vec4(.015,.04,.09,a*.27*day); }`}));
+            gl_FragColor=vec4(.015,.04,.09,a*.2*day); }`}));
       scene.add(fshadow); fshadow.renderOrder = 1;
       const fluff = new T.Mesh(new T.SphereGeometry(1.034, 160, 80), new T.ShaderMaterial({uniforms: U, transparent: true, depthWrite: false, vertexShader: FVS,
         fragmentShader:`${SNL.glsl} uniform float time; uniform vec3 sun; uniform sampler2D cl; varying vec3 vP,vN,vS,vV; ${NZG}
           void main(){ vec3 p=normalize(vP); vec3 s=fs(p,time); vec2 w=fw(s);
-            float d0=fd(s,w)+.025*nz(s*7.+4.);                                    // плотность + мелкие «барашки» по краю
+            float d0=fd(s,w)+.04*nz(s*6.+4.);                                    // плотность + мелкие «барашки» по краю
             float d1=fd(fs(normalize(p+fL(p,vS)*.045),time),w);                   // плотность на шаг к солнцу: растёт к солнцу = это тыльный, затенённый склон кучки
-            float cov=smoothstep(0.,.055,d0);
-            float slope=smoothstep(-.02,.06,d1-d0), core=smoothstep(.02,.16,d0);
-            float sh=clamp(slope*.75+core*.3,0.,1.);
+            float cov=smoothstep(-.02,.1,d0);
+            float slope=smoothstep(-.03,.08,d1-d0), core=smoothstep(.0,.2,d0);
+            float sh=clamp(slope*.62+core*.3,0.,1.);
             vec3 n=normalize(vN); float nd=dot(n,sun); float day=smoothstep(-.15,.3,nd);
-            vec3 c=mix(vec3(1.,.99,.97),vec3(.68,.78,.92),sh)*(.42+.72*max(nd,0.));
-            float gold=1.-smoothstep(0.,.42,abs(nd-.06)); c=mix(c,vec3(1.,.76,.5)*(.95-.3*sh),.4*gold*(1.-.6*sh));   // золотая кромка у терминатора
+            vec3 c=mix(vec3(.98,.995,1.),vec3(.60,.73,.90),sh)*(.46+.68*max(nd,0.));
+            float gold=1.-smoothstep(0.,.42,abs(nd-.06)); c=mix(c,vec3(1.,.86,.7)*(.95-.3*sh),.16*gold*(1.-.7*sh));   // золотая кромка у терминатора
             vec2 cm=texture2D(cl,snUV(p)).rg; cm=mix(vec2(0.,1.),cm,ant(p));
-            float a=cov*(1.-.8*max(cm.g,cm.r));                                   // над регионами и сушей почти пусто, чтобы они оставались видны
+            float land=max(cm.g,cm.r); float a=cov*mix(.4,.93,core)*mix(1.,.62,land);                 // над сушей облака тоже идут, но тоньше и прозрачнее, чтобы карта читалась
             a*=mix(.3,1.,smoothstep(0.,.3,dot(n,normalize(vV))));                  // у края шара слой тает (иначе тёмная кайма вокруг планеты)
-            gl_FragColor=vec4(c,min(a,.95)*mix(.05,1.,day)); }`}));
+            gl_FragColor=vec4(c,min(a,mix(.9,.66,land))*mix(.05,1.,day)); }`}));
       scene.add(fluff); fluff.renderOrder = 3;
       if (matchMedia('(hover:none) and (pointer:coarse)').matches) fshadow.visible = false;   // на телефоне тень от пухлых облаков не рисуем (экономим GPU)
       const atm = new T.Mesh(new T.SphereGeometry(1.18, 96, 48), new T.ShaderMaterial({uniforms: U, transparent: true, side: T.BackSide, depthWrite: false, blending: T.AdditiveBlending,
