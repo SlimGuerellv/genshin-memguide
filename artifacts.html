@@ -2,11 +2,11 @@
 <meta charset=utf8>
 <script>/* звуки перехода (вшух, буль-буль) доигрываем с места обрыва сразу на старте страницы */(function(){try{var o=JSON.parse(sessionStorage.getItem('hv_sfx')||'null');sessionStorage.removeItem('hv_sfx');if(!o||!o.cut||Date.now()-o.cut>8000||!(o.vol>0))return;o.list.forEach(function(s){var off=Math.max(0,(o.cut-s[1])/1000),a=new Audio(s[0]);a.volume=Math.min(1,o.vol);a.preload='auto';a.addEventListener('canplay',function g(){a.removeEventListener('canplay',g);if(off>=(a.duration||0)-.05)return;try{a.currentTime=off}catch(e){}a.play().catch(function(){})});a.load()})}catch(e){}})();</script>
 <meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><link rel="stylesheet" href="style.css?v=94">
-</head><body>
 <title>Геншин прокачка — Артефакты</title>
 <link rel="icon" type="image/png" sizes="64x64" href="favicon.png?v=3"><link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=3">
 <link rel="shortcut icon" href="favicon.ico?v=3">
 <link rel="apple-touch-icon" href="favicon-192.png?v=3">
+</head><body>
 
 <script>(function(){var c=document.documentElement.classList,s=document.documentElement.dataset.sec;try{if(sessionStorage.getItem('hv_fromwhite')){sessionStorage.removeItem('hv_fromwhite');document.documentElement.classList.add('fromwhite');setTimeout(function(){document.documentElement.classList.remove('fromwhite')},1300);}}catch(e){}c.toggle('v-home',false);c.toggle('v-dict',s==='dict');c.toggle('v-arts',s==='arts');c.toggle('v-weap',s==='weapons');var nl=0;try{if(sessionStorage.getItem('hv_noload')){sessionStorage.removeItem('hv_noload');nl=1;}}catch(e){}if(!nl)try{var n=performance.getEntriesByType('navigation')[0];if(!n||(n.type!=='reload'&&n.type!=='back_forward'))c.add('arrive');}catch(e){c.add('arrive');}})();</script>
 
