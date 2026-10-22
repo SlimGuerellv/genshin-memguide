@@ -105,3 +105,11 @@ window.HVDAILY = {"books":[{"id":"freedom","n":"Свобода","reg":"Монд�
   var g = document.getElementById('goFb'); if (!g) return;
   g.addEventListener('click', function(){ var b = document.getElementById('fbBtn'); if (b) b.click(); });
 })();
+
+// телефон: ширина кнопки входа → отступ для иконок «Ежедневки / Что нового / Отзыв» (они стоят левее неё)
+(function(){
+  var a = document.getElementById('acctBtn'); if (!a) return;
+  var set = function(){ var w = a.offsetWidth; if (w) document.documentElement.style.setProperty('--acct-w', w + 'px'); };
+  set(); addEventListener('resize', set); addEventListener('load', set);
+  if (window.ResizeObserver) new ResizeObserver(set).observe(a);
+})();
