@@ -2705,7 +2705,13 @@ html.no-music .snd,html.no-music .snd-toast{display:none!important}
 @media (min-width:761px) and (max-width:1359px){ .wds-c:nth-child(n+2),.wds-more{display:none} }
 
 /* значки главного меню (картинки от Бро): глобус, оружие, персонажи; остальные — золотые иконки-маски */
-html .wrow #goMap .wic,html .wrow #goWeap .wic,html .wrow #goChars .wic{width:30px; height:28px; border-radius:0; background:var(--wimg) center/contain no-repeat; -webkit-mask:none; mask:none; flex:none; display:block}
+html .wrow #goMap .wic,html .wrow #goWeap .wic,html .wrow #goChars .wic,html .wrow #goDict .wic,html .wrow #goArts .wic{width:30px; height:28px; border-radius:0; background:var(--wimg) center/contain no-repeat; -webkit-mask:none; mask:none; flex:none; display:block}
 html .wrow #goChars .wic{width:36px; margin:0 -3px}
-#goMap .wic{--wimg:url("ic_globe.webp?v=1")} #goWeap .wic{--wimg:url("ic_weapons.webp?v=1")} #goChars .wic{--wimg:url("ic_chars.webp?v=1")}
-html .wrow #goDict .wic,html .wrow #goArts .wic,html .wrow #goDaily .wic,html .wrow #goNews .wic,html .wrow #goFb .wic{margin-inline:4px}
+#goMap .wic{--wimg:url("ic_globe.webp?v=1")} #goWeap .wic{--wimg:url("ic_weapons.webp?v=1")} #goChars .wic{--wimg:url("ic_chars.webp?v=1")} #goDict .wic{--wimg:url("ic_dict.webp?v=1")} #goArts .wic{--wimg:url("ic_arts.webp?v=1")}
+html .wrow #goDaily .wic,html .wrow #goNews .wic,html .wrow #goFb .wic{margin-inline:4px}
+
+/* чипсы разделов: значки-картинки (персонажи, оружие, глобус) без цветного кружка */
+.schip .si.si-img{width:32px; height:26px; border-radius:0; background:none; box-shadow:none}
+.schip .si-img img{width:100%; height:100%; object-fit:contain; display:block}
+.schip[data-s="chars"] .si.si-img{width:38px}
+@media (max-width:720px){ .schip .si.si-img{width:30px; height:24px} .schip[data-s="chars"] .si.si-img{width:36px} }

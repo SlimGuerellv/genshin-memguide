@@ -1616,8 +1616,9 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     arts:'<path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20"/><path d="M9 3l3 6 3-6"/>',
     dict:'<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/><path d="M9 8h7M9 12h5"/>',
     map:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c3.2 3 3.2 15 0 18"/><path d="M12 3c-3.2 3-3.2 15 0 18"/>'};
+  const IMG = {chars:'ic_chars.webp?v=1', weapons:'ic_weapons.webp?v=1', map:'ic_globe.webp?v=1', arts:'ic_arts.webp?v=1', dict:'ic_dict.webp?v=1'};
   const S = [['chars','Персонажи','#6FE3C1'], ['weapons','Оружие','#FF7B5C'], ['arts','Артефакты','#C58CFF'], ['dict','Словарь','#4FD3F7'], ['map','Глобус','#9BDB4E']];
-  nav.innerHTML = S.map(s => '<button type="button" class="schip" data-s="' + s[0] + '" style="--c:' + s[2] + '"><span class="si" aria-hidden="true"><svg viewBox="0 0 24 24">' + ic[s[0]] + '</svg></span><span class="sl">' + s[1] + '</span></button>').join('');
+  nav.innerHTML = S.map(s => '<button type="button" class="schip" data-s="' + s[0] + '" style="--c:' + s[2] + '">' + (IMG[s[0]] ? '<span class="si si-img" aria-hidden="true"><img src="' + IMG[s[0]] + '" alt="" draggable="false"></span>' : '<span class="si" aria-hidden="true"><svg viewBox="0 0 24 24">' + ic[s[0]] + '</svg></span>') + '<span class="sl">' + s[1] + '</span></button>').join('');
   const PG = {chars: 'characters.html', weapons: 'weapons.html', arts: 'artifacts.html', dict: 'dictionary.html'};
   const cur = () => { if (document.documentElement.dataset.sec) return document.documentElement.dataset.sec; const h = decodeURI(location.hash); return /^#(dict|словарь)/i.test(h) ? 'dict' : /^#(arts|артефакты)/i.test(h) ? 'arts' : /^#(weapons|оружие)/i.test(h) ? 'weapons' : 'chars'; };
   const mark = () => { const c = cur(); [].forEach.call(nav.children, b => { if (b.dataset.s === c) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); }); };
