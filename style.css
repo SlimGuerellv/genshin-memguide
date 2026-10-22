@@ -2703,3 +2703,9 @@ html.no-music .snd,html.no-music .snd-toast{display:none!important}
   #goFb .wic{--wi:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 5h16v11H9l-5 4z'/%3E%3C/svg%3E")}
 }
 @media (min-width:761px) and (max-width:1359px){ .wds-c:nth-child(n+2),.wds-more{display:none} }
+
+/* значки главного меню (картинки от Бро): глобус, оружие, персонажи; остальные — золотые иконки-маски */
+html .wrow #goMap .wic,html .wrow #goWeap .wic,html .wrow #goChars .wic{width:30px; height:28px; border-radius:0; background:var(--wimg) center/contain no-repeat; -webkit-mask:none; mask:none; flex:none; display:block}
+html .wrow #goChars .wic{width:36px; margin:0 -3px}
+#goMap .wic{--wimg:url("ic_globe.webp?v=1")} #goWeap .wic{--wimg:url("ic_weapons.webp?v=1")} #goChars .wic{--wimg:url("ic_chars.webp?v=1")}
+html .wrow #goDict .wic,html .wrow #goArts .wic,html .wrow #goDaily .wic,html .wrow #goNews .wic,html .wrow #goFb .wic{margin-inline:4px}
