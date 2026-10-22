@@ -2798,3 +2798,65 @@ html .wrow #goDaily .wic,html .wrow #goNews .wic,html .wrow #goFb .wic{margin-in
 html:not(.v-home) .welcome .wdust i{animation-play-state:paused}
 .welcome .wdust.off{display:none}
 @media (prefers-reduced-motion:reduce){.welcome .wdust{display:none}}
+
+/* ===== глобальный поиск по сайту (Ctrl+K, «/», кнопка «Найти всё») ===== */
+.hvs{position:fixed; inset:0; z-index:600; display:flex; justify-content:center; align-items:flex-start; padding:min(11vh,100px) 16px 16px; background:rgb(5 8 18 / .62);
+  -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); opacity:0; visibility:hidden; transition:opacity .18s ease, visibility .18s}
+.hvs.on{opacity:1; visibility:visible}
+.hvs-box{width:min(680px,100%); max-height:min(74vh,640px); display:flex; flex-direction:column; border-radius:18px; overflow:hidden; color:#f4efe3;
+  background:linear-gradient(180deg,rgb(26 31 54 / .98),rgb(13 17 33 / .98)); border:1px solid rgb(243 207 115 / .34); box-shadow:0 26px 80px rgb(0 0 0 / .7), inset 0 0 0 1px rgb(255 255 255 / .04);
+  transform:translateY(-8px) scale(.985); transition:transform .18s ease}
+.hvs.on .hvs-box{transform:none}
+.hvs-in{display:flex; align-items:center; gap:12px; padding:14px 16px; border-bottom:1px solid rgb(255 255 255 / .1)}
+.hvs-in>svg{width:22px; height:22px; flex:none; color:#f3cf73}
+.hvs-in input{flex:1; min-width:0; background:none; border:0; outline:0; color:#fff; font:700 19px/1.3 var(--display); letter-spacing:.01em; padding:2px 0}
+.hvs-in input::placeholder{color:rgb(244 239 227 / .45); font-weight:400}
+.hvs-in input::-webkit-search-cancel-button{display:none}
+.hvs-x{flex:none; padding:4px 9px; border-radius:7px; border:1px solid rgb(255 255 255 / .22); background:rgb(255 255 255 / .06); color:rgb(244 239 227 / .7); font:600 12px var(--body); cursor:pointer}
+.hvs-x:hover{background:rgb(255 255 255 / .14); color:#fff}
+.hvs-tabs{display:flex; gap:6px; padding:10px 14px; overflow-x:auto; scrollbar-width:none; border-bottom:1px solid rgb(255 255 255 / .07)}
+.hvs-tabs::-webkit-scrollbar{display:none}
+.hvs-tab{flex:none; padding:6px 13px; border-radius:99px; border:1px solid rgb(255 255 255 / .18); background:rgb(255 255 255 / .04); color:rgb(244 239 227 / .78); font:600 13px var(--body); cursor:pointer; transition:background .15s, color .15s, border-color .15s}
+.hvs-tab:hover{background:rgb(255 255 255 / .1); color:#fff}
+.hvs-tab[aria-pressed="true"]{background:rgb(243 207 115 / .18); border-color:#f3cf73; color:#f3cf73}
+.hvs-l{list-style:none; margin:0; padding:6px; overflow-y:auto; overscroll-behavior:contain; flex:1; min-height:90px}
+.hvs-h{padding:8px 12px 4px; font:700 11px var(--body); letter-spacing:.12em; text-transform:uppercase; color:rgb(244 239 227 / .45)}
+.hvs-e{padding:26px 16px; text-align:center; color:rgb(244 239 227 / .65); font:400 15px/1.5 var(--body)}
+.hvs-e i{font-style:normal; color:#f3cf73}
+.hvs-it{display:flex; align-items:center; gap:12px; padding:8px 10px; border-radius:11px; cursor:pointer; border:1px solid transparent}
+.hvs-it.on{background:rgb(243 207 115 / .13); border-color:rgb(243 207 115 / .4)}
+.hvs-im{flex:none; width:44px; height:44px; border-radius:10px; background:rgb(255 255 255 / .06); display:grid; place-items:center; overflow:hidden}
+.hvs-im img{width:100%; height:100%; object-fit:cover; display:block}
+.hvs-it[data-t="weapons"] .hvs-im img,.hvs-it[data-t="arts"] .hvs-im img{object-fit:contain; padding:3px; box-sizing:border-box}
+.hvs-tx{flex:1; min-width:0; display:flex; flex-direction:column; gap:1px}
+.hvs-tx b{font:700 16px/1.25 var(--display); color:#fff; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.hvs-tx b mark{background:none; color:#f3cf73}
+.hvs-tx small{font:400 12.5px/1.3 var(--body); color:rgb(244 239 227 / .6); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.hvs-ty{flex:none; padding:3px 9px; border-radius:99px; font:700 11px var(--body); letter-spacing:.03em; color:rgb(244 239 227 / .75); background:rgb(255 255 255 / .07)}
+.hvs-it[data-t="chars"] .hvs-ty{color:#6FE3C1; background:rgb(111 227 193 / .12)}
+.hvs-it[data-t="weapons"] .hvs-ty{color:#FF9A7C; background:rgb(255 123 92 / .13)}
+.hvs-it[data-t="arts"] .hvs-ty{color:#C58CFF; background:rgb(197 140 255 / .13)}
+.hvs-it[data-t="dict"] .hvs-ty{color:#4FD3F7; background:rgb(79 211 247 / .12)}
+.hvs-f{display:flex; gap:16px; padding:9px 16px; border-top:1px solid rgb(255 255 255 / .08); font:400 12px var(--body); color:rgb(244 239 227 / .45)}
+@media (hover:none){ .hvs-f,.hvs-x{display:none} }
+@media (max-width:560px){
+  .hvs{padding:max(10px,env(safe-area-inset-top)) 10px 10px}
+  .hvs-box{max-height:calc(100dvh - 20px); border-radius:16px}
+  .hvs-in input{font-size:17px}
+  .hvs-ty{display:none}
+}
+html.hvs-open{overflow:hidden}
+.schip.hvs-chip{margin-left:6px}
+.schip.hvs-chip .si svg{width:100%; height:100%; stroke:currentColor}
+/* подсветка найденного термина в словаре */
+@keyframes hvHit{0%,100%{box-shadow:0 0 0 0 rgb(243 207 115 / 0)} 30%,70%{box-shadow:0 0 0 3px rgb(243 207 115 / .8), 0 0 28px rgb(243 207 115 / .5)}}
+.dterm.hit{animation:hvHit 2.2s ease-in-out 1}
+/* кнопка «Найти всё» в меню главной (ПК) и круглая иконка (телефон) */
+#goSearch .wic{--wi:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E")}
+@media (max-width:760px){
+  html .wrow #goSearch{position:fixed; z-index:81; top:15px; right:calc(164px + var(--acct-w, 118px)); width:40px; height:40px; min-height:0; margin:0; padding:0; gap:0; justify-content:center; align-items:center; overflow:visible;
+    border-radius:50%; border:1px solid rgb(255 255 255 / .22); background:rgb(14 18 34 / .62); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); box-shadow:0 4px 14px rgb(0 0 0 / .4); font-size:0; text-shadow:none}
+  html .wrow #goSearch .wic{margin:0; width:20px; height:20px}
+  html .wrow #goSearch:hover,html .wrow #goSearch:active{background:rgb(243 207 115 / .3)}
+}
+@media (prefers-reduced-motion:reduce){ .hvs,.hvs-box{transition:none} .dterm.hit{animation:none; outline:2px solid #f3cf73} }
