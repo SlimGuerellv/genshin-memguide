@@ -457,6 +457,7 @@
             vec3 s=vec3(q.x*1.6,q.y*4.2,q.z*1.6)+vec3(time*.015,0.,0.);
             vec3 w=vec3(fbm(s*1.3+2.),fbm(s*1.3+5.2),fbm(s*1.3+9.1)); float d=fbm(s*1.9+w*1.4);
             vec2 uv=snUV(snLens(p)); vec2 cm=texture2D(cl,uv).rg;
+            cm=mix(vec2(0.,1.),cm,1.-smoothstep(2.55,2.95,acos(clamp(dot(p,PC),-1.,1.))));   // антипод центра карты: проекция схлопывается в точку (читается край текстуры → «звезда» с лучами), там нейтральный океан
             float pol=smoothstep(.88,.98,abs(p.y));            // полюса
             float bo=.12*(1.-cm.g)*(1.-.6*smoothstep(.6,.85,abs(p.y)))+.2*pol;                     // вдали от регионов и у полюсов — гуще
             float a=smoothstep(-.06-bo,.22-bo,d); a*=mix(.6+.4*smoothstep(-.25,.25,fbm(p*3.+11.)),1.,.5*max(1.-cm.g,pol));
