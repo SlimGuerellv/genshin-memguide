@@ -28,7 +28,20 @@ window.HVDAILY = {"books":[{"id":"freedom","n":"Свобода","reg":"Монд�
   var chars = (window.HVD && window.HVD.data) || [];
   function mine(){ var c = {}; try { c = JSON.parse(localStorage.getItem('hv_coll_v1') || '{}') || {}; } catch(e){} return c; }
   function isMine(c, coll){ return coll[c] === 'got' || coll[c] === 'main'; }
+  var strip = document.getElementById('wdStrip');
+  function renderStrip(){
+    if (!strip) return;
+    var nm = DAYS.filter(function(d){ return d[1]===today; })[0][0], h = '<span class="wds-l">Сегодня · <b>'+nm+'</b></span><span class="wds-m">';
+    if (today === 0) h += '<span class="wds-sun">Йо, фармила! Сегодня всё открыто</span>';
+    else {
+      var bs = D.books.filter(function(b){ return b.d.indexOf(today) >= 0; });
+      bs.slice(0,4).forEach(function(b){ h += '<span class="wds-c"><img src="dbk_'+BKI[b.id]+'.webp" alt="" draggable="false">'+esc(b.n)+'</span>'; });
+      if (bs.length > 4) h += '<span class="wds-more">+'+(bs.length-4)+'</span>';
+    }
+    strip.innerHTML = h + '</span><svg class="wds-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+  }
   function render(){
+    renderStrip();
     var coll = mine(), hasMine = chars.some(function(c){ return isMine(c.n, coll); });
     var m = mode || 'all';   // по умолчанию показываем всех
     var days = $('.wd-days'); days.innerHTML = DAYS.map(function(d){
@@ -66,7 +79,7 @@ window.HVDAILY = {"books":[{"id":"freedom","n":"Свобода","reg":"Монд�
 // Телефон: таблица «Ежедневный сбор» спрятана, открывается кнопкой «Ежедневки» как окно с крестиком.
 // На время открытия таблица переезжает в body (внутри .wcenter fixed не работает из-за transform), при закрытии возвращается на место.
 (function(){
-  var root = document.getElementById('wdaily'), btn = document.getElementById('goDaily'); if (!root || !btn) return;
+  var root = document.getElementById('wdaily'), btn = document.getElementById('goDaily'), strip = document.getElementById('wdStrip'); if (!root || !btn) return;
   var home = root.parentNode, next = root.nextSibling, back = null, x = null, opened = false;
   function open(){
     if (opened) return; opened = true;
@@ -83,9 +96,8 @@ window.HVDAILY = {"books":[{"id":"freedom","n":"Свобода","reg":"Монд�
     home.insertBefore(root, next && next.parentNode === home ? next : null);
     document.documentElement.classList.remove('daily-open');
   }
-  btn.addEventListener('click', open);
+  btn.addEventListener('click', open); if (strip) strip.addEventListener('click', open);
   addEventListener('keydown', function(e){ if (e.key === 'Escape') close(); });
-  addEventListener('resize', function(){ if (opened && innerWidth > 760) close(); });
 })();
 
 // телефон: кнопка «Отзыв / баг» в меню главной открывает то же окно, что плавающая (её на телефоне нет)

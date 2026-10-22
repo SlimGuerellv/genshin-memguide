@@ -2608,7 +2608,6 @@ html.no-music .snd,html.no-music .snd-toast{display:none!important}
   .wd-pop .wd-w{width:44px; height:46px}
   .wd-x{position:absolute; top:8px; right:8px; z-index:2; width:34px; height:34px; border-radius:50%; appearance:none; cursor:pointer; font:400 22px/1 system-ui,sans-serif; color:#fff; background:rgb(255 255 255 / .12); border:1px solid rgb(255 255 255 / .3); display:grid; place-items:center; padding:0}
 }
-@media (min-width:761px){ .wd-x,.wd-back{display:none!important} }
 
 /* кнопки меню на тач-экранах: без «залипшего» hover/active (после тапа кнопка оставалась приподнятой/вдавленной, не как остальные) */
 @media (hover:none){
@@ -2622,3 +2621,47 @@ html.no-music .snd,html.no-music .snd-toast{display:none!important}
   .wrow #goFb{order:4}
   .fb-btn{display:none!important}
 }
+
+/* ===== главная, ПК (22.10): один центр вместо трёх слоёв ===== */
+:root{--ol-thin:0.016em 0em 0 #000, -0.016em 0em 0 #000, 0em 0.016em 0 #000, 0em -0.016em 0 #000, 0.0112em 0.0112em 0 #000, -0.0112em 0.0112em 0 #000, 0.0112em -0.0112em 0 #000, -0.0112em -0.0112em 0 #000}
+.wd-strip{display:none}
+@media (min-width:761px){
+  .wcenter{--wy:-1vh}
+  .wlogo{width:clamp(120px,12vw,190px); margin-bottom:2px}
+  .wtitle{font-size:clamp(30px,3.8vw,60px); font-weight:700; text-shadow:var(--ol-thin), 0 3px 26px rgb(0 0 0 / .8)}
+  .wtitle span{text-shadow:var(--ol-thin), 0 0 22px rgb(255 210 120 / .4), 0 3px 26px rgb(0 0 0 / .8)}
+  .wsub{margin:2px 0 4px; font-size:clamp(13px,1.2vw,16px); color:#dcd8cc; text-shadow:var(--ol-thin), 0 2px 12px #000}
+  .welcome .wshade{background:radial-gradient(70% 60% at 50% 45%, rgb(8 10 20 / .5), rgb(8 10 20 / .08) 80%), linear-gradient(to top, rgb(8 10 20 / .82), transparent 38%)}
+  .wrow{flex-direction:column; align-items:center; gap:clamp(18px,3.4vh,34px)}
+  .wd-strip{display:flex; align-items:center; gap:14px; max-width:min(92vw,780px); appearance:none; cursor:pointer; font:inherit; color:#f4efe3;
+    background:rgb(14 18 34 / .66); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); border:1px solid rgb(255 255 255 / .16); border-radius:999px;
+    padding:9px 18px; box-shadow:0 10px 30px rgb(0 0 0 / .4); transition:border-color .2s, transform .2s}
+  .wd-strip:hover{border-color:rgb(243 207 115 / .65); transform:translateY(-1px)}
+  .wd-strip:focus-visible{outline:2px solid #f3cf73; outline-offset:3px}
+  .wds-l{font-weight:800; letter-spacing:.12em; text-transform:uppercase; font-size:12px; color:#f3cf73; white-space:nowrap}
+  .wds-l b{color:#fff; letter-spacing:.04em}
+  .wds-m{display:flex; gap:8px; min-width:0; align-items:center}
+  .wds-c{display:flex; align-items:center; gap:7px; background:rgb(255 255 255 / .07); border-radius:999px; padding:3px 13px 3px 4px; font-size:13.5px; font-weight:600; white-space:nowrap}
+  .wds-c img{width:26px; height:26px; border-radius:50%; object-fit:cover}
+  .wds-more,.wds-sun{font-size:13.5px; font-weight:700; color:#cfd3e2; white-space:nowrap}
+  .wds-chev{width:16px; height:16px; flex:none; color:#aeb4c8}
+  /* таблица ежедневок: окно по клику на смужку (механика та же, что у «Ежедневки» на телефоне) */
+  .wsoon.wdaily:not(.wd-pop){display:none}
+  .wsoon.wdaily.wd-pop{display:flex!important; position:fixed; z-index:111; left:50%; top:50%; transform:translate(-50%,-50%); margin:0; align-self:auto; max-height:calc(100dvh - 32px)}
+  .wd-back{position:fixed; inset:0; z-index:110; background:rgb(5 7 14 / .7); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px)}
+  .wd-x{position:absolute; top:12px; right:12px; z-index:2; width:34px; height:34px; border-radius:50%; appearance:none; cursor:pointer; font:400 22px/1 system-ui,sans-serif; color:#fff; background:rgb(255 255 255 / .12); border:1px solid rgb(255 255 255 / .3); display:grid; place-items:center; padding:0}
+  .wd-x:hover{background:rgb(255 255 255 / .22)}
+  .wd-pop .wd-top{padding-right:44px}
+  /* меню: ряд стеклянных кнопок, золото только при наведении */
+  .wrow .wbtns.wright{flex-direction:row; flex-wrap:wrap; justify-content:center; align-items:center; gap:12px; width:auto; min-width:0}
+  .wrow .wbtns .wbtn{width:auto; justify-content:center; font-family:var(--display); font-weight:700; font-size:clamp(15px,1.45vw,20px); letter-spacing:.02em; gap:10px; padding:10px 24px 10px 12px;
+    color:#f4efe3; background:rgb(14 18 34 / .62); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); border:1px solid rgb(255 255 255 / .16); box-shadow:0 8px 24px rgb(0 0 0 / .35)}
+  .wrow .wbtn::before,.wrow .wbtn::after{display:none}
+  .wrow .wbtn .wic{width:22px; height:22px; background:rgb(243 207 115 / .18)}
+  .wrow .wbtn .wic i{width:7px; height:7px; border-color:#f3cf73}
+  .wrow .wbtn:hover{background:#f3cf73; color:#241a06; border-color:#f3cf73; transform:translateY(-2px); box-shadow:0 10px 30px rgb(243 207 115 / .35)}
+  .wrow .wbtn:hover .wic{background:rgb(36 26 6 / .15)}
+  .wrow .wbtn:hover .wic i{border-color:#241a06}
+  .whand{display:none!important}
+}
+@media (min-width:761px) and (max-width:1000px){ .wds-c:nth-child(n+3){display:none} }
