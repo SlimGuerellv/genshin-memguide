@@ -439,6 +439,7 @@
             float cm=0.; for(int i=0;i<42;i++){ vec3 q=cty[i]; vec2 dd=vec2((vUv.x-q.x)*2.,vUv.y-q.y); cm+=exp(-dot(dd,dd)/(q.z*q.z)); } cm=min(cm,1.);
             float cell=h(floor(vUv*vec2(2600.,1300.))); float city=max(L,.35)*(1.-day)*(step(1.-.26*cm*cm,cell)*cm*.7+cm*cm*cm*.14+rail(vUv)*.6);   // приглушённо: редкие огоньки + слабое свечение
             vec3 c=mix(col*.06+vec3(1.,.6,.25)*city*1.3,lit,day);
+            float tw=exp(-pow((nd-.07)/.085,2.)); c+=vec3(1.,.66,.42)*tw*(.07+.17*(1.-L))*(.35+.65*max(dot(n,v),0.));   // тёплый отсвет заката на терминаторе
             c=focus(c,vUv,n,normalize(vE),normalize(vNo),L);
             float fr=pow(1.-max(dot(n,v),0.),2.6); c+=vec3(.35,.75,1.)*fr*(.25+.9*day);
             gl_FragColor=vec4(c,1.); }`}));
@@ -510,7 +511,7 @@
       const atm = new T.Mesh(new T.SphereGeometry(1.18, 96, 48), new T.ShaderMaterial({uniforms: U, transparent: true, side: T.BackSide, depthWrite: false, blending: T.AdditiveBlending,
         vertexShader:`varying vec3 vN,vW; void main(){ vN=normalize(mat3(modelMatrix)*normal); vec4 w=modelMatrix*vec4(position,1.); vW=w.xyz; gl_Position=projectionMatrix*viewMatrix*w; }`,
         fragmentShader:`uniform vec3 sun; varying vec3 vN,vW; void main(){ vec3 v=normalize(cameraPosition-vW); float r=dot(-vN,v);
-          float g=pow(smoothstep(0.,.62,r),3.); float s=.35+.65*smoothstep(-.4,.6,-dot(-vN,sun)+.2); float k=g*1.1*s; gl_FragColor=vec4(vec3(.3,.72,1.)*k,k); }`}));
+          float g=pow(smoothstep(0.,.62,r),3.); float s=.35+.65*smoothstep(-.4,.6,-dot(-vN,sun)+.2); float k=g*1.1*s; float tw=exp(-pow(dot(vN,sun)/.22,2.)); k*=1.+.2*tw; gl_FragColor=vec4(mix(vec3(.3,.72,1.),vec3(1.,.66,.45),.4*tw)*k,k); }`}));   // тёплая кромка атмосферы на терминаторе
       scene.add(atm);
       const lift = new T.Mesh(geo, new T.ShaderMaterial({uniforms: U, transparent: true, depthWrite: false,
         vertexShader:`uniform float lift; varying vec2 vUv0; varying vec3 vP; varying vec3 vN; void main(){ vUv0=uv; vP=position; vN=normalize(mat3(modelMatrix)*position); gl_Position=projectionMatrix*viewMatrix*modelMatrix*vec4(position*(1.+0.035*lift),1.); }`,
@@ -593,6 +594,7 @@
             float cm=0.; for(int i=0;i<42;i++){ vec3 q=cty[i]; vec2 dd=vec2((vG.x-q.x)*2.,vG.y-q.y); cm+=exp(-dot(dd,dd)/(q.z*q.z)); } cm=min(cm,1.);
             float cell=h(floor(vG*vec2(2600.,1300.))); float city=(1.-day)*(step(1.-.26*cm*cm,cell)*cm*.7+cm*cm*cm*.14+rail(vG)*.6);
             vec3 c=mix(col*.06+vec3(1.,.6,.25)*city*1.3,lit,day);
+            float tw=exp(-pow((nd-.07)/.085,2.)); c+=vec3(1.,.66,.42)*tw*(.07)*(.35+.65*max(dot(n,v),0.));   // тёплый отсвет заката на терминаторе
             c=focus(c,vG,n,normalize(vE),normalize(vNo),1.);
             float fr=pow(1.-max(dot(n,v),0.),2.6); c+=vec3(.35,.75,1.)*fr*(.25+.9*day);
             gl_FragColor=vec4(c,a); }`;

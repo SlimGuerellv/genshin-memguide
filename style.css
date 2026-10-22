@@ -2737,3 +2737,64 @@ html .wrow #goDaily .wic,html .wrow #goNews .wic,html .wrow #goFb .wic{margin-in
   .wfoot .wcredit::after{content:" · "; color:rgb(255 255 255 / .45); letter-spacing:0}
   .wfoot .wlegal{display:inline; max-width:none; margin:0; padding:0; font-size:clamp(10px,.82vw,11.5px); text-align:center}
 }
+
+/* ===== экран загрузки глобуса: мерцающие звёзды и дыхание света вокруг корабля (22.10) ===== */
+.mload::before,.mload::after{content:""; position:absolute; inset:0; pointer-events:none; opacity:0; will-change:opacity}
+.mload::before{background:
+    radial-gradient(circle at 62.1% 9.2%,rgb(255 255 255/.95) 0 0.9px,rgb(170 210 255/.32) 1.6px,transparent 3.5px),
+    radial-gradient(circle at 89.2% 47.1%,rgb(255 255 255/.95) 0 1.1px,rgb(170 210 255/.32) 1.8px,transparent 3.7px),
+    radial-gradient(circle at 20.4% 70.4%,rgb(255 255 255/.95) 0 1.6px,rgb(170 210 255/.32) 2.3px,transparent 4.2px),
+    radial-gradient(circle at 40.1% 83.9%,rgb(255 255 255/.95) 0 1.1px,rgb(170 210 255/.32) 1.8px,transparent 3.7px),
+    radial-gradient(circle at 62.9% 84.6%,rgb(255 255 255/.95) 0 1.6px,rgb(170 210 255/.32) 2.3px,transparent 4.2px),
+    radial-gradient(circle at 8.1% 74.3%,rgb(255 255 255/.95) 0 0.9px,rgb(170 210 255/.32) 1.6px,transparent 3.5px),
+    radial-gradient(circle at 30.9% 5.9%,rgb(255 255 255/.95) 0 1.3px,rgb(170 210 255/.32) 2.0px,transparent 3.9px),
+    radial-gradient(circle at 86.4% 70.1%,rgb(255 255 255/.95) 0 1.6px,rgb(170 210 255/.32) 2.3px,transparent 4.2px),
+    radial-gradient(circle at 39.9% 78.3%,rgb(255 255 255/.95) 0 1.6px,rgb(170 210 255/.32) 2.3px,transparent 4.2px),
+    radial-gradient(circle at 94.6% 15.6%,rgb(255 255 255/.95) 0 1.3px,rgb(170 210 255/.32) 2.0px,transparent 3.9px),
+    radial-gradient(circle at 11.4% 15.8%,rgb(255 255 255/.95) 0 1.1px,rgb(170 210 255/.32) 1.8px,transparent 3.7px),
+    radial-gradient(circle at 76.8% 83.4%,rgb(255 255 255/.95) 0 1.6px,rgb(170 210 255/.32) 2.3px,transparent 4.2px),
+    radial-gradient(circle at 58.1% 88.0%,rgb(255 255 255/.95) 0 0.9px,rgb(170 210 255/.32) 1.6px,transparent 3.5px),
+    radial-gradient(circle at 84.2% 96.2%,rgb(255 255 255/.95) 0 1.1px,rgb(170 210 255/.32) 1.8px,transparent 3.7px),
+    radial-gradient(circle at 12.0% 64.6%,rgb(255 255 255/.95) 0 1.3px,rgb(170 210 255/.32) 2.0px,transparent 3.9px),
+    radial-gradient(circle at 29.4% 9.0%,rgb(255 255 255/.95) 0 1.6px,rgb(170 210 255/.32) 2.3px,transparent 4.2px)}
+.mload::after{background:
+    radial-gradient(circle at 90.7% 46.8%,rgb(255 255 255/.95) 0 1.1px,rgb(170 210 255/.32) 1.8px,transparent 3.7px),
+    radial-gradient(circle at 19.7% 51.1%,rgb(255 255 255/.95) 0 1.1px,rgb(170 210 255/.32) 1.8px,transparent 3.7px),
+    radial-gradient(circle at 11.0% 31.5%,rgb(255 255 255/.95) 0 0.9px,rgb(170 210 255/.32) 1.6px,transparent 3.5px),
+    radial-gradient(circle at 53.7% 86.7%,rgb(255 255 255/.95) 0 0.9px,rgb(170 210 255/.32) 1.6px,transparent 3.5px),
+    radial-gradient(circle at 81.8% 8.9%,rgb(255 255 255/.95) 0 0.9px,rgb(170 210 255/.32) 1.6px,transparent 3.5px),
+    radial-gradient(circle at 20.3% 25.7%,rgb(255 255 255/.95) 0 0.9px,rgb(170 210 255/.32) 1.6px,transparent 3.5px),
+    radial-gradient(circle at 76.7% 33.7%,rgb(255 255 255/.95) 0 1.1px,rgb(170 210 255/.32) 1.8px,transparent 3.7px),
+    radial-gradient(circle at 97.8% 96.6%,rgb(255 255 255/.95) 0 0.9px,rgb(170 210 255/.32) 1.6px,transparent 3.5px),
+    radial-gradient(circle at 8.7% 75.0%,rgb(255 255 255/.95) 0 1.6px,rgb(170 210 255/.32) 2.3px,transparent 4.2px),
+    radial-gradient(circle at 12.3% 30.3%,rgb(255 255 255/.95) 0 0.9px,rgb(170 210 255/.32) 1.6px,transparent 3.5px),
+    radial-gradient(circle at 94.0% 82.6%,rgb(255 255 255/.95) 0 0.9px,rgb(170 210 255/.32) 1.6px,transparent 3.5px),
+    radial-gradient(circle at 22.5% 90.1%,rgb(255 255 255/.95) 0 0.9px,rgb(170 210 255/.32) 1.6px,transparent 3.5px),
+    radial-gradient(circle at 47.1% 95.2%,rgb(255 255 255/.95) 0 1.6px,rgb(170 210 255/.32) 2.3px,transparent 4.2px),
+    radial-gradient(circle at 21.1% 66.4%,rgb(255 255 255/.95) 0 1.3px,rgb(170 210 255/.32) 2.0px,transparent 3.9px),
+    radial-gradient(circle at 10.4% 34.3%,rgb(255 255 255/.95) 0 1.6px,rgb(170 210 255/.32) 2.3px,transparent 4.2px),
+    radial-gradient(circle at 74.8% 14.1%,rgb(255 255 255/.95) 0 1.1px,rgb(170 210 255/.32) 1.8px,transparent 3.7px)}
+.mload.on::before{animation:mlTw 3.6s ease-in-out infinite}
+.mload.on::after{animation:mlTw 3.6s ease-in-out -1.8s infinite}
+@keyframes mlTw{0%,100%{opacity:.15} 50%{opacity:.95}}
+.mload .cbox::before{content:""; position:fixed; inset:0; pointer-events:none; mix-blend-mode:screen;
+  background:radial-gradient(ellipse 40% 34% at 50% 46%,rgb(95 175 255/.2),rgb(95 175 255/.07) 45%,transparent 72%);
+  opacity:calc(.5 + var(--k,0) * .5); transform-origin:50% 46%}
+.mload.on .cbox::before{animation:mlGlow 3.4s ease-in-out infinite}
+.mload.wait .cbox::before{animation-duration:1.7s}
+@keyframes mlGlow{0%,100%{transform:scale(.94)} 50%{transform:scale(1.07)}}
+@media (hover:none) and (pointer:coarse) and (orientation:portrait){.mload .cbox::before{background:radial-gradient(ellipse 62% 24% at 50% 45%,rgb(95 175 255/.2),rgb(95 175 255/.07) 45%,transparent 72%)}}
+@media (prefers-reduced-motion:reduce){.mload::before,.mload::after,.mload .cbox::before{animation:none !important}.mload.on::before,.mload.on::after{opacity:.6}}
+
+/* ===== головна: золотий пил над артом + легкий зсув логотипа/заголовка (22.10) ===== */
+.welcome .wdust{position:absolute; inset:-48px; pointer-events:none; will-change:transform}
+.welcome .wdust i{position:absolute; bottom:-14px; border-radius:50%; opacity:0; will-change:transform,opacity; animation:wdA linear infinite;
+  background:radial-gradient(circle,rgb(255 240 185 / 1) 0 30%,rgb(255 214 120 / .5) 58%,transparent 74%); box-shadow:0 0 6px 1px rgb(255 214 120 / .35)}
+.welcome .wdust i:nth-child(6n+1){filter:blur(2px); box-shadow:none}
+.welcome .wdust i:nth-child(3n+1){animation-name:wdA} .welcome .wdust i:nth-child(3n+2){animation-name:wdB} .welcome .wdust i:nth-child(3n){animation-name:wdC}
+@keyframes wdA{0%{transform:translate3d(0,0,0) scale(.7); opacity:0} 12%{opacity:.85} 55%{transform:translate3d(-18px,-58vh,0) scale(1); opacity:.7} 100%{transform:translate3d(30px,-114vh,0) scale(1.15); opacity:0}}
+@keyframes wdB{0%{transform:translate3d(0,0,0) scale(.7); opacity:0} 12%{opacity:.8} 55%{transform:translate3d(22px,-55vh,0) scale(1); opacity:.65} 100%{transform:translate3d(-26px,-114vh,0) scale(1.1); opacity:0}}
+@keyframes wdC{0%{transform:translate3d(0,0,0) scale(.7); opacity:0} 12%{opacity:.9} 55%{transform:translate3d(6px,-60vh,0) scale(1); opacity:.6} 100%{transform:translate3d(14px,-114vh,0) scale(1.2); opacity:0}}
+html:not(.v-home) .welcome .wdust i{animation-play-state:paused}
+.welcome .wdust.off{display:none}
+@media (prefers-reduced-motion:reduce){.welcome .wdust{display:none}}

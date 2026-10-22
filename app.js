@@ -964,7 +964,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     // ряд стихий на экранах загрузки (как в Геншине): заполняются цветом слева направо, при заполнении — вспышка своим цветом
     const ELS = [['pyro','#FF7B5C'],['hydro','#4FD3F7'],['anemo','#6FE3C1'],['electro','#C58CFF'],['dendro','#9BDB4E'],['cryo','#A8EEF5'],['geo','#F5C84C']];
     document.querySelectorAll('.elrow').forEach(r => r.innerHTML = ELS.map(([k,c]) => `<span class="eli" style="--ec:${c}"><img class="g" src="el_${k}.webp" alt=""><img class="c" src="el_${k}.webp" alt=""></span>`).join(''));
-    function setRow(row, k){ try { if (row === CROW) CL.style.setProperty('--k', k.toFixed(3)); } catch(e){}
+    function setRow(row, k){ try { if (row === CROW) CL.style.setProperty('--k', k.toFixed(3)); else if (row === MROW) ML.style.setProperty('--k', k.toFixed(3)); } catch(e){}
       { const pc = row.parentNode && row.parentNode.querySelector('.pct'); if (pc) pc.textContent = (pc.dataset.t || 'Загрузка…') + ' ' + Math.round(k * 100) + '%'; }
       row.querySelectorAll('.eli').forEach((e,i)=>{ const f = Math.max(0, Math.min(1, k*ELS.length - i));
       e.style.setProperty('--f', (f*100).toFixed(1)+'%'); if (f >= 1) e.classList.add('lit'); else e.classList.remove('lit'); }); }
@@ -1022,7 +1022,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
             scr = Math.max(screen.width, screen.height) * (devicePixelRatio || 1);
       let mts = 4096; try { const g = document.createElement('canvas').getContext('webgl'); if (g){ mts = g.getParameter(g.MAX_TEXTURE_SIZE); const x = g.getExtension('WEBGL_lose_context'); x && x.loseContext(); } } catch(e){}
       const TQ = MOB || mts < 8192 ? '2k' : (mts >= 16384 && mem >= 8 && scr > 1800 ? '16k' : '8k');   // та же логика, что в глобусе (map.js)
-      const files = ['map.html', 'map.js?v=10', ...(matchMedia('(orientation:portrait)').matches ? ['sp_far_m.webp?v=1', 'sp_mid_m.webp?v=1', 'sp_near_m.webp?v=1'] : ['sp_far.webp?v=1', 'sp_mid.webp?v=1', 'sp_near.webp?v=1']), 'gearth' + TQ + '.jpg?v=20', 'gland' + TQ + '.png?v=20', 'gcloud.png?v=21', 'snzl.png?v=20', (TQ === '2k' ? 'grid.png' : 'grid8k.png') + '?v=21'];
+      const files = ['map.html', 'map.js?v=24', ...(matchMedia('(orientation:portrait)').matches ? ['sp_far_m.webp?v=1', 'sp_mid_m.webp?v=1', 'sp_near_m.webp?v=1'] : ['sp_far.webp?v=1', 'sp_mid.webp?v=1', 'sp_near.webp?v=1']), 'gearth' + TQ + '.jpg?v=20', 'gland' + TQ + '.png?v=20', 'gcloud.png?v=21', 'snzl.png?v=20', (TQ === '2k' ? 'grid.png' : 'grid8k.png') + '?v=21'];
       const ps = files.map(f => fetch(f).then(r => r.blob()).catch(()=>{}));
       ps.push(fetch('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js', {mode: 'no-cors'}).then(r => r.blob()).catch(()=>{}));
       let n = 0; ps.forEach(p => p.then(() => n++));
@@ -1131,8 +1131,15 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     const nav = navigator, conn = nav.connection || {};
     let lite = reduce || conn.saveData === true || (nav.deviceMemory && nav.deviceMemory <= 2) || (nav.hardwareConcurrency && nav.hardwareConcurrency <= 2);
     try { if (sessionStorage.getItem('hv_lite') === '1') lite = true; } catch(e){}
+    // золотая пыль над артом (CSS) + лёгкий сдвиг логотипа/заголовка навстречу курсору; не создаётся в «lite» (слабое устройство, reduced-motion, экономия трафика)
+    const dust = (() => { if (lite) return null; const d = document.createElement('div'); d.className = 'wdust'; d.setAttribute('aria-hidden','true');
+      let sd = 7; const rn = () => (sd = sd * 16807 % 2147483647) / 2147483647; let h = '';
+      for (let i = 0, n = fine ? 34 : 14; i < n; i++){ const z = i % 6 === 0 ? 9 + rn()*6 : 3 + rn()*4.5;
+        h += '<i style="left:' + (rn()*100).toFixed(1) + '%;width:' + z.toFixed(1) + 'px;height:' + z.toFixed(1) + 'px;animation-duration:' + (14 + rn()*16).toFixed(1) + 's;animation-delay:-' + (rn()*30).toFixed(1) + 's"></i>'; }
+      d.innerHTML = h; W.insertBefore(d, W.querySelector('.wcenter')); return d; })();
+    const tilt = fine ? [...W.querySelectorAll('.wlogo,.wtitle,.wsub')] : [];
     let nF = 0, nM = 0, sumDt = 0;   // замер реальной частоты кадров canvas-цикла: если ниже ~40 fps — отключаем паралакс
-    function goLite(){ lite = true; try { sessionStorage.setItem('hv_lite','1'); } catch(e){}
+    function goLite(){ lite = true; if (dust) dust.classList.add('off'); for (const e of tilt) e.style.translate = ''; try { sessionStorage.setItem('hv_lite','1'); } catch(e){}
       if (raf){ cancelAnimationFrame(raf); raf = 0; } last = 0; W.classList.remove('cv'); cv.width = cv.height = 1; }
     if (fine && !reduce) addEventListener('pointermove', e=>{ if (e.pointerType!=='mouse') return; tx = (e.clientX/innerWidth-.5)*-2; ty = (e.clientY/innerHeight-.5)*-2; }, {passive:true});
     function size(){ const d = Math.min(1.5, devicePixelRatio||1), w = Math.round(innerWidth*d), h = Math.round(innerHeight*d); if (w!==W0||h!==H0){ cv.width = W0 = w; cv.height = H0 = h; } }
@@ -1140,6 +1147,8 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
       if (lite){ raf = 0; return; }
       const raw = last ? ts-last : 0, dt = last ? Math.min(64, raw) : 16; last = ts;
       const k = 1 - Math.exp(-dt/220); x += (tx-x)*k; y += (ty-y)*k;
+      if (dust) dust.style.transform = 'translate3d(' + (x*34).toFixed(1) + 'px,' + (y*22).toFixed(1) + 'px,0)';
+      for (const e of tilt) e.style.translate = (x*-5).toFixed(1) + 'px ' + (y*-3.5).toFixed(1) + 'px';
       if (vid.readyState >= 2){
         if (!W.classList.contains('cv')) W.classList.add('cv');
         size(); const vw = vid.videoWidth, vh = vid.videoHeight, sc = Math.max(W0/vw, H0/vh) * 1.05;
