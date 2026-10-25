@@ -985,6 +985,15 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
       CL.classList.remove('r3', 'r4', 'r5'); CL.classList.add('r' + s); CL.style.setProperty('--k', 0);
       WISH.querySelector('.wstars').textContent = '★'.repeat(s); WISH.querySelector('.wlbl').textContent = WLBL[h] || '';
       WISH.querySelector('.wjoke').textContent = j[Math.floor(Math.random() * j.length)]; }
+    // экран загрузки на новой странице: после 100% ждём клик / Enter / пробел — «Нажмите, чтобы начать»
+    function waitStart(box, fin){
+      const D = box.querySelector('.done'), t0 = D ? D.textContent : '';
+      if (D) D.textContent = 'Загрузка завершена · Нажмите, чтобы начать';
+      let used = false;
+      const go = e => { if (e && e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return; if (used) return; used = true;
+        box.removeEventListener('click', go); removeEventListener('keydown', go); if (D) D.textContent = t0; fin(); };
+      box.addEventListener('click', go); addEventListener('keydown', go);
+    }
     function charsLoad(h, label, done){
       h = h || 'chars'; CL.setAttribute('aria-label', label || 'Загрузка персонажей');
       wishRoll(h); setRow(CROW, 0); CL.classList.remove('ready'); root.classList.add('cl-on'); CL.classList.add('on');
@@ -994,7 +1003,8 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
         if (k < 1){ requestAnimationFrame(step); return; }
         // 100%: «Загрузка завершена…» мигает 2,8 с, потом страница открывается сама
         CL.classList.add('ready'); CROW.classList.add('breathe');
-        setTimeout(()=>{ if (done){ done(); return; } CL.classList.remove('on'); root.classList.remove('cl-on'); CROW.classList.remove('breathe'); }, done ? 1500 : 2800);
+        if (done){ setTimeout(done, 1500); return; }
+        waitStart(CL, ()=>{ CL.classList.remove('on', 'ready'); root.classList.remove('cl-on'); CROW.classList.remove('breathe'); });
       })();
     }
     // «влёт» с главной в раздел
@@ -1012,8 +1022,16 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     // как у глобуса: экран загрузки идёт на главной (звуки «вшух» и «буль-буль» звучат целиком), потом открывается раздел без повторной загрузки
     const warm = p => { try { fetch(p).catch(()=>{}); } catch(e){} };   // страница раздела подгружается, пока идёт загрузка, чтобы потом открыться сразу
     function homeGo(p){ try { window.gMusic && window.gMusic.leave(); } catch(e){} try { sessionStorage.setItem('hv_noload', '1'); } catch(e){} location.href = p; }
+    // кнопки разделов — настоящие ссылки (Ctrl/Cmd/средняя кнопка открывают новую вкладку); обычный клик — вспышка и переход,
+    // а экран загрузки идёт уже на новой странице
+    const isNewTab = e => e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button > 0;
+    function secLink(id, p){ document.getElementById(id).addEventListener('click', e => {
+      if (isNewTab(e)) return; e.preventDefault();
+      const v = window.gMusic ? window.gMusic.sfxVol() : .5, t = Date.now() + 90;
+      if (v > 0) sfxHandoff([['sfx_whoosh.mp3', t], ['sfx_bubble.mp3', t]], v);
+      fly(()=>goPage(p)); }); }
     const LBL = {chars: 'Загрузка персонажей', weapons: 'Загрузка оружия', arts: 'Загрузка артефактов'};
-    document.getElementById('goChars').addEventListener('click', ()=>{ warm(PAGES.chars); fly(()=>charsLoad('chars', LBL.chars, ()=>homeGo(PAGES.chars))); });
+    secLink('goChars', PAGES.chars);
     // карта (отдельная страница map.html): экран загрузки идёт ЗДЕСЬ, на главной. Пока полоса бежит, браузер тихо
     // докачивает всё для глобуса (только качает, не распаковывает — анимация не лагает). 100% — сразу переход на глобус.
     const ML = document.getElementById('mload'), MROW = ML.querySelector('.elrow'), MV2 = document.getElementById('mlvid');
@@ -1052,7 +1070,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
         }, 2800);
       })();
     }
-    document.getElementById('goMap').addEventListener('click', ()=>{ window.gMusic && window.gMusic.leave(); new Image().src = 'loading.jpg?v=3'; fly(mapLoad); });
+    document.getElementById('goMap').addEventListener('click', e=>{ if (isNewTab(e)) return; e.preventDefault(); window.gMusic && window.gMusic.leave(); new Image().src = 'loading.jpg?v=3'; fly(mapLoad); });
     // «Назад» с карты: страница может вернуться из кеша браузера — убираем вспышку и экран загрузки, музыка снова
     addEventListener('pageshow', e => { if (!e.persisted) return; document.getElementById('wflash').classList.remove('go'); flying = false;
       try { CL.classList.remove('on','ready'); root.classList.remove('cl-on'); CROW.classList.remove('breathe'); DL.classList.remove('on','ready'); } catch(x){}
@@ -1073,10 +1091,11 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
         if (k < 1){ raf = requestAnimationFrame(step); return; }
         DL.style.setProperty('--eo','0'); DL.classList.add('ready'); DP.textContent = '100%'; DROW.classList.add('breathe');
         // «Загрузка завершена…» мигает 2,8 с, потом словарь открывается сам
-        setTimeout(()=>{ DROW.classList.remove('breathe');
-          if (done){ done(); return; }
-          if (!SEC) location.hash = 'dict'; scrollTo(0,0); DL.classList.remove('on'); setTimeout(()=>DL.style.setProperty('--eo','1'),600);
-          window.gMusic && window.gMusic.unhush(); }, done ? 600 : 2800);
+        const fin = ()=>{ DROW.classList.remove('breathe');
+          if (!SEC) location.hash = 'dict'; scrollTo(0,0); DL.classList.remove('on', 'ready'); setTimeout(()=>DL.style.setProperty('--eo','1'),600);
+          window.gMusic && window.gMusic.unhush(); };
+        if (done){ setTimeout(()=>{ DROW.classList.remove('breathe'); done(); }, 600); return; }
+        waitStart(DL, fin);
       }
       // цветной баннер .col спрятан clip-path'ом на 0% и стоит с loading="lazy": браузер не считает его видимым и не грузит,
       // onload не приходит, смужка зависала на 0%. Делаем его eager и подстраховываемся таймером, старт только один раз.
@@ -1084,9 +1103,9 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
       try { img.loading = 'eager'; } catch(e){}
       img.complete ? once() : (img.onload = once, img.onerror = once, setTimeout(once, 1200));
     }
-    document.getElementById('goDict').addEventListener('click', ()=>{ warm(PAGES.dict); fly(()=>dictLoad(()=>homeGo(PAGES.dict))); });
-    document.getElementById('goArts').addEventListener('click', ()=>{ warm(PAGES.arts); fly(()=>charsLoad('arts', LBL.arts, ()=>homeGo(PAGES.arts))); });
-    document.getElementById('goWeap').addEventListener('click', ()=>{ warm(PAGES.weapons); fly(()=>charsLoad('weapons', LBL.weapons, ()=>homeGo(PAGES.weapons))); });
+    secLink('goDict', PAGES.dict);
+    secLink('goArts', PAGES.arts);
+    secLink('goWeap', PAGES.weapons);
     // пришли на страницу раздела: загрузка, как у глобуса (не показываем при обновлении и «Назад»)
     if (SEC && root.classList.contains('arrive')){ root.classList.remove('arrive');
       if (SEC === 'dict') dictLoad(); else charsLoad(SEC, {chars: 'Загрузка персонажей', weapons: 'Загрузка оружия', arts: 'Загрузка артефактов'}[SEC]); }

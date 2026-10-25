@@ -975,6 +975,7 @@ html.v-home body{overflow:hidden}
   color:#3b3228; background:linear-gradient(#f7f1e3,#e9dfc9); border:0; border-radius:999px; padding:15px 58px 15px 64px;
   box-shadow:0 0 0 2px #d9b25a, 0 0 0 5px rgb(255 240 200 / .35), 0 10px 30px rgb(0 0 0 / .45);
   transition:transform .2s ease, box-shadow .25s ease; display:inline-flex; align-items:center; gap:14px}
+a.wbtn{text-decoration:none; -webkit-tap-highlight-color:transparent}
 .wbtn::before, .wbtn::after{content:""; position:absolute; top:50%; width:10px; height:10px; background:#d9b25a; transform:translateY(-50%) rotate(45deg)}
 .wbtn::before{left:-16px} .wbtn::after{right:-16px}
 .wbtn .wic{width:26px; height:26px; border-radius:50%; background:#3b3228; display:grid; place-items:center}
