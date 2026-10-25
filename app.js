@@ -1435,7 +1435,90 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
         <p class="dmeme">Все сеты в одном месте. А если стата на кубке опять не та — <b>это не баг, это Геншин</b>.</p></div>
         <div class="dtools"><label class="search" for="aq"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
         <input id="aq" type="search" placeholder="Найти сет" autocomplete="off" aria-label="Поиск по артефактам"></label></div></div>
+      <div class="ag-wrap"><button type="button" class="ag-top" id="agBtn" aria-expanded="false" aria-controls="agPanel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 21.5V5.5"/><path d="M9 8h7M9 12h5"/></svg>Как правильно фармить артефакты<svg class="ag-ch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><div class="ag-panel" id="agPanel" hidden></div></div>
       <div class="dcount" id="acount"></div><div class="agrid" id="agrid"></div>`;
+
+    // ===== Инструкция «Как правильно фармить артефакты» (кнопка над списком сетов) =====
+    const AGF = s => `art_${s}_flower.webp`;
+    const agSets = l => `<div class="ag-sg">${l.map(([s,n]) => `<div class="ag-si"><img src="${AGF(s)}" alt="" width="56" height="56" loading="lazy" decoding="async"><span>${n}</span></div>`).join('')}</div>`;
+    const agRow = (n, w, v) => `<div class="ag-row"><span>${n}</span><div class="ag-tr"><div class="ag-fl" style="width:${w}%"></div></div><b>${v}</b></div>`;
+    function agGuide(){
+      return `<div class="ag-tldr"><div class="ag-lab">Три правила</div>
+        <div class="ag-rules">
+          <div><b>Сначала уровни, таланты и оружие</b><span>Артефакты вторые: у них есть рандом и нет предела.</span></div>
+          <div><b>Топ-30% хватает</b><span>Для Бездны не нужна идеальная сборка. Разница в уроне 12–18%.</span></div>
+          <div><b>Лишнее в перекрафт</b><span>Не копи сотни артефактов: сдавай мусор в алхимию и бери нужный сет.</span></div></div></div>
+      <div class="ag-flow"><div class="ag-lab">Что делать с артефактом, который выпал</div>
+        <ol class="ag-fl2">
+          <li><p>Нужный сет?</p><em class="no">Нет → в перекрафт</em></li>
+          <li><p>Нужный главный стат? <small>(часы, кубок, корона; у цветка и пера он фиксирован)</small></p><em class="no">Нет → в перекрафт</em></li>
+          <li><p>Есть полезные подстаты? <small>(крит, проценты, ВЭ или МС под роль)</small></p><em class="no">Нет → в перекрафт</em></li>
+          <li><p>Качай до +4: откроется четвёртый подстат. Он полезный?</p><em class="no">Нет → сними замок, используй как топливо</em></li>
+          <li class="end"><p>Оставляй, ставь замок и качай дальше.</p><em class="yes">Готово</em></li></ol></div>
+      <details><summary>Главное</summary><div class="ag-in">
+        <p>Идеальные артефакты сильно переоценены. Разница в уроне между слабой и топовой сборкой на практике 12–18%.</p>
+        <div class="ag-lab">Пример: Арлекино, урон в ДПС-трекере</div>
+        ${agRow('Сборка топ-1%',100,'100%')}${agRow('Сборка топ-54%',81,'81%')}
+        <p class="ag-note">Средняя сборка бьёт всего на 19% слабее топовой.</p>
+        <div class="ag-lab">Что даёт урон сильнее артефактов</div>
+        <div class="ag-chips"><span>Сигнатурное оружие ≈ +20%</span><span>Правильная ротация кнопок</span><span>Уровни и таланты</span></div>
+        <p class="ag-warn">Топ-1% сборка при кривой ротации бьёт так же, как топ-50% сборка при хорошей игре.</p></div></details>
+      <details><summary>С чего начать</summary><div class="ag-in"><ul class="ag-t">
+        <li>Сначала уровни персонажей, таланты и оружие. У них есть предел прокачки и нет рандома.</li>
+        <li>Плотно фармить подземелья стоит с 45 ранга приключений: тогда гарантированно падают легендарные артефакты.</li>
+        <li>Сначала один главный дамагер, потом саппорт-сеты. Их добывают быстро и меняют редко.</li>
+        <li>Не фарми для всех сразу: выбери группу героев и одно подземелье.</li>
+        <li>Если сборка уже топ-30%, а урона нет, дело в уровнях, талантах, саппорт-сетах или ротации.</li></ul></div></details>
+      <details><summary>Как фармить подземелье</summary><div class="ag-in">
+        <div class="ag-drops"><div class="ag-cost"><img src="ic_resin.webp" alt="Смола" width="34" height="34">20</div><span class="ag-ar">→</span>
+          <div class="ag-drop"><img src="${AGF('golden-troupe')}" alt="" loading="lazy"><em class="ag-good">100%</em></div><span class="ag-m">+</span>
+          <div class="ag-drop half"><img src="${AGF('golden-troupe')}" alt="" loading="lazy"><em>65%</em></div></div>
+        <p class="ag-m">За заход: 1 легендарный артефакт гарантирован, второй с шансом 65%.</p>
+        <div class="ag-lab">Что делать с лишним</div><ul class="ag-t">
+        <li>Отправляй в Перекрафт (Strongbox, алхимия) нужного сета. Так добывают 30–50% лучших кусков.</li>
+        <li>Не копи сотни заблокированных артефактов («синдром Плюшкина»). Проверил и решил.</li>
+        <li>Долго не падают часы или кубок нужного сета? Возьми кусок из другого сета (офсет) или скрафти с Эликсиром прозрения.</li></ul></div></details>
+      <details><summary>Какой артефакт качать</summary><div class="ag-in">
+        <p class="ag-m">Перспективный артефакт с тремя подстатами качай до +4: на этом уровне открывается четвёртый.</p>
+        <div class="ag-card"><div class="ag-pic"><img src="${AGF('golden-troupe')}" alt="Цветок Золотой труппы" loading="lazy"><div class="ag-stars">★★★★★</div><div class="ag-m">+4</div></div>
+          <div><div class="ag-main">ХП 717<small>Цветок жизни · главный стат фиксирован</small></div>
+          <ul class="ag-sub"><li class="ok"><i>КУ</i><span>Крит. урон</span><em class="ag-good">+7,8%</em></li>
+            <li class="ok"><i>КШ</i><span>Шанс крит. попадания</span><em class="ag-good">+3,9%</em></li>
+            <li class="ok"><i>ВЭ</i><span>Восст. энергии</span><em class="ag-good">+5,2%</em></li>
+            <li class="no"><i class="r">!</i><span>Защита (плоская)</span><em>+19</em></li></ul></div></div>
+        <p class="ag-note">Пример для показа: числа условные. Четвёртый подстат мусорный? Снимай замок и используй как топливо для другого.</p>
+        <div class="ag-lab">Размер ролла: от какой доли максимума выпадает улучшение</div>
+        <div class="ag-rolls"><div><i style="height:22px"></i>70%</div><div><i style="height:26px"></i>80%</div><div><i style="height:30px"></i>90%</div><div><i style="height:34px"></i>100%</div></div>
+        <p class="ag-note">Каждый размер выпадает с шансом 25%. Каждый из 4 подстатов улучшается с шансом 25%.</p></div></details>
+      <details><summary>Статы и вероятности</summary><div class="ag-in">
+        <div class="ag-lab">Вес подстата: чем больше, тем чаще выпадает</div>
+        ${agRow('Плоские ХП, АТК, ЗАЩ',100,'6')}${agRow('Проценты и ВЭ',67,'4')}${agRow('Крит. шанс и урон',50,'3')}
+        <ul class="ag-t"><li>Плоские прибавки в 2,5–3 раза слабее процентных.</li>
+          <li>Крит. шанс и Крит. урон самые ценные, но не жертвуй ради них общим балансом.</li></ul>
+        <div class="ag-lab">Главные статы выпадают неравномерно</div>
+        <div class="ag-slots">
+          <div><img src="slot_sands.webp" alt="" width="36" height="36"><p><b>Часы</b>ХП, АТК и ЗАЩ падают чаще, чем Восст. энергии</p></div>
+          <div><img src="slot_goblet.webp" alt="" width="36" height="36"><p><b>Кубок</b>Маст. стихий вдвое реже элементального урона</p></div>
+          <div><img src="slot_circlet.webp" alt="" width="36" height="36"><p><b>Корона</b>Криты выпадают реже всего</p></div>
+          <div><img src="slot_flower.webp" alt="" width="36" height="36"><p><b>Цветок и перо</b>ХП и АТК фиксированы</p></div></div>
+        <p class="ag-note">Идеальный артефакт, где все 9 улучшений ушли в максимум нужного стата: около 4 шансов на миллион.</p></div></details>
+      <details><summary>Сколько это займёт</summary><div class="ag-in">
+        ${agRow('Нормальная, топ-15–30%',7,'1–2 мес.')}${agRow('Идеальная, топ-1%',100,'1 г. 10 м.')}
+        <p class="ag-note">Непрерывный фарм на бесплатной смоле. Оценки в видео разные: от одного до двух месяцев.</p>
+        <p class="ag-warn">«Подкруток» нет. За полгода непрерывного фарма уходит 36 000 смолы (около 1900 артефактов), хороший кусок падает примерно раз в 300–400 попыток.</p>
+        <p class="ag-m">Для Бездны достаточно сборки топ-30–35%.</p></div></details>
+      <details><summary>Какие сеты фармить</summary><div class="ag-in">
+        <div class="ag-lab g">Тир-1: нужны почти всегда</div>${agSets([['marechaussee-hunter','Охотник сумеречного двора'],['golden-troupe','Золотая труппа'],['obsidian-codex','Обсидиановый фолиант'],['scroll-of-the-hero-of-cinder-city','Свиток героя сожжённого города'],['night-of-the-skys-unveiling','Ночь открытия неба'],['silken-moons-serenade','Серенада шёлковой луны']])}
+        <p class="ag-note">Лучшие подземелья: Фонтейн (Охотник сумеречного двора и Золотая труппа) и Натлан (Обсидиановый фолиант и Свиток героя сожжённого города). Оба сета в каждом из них тир-1. Новые сеты Ночь открытия неба и Серенада шёлковой луны тоже тир-1.</p>
+        <div class="ag-lab o">Саппорт-сеты: добывай только через Перекрафт</div>${agSets([['viridescent-venerer','Изумрудная тень'],['noblesse-oblige','Церемония древней знати']])}
+        <p class="ag-note">Подземелье за смолу для них не нужно.</p>
+        <div class="ag-lab o">Устарели: с нуля не фарми</div>${agSets([['blizzard-strayer','Заблудший в метели'],['heart-of-depth','Сердце глубин'],['pale-flame','Бледный огонь'],['shimenawas-reminiscence','Воспоминания Симэнавы']])}
+        <p class="ag-note">Если уже есть, играй на них.</p>
+        <div class="ag-lab b">Бесполезны в современной мете</div>${agSets([['maiden-beloved','Возлюбленная юная дева'],['thundering-fury','Усмиряющий гром'],['bloodstained-chivalry','Рыцарь крови'],['vourukashas-glow','Сияние Вурукаши']])}
+        <p class="ag-note">Инструктор (4★) даёт всему отряду 120 Мастерства стихий, хорошие части оставляй. Изгнанник нужен только ситуативным саппортам.</p></div></details>`;
+    }
+    (function(){ const b = document.getElementById('agBtn'), p = document.getElementById('agPanel'); let filled = false;
+      b.addEventListener('click', () => { const open = p.hidden; if (open && !filled) { p.innerHTML = agGuide(); filled = true; } p.hidden = !open; b.setAttribute('aria-expanded', open ? 'true' : 'false'); }); })();
     let q = '';
     const hl = t => { if (!q) return esc(t); const i = t.toLowerCase().indexOf(q); return i < 0 ? esc(t) : esc(t.slice(0,i)) + '<mark>' + esc(t.slice(i,i+q.length)) + '</mark>' + esc(t.slice(i+q.length)); };
     const CHN = Object.fromEntries(CHARS.map(c => [c.n, c]));
