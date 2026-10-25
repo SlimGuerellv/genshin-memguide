@@ -2057,10 +2057,11 @@ html.fromwhite body{background-color:#fffaf0}
 .cn-node:focus-visible{outline:none}
 
 /* ===== Отзывы / баги ===== */
-.fb-btn{position:fixed; left:18px; bottom:calc(78px + env(safe-area-inset-bottom,0px)); z-index:80; appearance:none; cursor:pointer; display:flex; align-items:center; gap:8px; height:42px; padding:0 16px 0 12px; border-radius:999px; font:inherit; font-size:14px; color:var(--text); background:rgb(20 26 44 / .8); border:1px solid rgb(217 178 90 / .7); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); box-shadow:0 6px 20px rgb(0 0 0 / .45)}
+.fb-btn{position:fixed; top:14px; right:200px; z-index:80; appearance:none; cursor:pointer; display:inline-flex; align-items:center; gap:8px; height:52px; padding:0 18px 0 14px; border-radius:999px; font:400 16px/1 var(--display); color:var(--text); background:rgb(20 26 44 / .8); border:1px solid rgb(217 178 90 / .7); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); box-shadow:0 6px 20px rgb(0 0 0 / .45)}
+.fb-btn svg{color:#F3CF73; flex:none}
 .fb-btn:hover{filter:brightness(1.1)}
 .fb-btn:focus-visible{outline:2px solid #fff; outline-offset:3px}
-@media (max-width:720px){ .fb-btn{left:12px; bottom:calc(66px + env(safe-area-inset-bottom,0px)); height:38px; font-size:13px} }
+@media (max-width:760px){ .fb-btn{width:40px; height:40px; padding:0; justify-content:center; border-radius:50%} .fb-btn span{display:none} html.v-home .fb-btn{display:none!important} }
 .fb-ov{z-index:121}
 .fb-sheet{width:min(520px,100%)}
 .fb-form{display:grid; gap:10px; margin-bottom:6px}
@@ -2577,7 +2578,7 @@ html.no-music .snd,html.no-music .snd-toast{display:none!important}
 }
 /* телефон: пока открыта карточка (персонаж/оружие и т.п.), плавающие кнопки не перекрывают её и крестик закрытия */
 @media (max-width:760px){
-  html:has(.overlay:not([hidden]):not(.acct-ov)) :is(.news-btn, #acctBtn, #homeFloat, .snd, .snd-toast){visibility:hidden!important; pointer-events:none!important}
+  html:has(.overlay:not([hidden]):not(.acct-ov)) :is(.news-btn, .fb-btn, #acctBtn, #homeFloat, .snd, .snd-toast){visibility:hidden!important; pointer-events:none!important}
 }
 /* телефон (узкий экран): плеера музыки нет совсем; «Что нового» — только кнопкой в меню главной */
 @media (max-width:760px){
@@ -2614,12 +2615,11 @@ html.no-music .snd,html.no-music .snd-toast{display:none!important}
   .wbtn:hover, .wbtn:active, .wbtn:focus{transform:none; outline:0}
   .wbtn:hover{box-shadow:0 0 0 2px #d9b25a, 0 0 0 5px rgb(255 240 200 / .35), 0 10px 30px rgb(0 0 0 / .45)}
 }
-/* «Отзыв / баг» в меню главной — только на телефоне; плавающая кнопка там скрыта */
+/* «Отзыв / баг»: сверху рядом с «Что нового» (на телефоне на главной — кнопкой в меню) */
 #goFb{display:none}
 @media (max-width:760px){
   #goFb{display:flex}
   .wrow #goFb{order:4}
-  .fb-btn{display:none!important}
 }
 
 /* ===== главная, ПК (22.10): один центр вместо трёх слоёв ===== */

@@ -23,6 +23,22 @@
   btn.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M4 4h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-5 4v-4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/></svg><span>Отзыв / баг</span>';
   document.body.appendChild(btn);
 
+  // кнопка стоит левее «Что нового» (а если её нет — левее кнопки входа), по её высоте
+  const vis = el => (el && el.offsetWidth && getComputedStyle(el).display !== 'none') ? el.getBoundingClientRect() : null;
+  function place() {
+    const small = innerWidth <= 760, n = document.getElementById('newsBtn'), a = document.getElementById('acctBtn');
+    const r = (!small && vis(n)) || vis(a);
+    if (!r) { btn.style.right = (small ? 12 : 14) + 'px'; return; }
+    const h = small ? 40 : r.height;
+    btn.style.top = Math.round(r.top + (r.height - h) / 2) + 'px';
+    btn.style.right = Math.round(innerWidth - r.left + 10) + 'px';
+  }
+  const later = () => requestAnimationFrame(place);
+  addEventListener('resize', later); addEventListener('load', later);
+  [150, 600, 1500].forEach(t => setTimeout(later, t));
+  if (window.ResizeObserver) { const ro = new ResizeObserver(later); ['newsBtn', 'acctBtn'].forEach(id => { const e = document.getElementById(id); if (e) ro.observe(e); }); }
+  place();
+
   function loadFb() {
     return fbPromise || (fbPromise = (async () => {
       const [app, f] = await Promise.all([import(G + 'firebase-app.js'), import(G + 'firebase-firestore.js')]);
@@ -112,4 +128,5 @@
   }
   function close() { if (!ov) return; ov.hidden = true; document.documentElement.classList.remove('fb-open'); if (unsub) { unsub(); unsub = null; } btn.focus({ preventScroll: true }); }
   btn.addEventListener('click', open);
+  const gf = document.getElementById('goFb'); if (gf) gf.addEventListener('click', open);   // телефон, главная: кнопка в меню
 })();
