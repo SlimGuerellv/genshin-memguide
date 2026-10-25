@@ -1449,12 +1449,14 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
           <div><b>Топ-30% хватает</b><span>Для Бездны не нужна идеальная сборка. Разница в уроне 12–18%.</span></div>
           <div><b>Лишнее в перекрафт</b><span>Не копи сотни артефактов: сдавай мусор в алхимию и бери нужный сет.</span></div></div></div>
       <div class="ag-flow"><div class="ag-lab">Что делать с артефактом, который выпал</div>
-        <ol class="ag-fl2">
-          <li><p>Нужный сет?</p><em class="no">Нет → в перекрафт</em></li>
-          <li><p>Нужный главный стат? <small>(часы, кубок, корона; у цветка и пера он фиксирован)</small></p><em class="no">Нет → в перекрафт</em></li>
-          <li><p>Есть полезные подстаты? <small>(крит, проценты, ВЭ или МС под роль)</small></p><em class="no">Нет → в перекрафт</em></li>
-          <li><p>Качай до +4: откроется четвёртый подстат. Он полезный?</p><em class="no">Нет → сними замок, используй как топливо</em></li>
-          <li class="end"><p>Оставляй, ставь замок и качай дальше.</p><em class="yes">Готово</em></li></ol></div>
+        <p class="ag-fnote">Иди по шагам сверху вниз. На каждом шаге два ответа: «Да» ведёт к следующему шагу, «Нет» — это приговор артефакту.</p>
+        <ol class="ag-st">
+          <li><span class="num">1</span><div class="st"><p class="q">Нужный сет?</p><div class="br"><span class="ok">✓ Да → идём к шагу 2</span><span class="bad">✕ Нет → в перекрафт</span></div></div></li>
+          <li><span class="num">2</span><div class="st"><p class="q">Нужный главный стат? <small>(часы, кубок, корона; у цветка и пера он фиксирован)</small></p><div class="br"><span class="ok">✓ Да → идём к шагу 3</span><span class="bad">✕ Нет → в перекрафт</span></div></div></li>
+          <li><span class="num">3</span><div class="st"><p class="q">Есть полезные подстаты? <small>(крит, проценты, ВЭ или МС под роль)</small></p><div class="br"><span class="ok">✓ Да → качай до +4 (шаг 4)</span><span class="bad">✕ Нет → в перекрафт</span></div></div></li>
+          <li><span class="num">4</span><div class="st"><p class="q">Прокачал до +4: открылся четвёртый подстат. Он полезный?</p><div class="br"><span class="ok">✓ Да → артефакт хороший</span><span class="bad">✕ Нет → сними замок и используй как топливо</span></div></div></li>
+          <li class="end"><span class="num">✓</span><div class="st"><p class="q">Артефакт хороший: ставь замок и качай дальше.</p></div></li></ol>
+        <p class="ag-fnote"><b>Перекрафт</b> — сдай ненужный артефакт в алхимию и получи нужный сет. <b>Топливо</b> — скорми его другим артефактам как опыт.</p></div>
       <details><summary>Главное</summary><div class="ag-in">
         <p>Идеальные артефакты сильно переоценены. Разница в уроне между слабой и топовой сборкой на практике 12–18%.</p>
         <div class="ag-lab">Пример: Арлекино, урон в ДПС-трекере</div>
