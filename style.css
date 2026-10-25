@@ -2579,7 +2579,7 @@ html.no-music .snd,html.no-music .snd-toast{display:none!important}
 }
 /* телефон: пока открыта карточка (персонаж/оружие и т.п.), плавающие кнопки не перекрывают её и крестик закрытия */
 @media (max-width:760px){
-  html:has(.overlay:not([hidden]):not(.acct-ov)) :is(.news-btn, .fb-btn, #acctBtn, #homeFloat, .snd, .snd-toast){visibility:hidden!important; pointer-events:none!important}
+  html:has(.overlay:not([hidden]):not(.acct-ov)) :is(.news-btn, .fb-btn, .lk-btn, #acctBtn, #homeFloat, .snd, .snd-toast){visibility:hidden!important; pointer-events:none!important}
 }
 /* телефон (узкий экран): плеера музыки нет совсем; «Что нового» — только кнопкой в меню главной */
 @media (max-width:760px){
@@ -2617,10 +2617,11 @@ html.no-music .snd,html.no-music .snd-toast{display:none!important}
   .wbtn:hover{box-shadow:0 0 0 2px #d9b25a, 0 0 0 5px rgb(255 240 200 / .35), 0 10px 30px rgb(0 0 0 / .45)}
 }
 /* «Отзыв / баг»: сверху рядом с «Что нового» (на телефоне на главной — кнопкой в меню) */
-#goFb{display:none}
+#goFb,#goLinks{display:none}
 @media (max-width:760px){
-  #goFb{display:flex}
+  #goFb,#goLinks{display:flex}
   .wrow #goFb{order:4}
+  .wrow #goLinks{order:4}
 }
 
 /* ===== главная, ПК (22.10): один центр вместо трёх слоёв ===== */
@@ -2673,6 +2674,7 @@ html.no-music .snd,html.no-music .snd-toast{display:none!important}
   #goDaily .wic{--wi:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4' y='5' width='16' height='15' rx='2'/%3E%3Cpath d='M4 10h16M9 3v4M15 3v4'/%3E%3C/svg%3E")}
   #goNews .wic{--wi:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3l2.2 6.3L21 11l-6.8 1.7L12 19l-2.2-6.3L3 11l6.8-1.7z'/%3E%3C/svg%3E")}
   #goFb .wic{--wi:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 5h16v11H9l-5 4z'/%3E%3C/svg%3E")}
+  #goLinks .wic{--wi:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1'/%3E%3Cpath d='M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1'/%3E%3C/svg%3E")}
   .whand{display:none!important}
 }
 
@@ -2702,6 +2704,7 @@ html.no-music .snd,html.no-music .snd-toast{display:none!important}
   #goDaily .wic{--wi:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4' y='5' width='16' height='15' rx='2'/%3E%3Cpath d='M4 10h16M9 3v4M15 3v4'/%3E%3C/svg%3E")}
   #goNews .wic{--wi:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3l2.2 6.3L21 11l-6.8 1.7L12 19l-2.2-6.3L3 11l6.8-1.7z'/%3E%3C/svg%3E")}
   #goFb .wic{--wi:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 5h16v11H9l-5 4z'/%3E%3C/svg%3E")}
+  #goLinks .wic{--wi:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1'/%3E%3Cpath d='M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1'/%3E%3C/svg%3E")}
 }
 @media (min-width:761px) and (max-width:1359px){ .wds-c:nth-child(n+2),.wds-more{display:none} }
 
@@ -2709,7 +2712,7 @@ html.no-music .snd,html.no-music .snd-toast{display:none!important}
 html .wrow #goMap .wic,html .wrow #goWeap .wic,html .wrow #goChars .wic,html .wrow #goDict .wic,html .wrow #goArts .wic{width:30px; height:28px; border-radius:0; background:var(--wimg) center/contain no-repeat; -webkit-mask:none; mask:none; flex:none; display:block}
 html .wrow #goChars .wic{width:36px; margin:0 -3px}
 #goMap .wic{--wimg:url("ic_globe.webp?v=1")} #goWeap .wic{--wimg:url("ic_weapons.webp?v=1")} #goChars .wic{--wimg:url("ic_chars.webp?v=1")} #goDict .wic{--wimg:url("ic_dict.webp?v=1")} #goArts .wic{--wimg:url("ic_arts.webp?v=1")}
-html .wrow #goDaily .wic,html .wrow #goNews .wic,html .wrow #goFb .wic{margin-inline:4px}
+html .wrow #goDaily .wic,html .wrow #goNews .wic,html .wrow #goFb .wic,html .wrow #goLinks .wic{margin-inline:4px}
 
 /* чипсы разделов: значки-картинки (персонажи, оружие, глобус) без цветного кружка */
 .schip .si.si-img{width:32px; height:26px; border-radius:0; background:none; box-shadow:none}
@@ -2721,14 +2724,15 @@ html .wrow #goDaily .wic,html .wrow #goNews .wic,html .wrow #goFb .wic{margin-in
 @keyframes wFade{from{opacity:0} to{opacity:1}}
 @media (max-width:760px){
   .welcome .wcenter{transform:none; animation-name:wFade}
-  html .wrow #goDaily,html .wrow #goNews,html .wrow #goFb{position:fixed; z-index:81; top:15px; width:40px; height:40px; min-height:0; margin:0; padding:0; gap:0; justify-content:center; align-items:center; overflow:visible;
+  html .wrow #goDaily,html .wrow #goNews,html .wrow #goFb,html .wrow #goLinks{position:fixed; z-index:81; top:15px; width:40px; height:40px; min-height:0; margin:0; padding:0; gap:0; justify-content:center; align-items:center; overflow:visible;
     border-radius:50%; border:1px solid rgb(255 255 255 / .22); background:rgb(14 18 34 / .62); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); box-shadow:0 4px 14px rgb(0 0 0 / .4); font-size:0; text-shadow:none}
   html .wrow #goFb{right:calc(20px + var(--acct-w, 118px))}
   html .wrow #goNews{right:calc(68px + var(--acct-w, 118px))}
   html .wrow #goDaily{right:calc(116px + var(--acct-w, 118px))}
-  html .wrow #goDaily .wic,html .wrow #goNews .wic,html .wrow #goFb .wic{margin:0; width:20px; height:20px}
+  html .wrow #goLinks{right:calc(212px + var(--acct-w, 118px))}
+  html .wrow #goDaily .wic,html .wrow #goNews .wic,html .wrow #goFb .wic,html .wrow #goLinks .wic{margin:0; width:20px; height:20px}
   html .wrow #goNews .news-dot{top:2px; right:2px; margin:0; width:10px; height:10px}
-  html .wrow #goDaily:hover,html .wrow #goNews:hover,html .wrow #goFb:hover,html .wrow #goDaily:active,html .wrow #goNews:active,html .wrow #goFb:active{background:rgb(243 207 115 / .3)}
+  html .wrow #goDaily:hover,html .wrow #goNews:hover,html .wrow #goFb:hover,html .wrow #goLinks:hover,html .wrow #goDaily:active,html .wrow #goNews:active,html .wrow #goFb:active,html .wrow #goLinks:active{background:rgb(243 207 115 / .3)}
 }
 
 /* ===== главная, ПК: футер в одну строку — «Сделано Бро и Мужыком…» золотым, дальше дисклеймер ===== */
@@ -2955,3 +2959,21 @@ html.hvs-open{overflow:hidden}
 .tm-go{display:inline-block; margin-top:8px; color:var(--gold); font-size:12.5px; text-decoration:none; cursor:pointer}
 .tm-go:hover{text-decoration:underline}
 @media (prefers-reduced-motion:reduce){ .tm-pop{transition:none} .tm-t{transition:none} }
+
+
+/* ===== Полезные ссылки (25.10): кнопка левее «Отзыв / баг» + окно со ссылками ===== */
+html:has(.overlay:not([hidden]):not(.acct-ov)) .lk-btn, html:has(.aov:not([hidden])) .lk-btn{visibility:hidden; pointer-events:none}
+@media (min-width:761px) and (max-width:1100px){ .lk-btn{width:52px; padding:0; justify-content:center} .lk-btn span{display:none} }
+.lk-sheet{width:min(460px,100%)}
+.lk-sub{margin:-4px 0 14px; font-size:13px; color:var(--muted)}
+.lk-list{list-style:none; margin:0; padding:0; display:grid; gap:10px}
+.lk-item{display:flex; align-items:center; gap:14px; padding:12px 14px; border-radius:14px; text-decoration:none; color:var(--text); background:rgb(255 255 255 / .04); border:1px solid rgb(217 178 90 / .35); -webkit-tap-highlight-color:transparent; transition:background .15s, border-color .15s, transform .15s}
+.lk-item:hover{background:rgb(243 207 115 / .12); border-color:#d9b25a; transform:translateY(-1px)}
+.lk-item:active{transform:none}
+.lk-item:focus-visible{outline:2px solid #fff; outline-offset:2px}
+.lk-ic{flex:none; width:40px; height:40px; border-radius:50%; display:grid; place-items:center; color:#F3CF73; background:#3b3228}
+.lk-tx{flex:1; min-width:0; display:flex; flex-direction:column; gap:2px}
+.lk-tx b{font:400 17px/1.2 var(--display); letter-spacing:.02em}
+.lk-tx small{font-size:13px; line-height:1.3; color:var(--muted)}
+.lk-tx em{font-style:normal; font-size:12px; color:#d9b25a; opacity:.85}
+.lk-go{flex:none; font-size:18px; color:#F3CF73}
