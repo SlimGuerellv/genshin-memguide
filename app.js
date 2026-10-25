@@ -1528,6 +1528,16 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
       return Object.entries(ARTS.chars || {}).filter(([, c]) => c.s === setName || c.s2 === setName).map(([nm]) => CHN[nm]).filter(Boolean)
         .map(c => `<button type="button" class="who-a r${c.r||0}" data-ch="${esc(c.n)}" title="${esc(c.n)}" aria-label="${esc(c.n)}" style="--ec:${(byName[c.e]||ANY).c}"><img src="${c.img}" alt="" loading="lazy" decoding="async"></button>`).join('');
     }
+    // «Кому подходит» в карточке сета: основной сет (s, s2) и запасной (alt)
+    function whoCard(setName){
+      const E = Object.entries(ARTS.chars || {});
+      const chip = nm => { const c = CHN[nm]; return c ? `<button type="button" class="aw-c r${c.r||0}" data-ch="${esc(c.n)}" style="--ec:${(byName[c.e]||ANY).c}"><img src="${c.img}" alt="" loading="lazy" decoding="async"><span>${esc(c.n)}</span></button>` : ''; };
+      const main = E.filter(([, c]) => c.s === setName || c.s2 === setName).map(([nm]) => nm);
+      const alt = E.filter(([, c]) => c.alt === setName && c.s !== setName && c.s2 !== setName).map(([nm]) => nm);
+      const grp = (cls, lab, hint, arr) => { const h = arr.map(chip).join(''); return h ? `<div class="aw-g"><div class="aw-l ${cls}"><b>${lab}</b><small>${hint}</small></div><div class="aw-list">${h}</div></div>` : ''; };
+      const out = grp('main', 'Основной сет', 'лучший выбор для', main) + grp('alt', 'Запасной сет', 'подойдёт, если нет основного', alt);
+      return out ? `<div class="ac-b ac-who"><h4>Кому подходит</h4>${out}</div>` : '';
+    }
     function render(){
       const list = SETS.filter(n => !q || n.toLowerCase().includes(q));
       const k = list.length, w = k%10===1 && k%100!==11 ? 'сет' : (k%10>=2 && k%10<=4 && (k%100<10 || k%100>=20)) ? 'сета' : 'сетов';
@@ -1562,7 +1572,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
         <div class="ac-ban"><span class="ac-slot">${a.p ? 'Цветок' : ''}</span>${pic('flower') ? `<img src="${pic('flower')}" alt="">` : ''}<div class="ac-st" aria-label="${a.r||5} звёзд">${'★'.repeat(a.r||5)}</div></div>
         ${a.p ? `<div class="ac-tabs" role="group" aria-label="Части сета">${SLOTS.map(([k,t],i) => `<button type="button" class="ac-tab" data-k="${k}" data-t="${t}" aria-pressed="${i?'false':'true'}" title="${t}" aria-label="${t}"><img src="slot_${k}.webp" alt=""></button>`).join('')}</div>` : ''}
         ${bldH}${cd ? `<div class="ac-s" id="acS"></div>` : ''}
-        <div class="ac-b"><h4>Бонус сета</h4>${bn}${a.j ? `<p class="ac-j">${esc(a.j)}</p>` : ''}</div>`;
+        <div class="ac-b"><h4>Бонус сета</h4>${bn}${a.j ? `<p class="ac-j">${esc(a.j)}</p>` : ''}</div>${whoCard(n)}`;
       AC2.hidden = !hasP2;
       AC2.innerHTML = hasP2 ? p2(bdOf(0)) : '';
       AC2.setAttribute('aria-label', 'Для ' + (cd ? (cd.g || who) : ''));
@@ -1580,6 +1590,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     function closeSet(){ if (OV.hidden) return; OV.hidden = true; sfx(SFX_CLOSE); if (lastA) lastA.focus(); }
     AC.addEventListener('click', e => {
       if (e.target.closest('.ac-x')) return closeSet();
+      const aw = e.target.closest('.aw-c'); if (aw){ OV.hidden = true; if (window.openChar) window.openChar(aw.dataset.ch, lastA); return; }
       const bl = e.target.closest('.ac-bl');
       if (bl){ AC.querySelectorAll('.ac-bl').forEach(x => x.setAttribute('aria-pressed', x === bl ? 'true' : 'false')); AC.dataset.b = bl.dataset.i;
         const cur = AC.querySelector('.ac-tab[aria-pressed=true]'); showStats(cur ? cur.dataset.k : 'flower'); AC2.innerHTML = AC._p2(AC._bd(+bl.dataset.i)); sfx(SFX_PICK); return; }
