@@ -3007,3 +3007,6 @@ html:has(.overlay:not([hidden]):not(.acct-ov)) .lk-btn, html:has(.aov:not([hidde
 .aw-c img{width:34px; height:34px; border-radius:50%; object-fit:cover; flex:none; border:2px solid var(--ec); background:#4B4036}
 .aw-c.r4 img{border-color:#B98CFF}
 .aw-c:hover,.aw-c:focus-visible{transform:translateY(-1px); box-shadow:0 0 0 2px var(--ec); outline:none}
+
+/* 26.10: «Что нового» и «Отзыв / баг» показываем только в меню; пока открыта карточка (персонаж/оружие/артефакт) их нет на всех экранах */
+html:has(.overlay:not([hidden]):not(.acct-ov)) :is(.news-btn, .fb-btn), html:has(.aov:not([hidden])) :is(.news-btn, .fb-btn){visibility:hidden!important; pointer-events:none!important}
