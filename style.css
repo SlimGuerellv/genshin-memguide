@@ -3041,7 +3041,7 @@ html:has(.overlay:not([hidden]):not(.acct-ov)) :is(.news-btn, .fb-btn), html:has
 .gdc em{display:block; padding:2px 12px 0; font-style:normal; font-size:11.5px; color:var(--muted,#9fb3c8)}
 .gdc .gdr{display:flex; align-items:center; gap:8px; padding:8px 12px 11px}
 .gdc .gdr img{position:static; inset:auto; width:34px; height:34px; border-radius:0; opacity:1; background:none; object-fit:contain; filter:drop-shadow(0 2px 4px rgb(0 0 0 / .5))}
-.gdc .gdr::before{content:"5\2605"; font-size:11px; letter-spacing:.06em; color:var(--gold,#F5C84C); margin-right:2px}
+.gdc .gdr::before{content:attr(data-k); font-size:11px; letter-spacing:.06em; color:var(--gold,#F5C84C); margin-right:2px}
 /* расписание подземелья на слайде: три колонки (по дню на колонку), на телефоне столбиком */
 .rs-sch{margin-top:12px; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px 18px}
 .rs-sch > .rs-dk, .rs-sch > .sch-n{grid-column:1/-1; margin:0}

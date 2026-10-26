@@ -647,7 +647,7 @@
       const pins = [];
       // метка подземелья: иконка-ромб; при наведении всплывает карточка (картинка, название, награды 5★)
       const dE = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-      const domPin = (x, m) => `<img class="gdi" src="${m.pic}" alt="" draggable="false"><span class="gdc" role="tooltip">${m.th ? `<i class="gdt" style="background-image:url(${m.th})"></i>` : ''}<b>${dE(x[0])}</b><em>${dE(m.sub || 'Подземелье')}</em>${m.hov ? `<span class="gdr">${m.hov.map(d => `<img src="${d[1]}" alt="${dE(d[0])}" title="${dE(d[0])}" draggable="false">`).join('')}</span>` : ''}</span>`;
+      const domPin = (x, m) => `<img class="gdi" src="${m.pic}" alt="" draggable="false"><span class="gdc" role="tooltip">${m.th ? `<i class="gdt" style="background-image:url(${m.th})"></i>` : ''}<b>${dE(x[0])}</b><em>${dE(m.sub || 'Подземелье')}</em>${m.hov ? `<span class="gdr" data-k="${dE(m.hk || '5★')}">${m.hov.map(d => `<img src="${d[1]}" alt="${dE(d[0])}" title="${dE(d[0])}" draggable="false">`).join('')}</span>` : ''}</span>`;
       REG.forEach(([k, , c], ri) => ['bosses', 'domains'].forEach(tb => { const B = (RD()[k] && RD()[k].tabs && RD()[k].tabs[tb]) || [];
         B.forEach((x, bi) => { const m = x[x.length - 1]; if (!m || !m.pin) return;
           const e = document.createElement('button'); e.type = 'button'; e.className = tb === 'domains' ? 'gpin gdom' : 'gpin'; e.style.setProperty('--rc', c);
