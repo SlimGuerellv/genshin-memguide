@@ -3010,3 +3010,16 @@ html:has(.overlay:not([hidden]):not(.acct-ov)) .lk-btn, html:has(.aov:not([hidde
 
 /* 26.10: «Что нового» и «Отзыв / баг» показываем только в меню; пока открыта карточка (персонаж/оружие/артефакт) их нет на всех экранах */
 html:has(.overlay:not([hidden]):not(.acct-ov)) :is(.news-btn, .fb-btn), html:has(.aov:not([hidden])) :is(.news-btn, .fb-btn){visibility:hidden!important; pointer-events:none!important}
+/* варианты сетов артефактов в отряде: строка = сценарий для всего отряда */
+.tsec .tsets{grid-column:1/-1; display:grid; gap:3px; margin-top:8px; padding-top:8px; border-top:1px dashed rgb(255 255 255 / .14)}
+.tsec .ts-row{position:relative; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:2px; align-items:center; justify-items:center; padding:4px 0; border-radius:11px; border:1px solid transparent; background:rgb(255 255 255 / .035); outline:0; transition:background .12s, border-color .12s}
+.tsec .ts-row:hover,.tsec .ts-row:focus-within{background:rgb(233 196 106 / .10); border-color:rgb(233 196 106 / .45)}
+.tsec .ts-n{position:absolute; left:6px; top:50%; transform:translateY(-50%); font-size:11px; font-weight:800; color:var(--gold)}
+.tsec .ts-i{position:relative; width:34px; height:34px; border-radius:9px; display:grid; place-items:center; background:#121a2e; border:1px solid var(--line); cursor:help; outline:0}
+.tsec .ts-i img{width:27px; height:27px; object-fit:contain}
+.tsec .ts-i:hover,.tsec .ts-i:focus{border-color:var(--gold)}
+.tsec .ts-i::after{content:attr(data-n); position:absolute; bottom:calc(100% + 7px); left:50%; transform:translateX(-50%); white-space:nowrap; max-width:70vw; background:rgb(20 26 44 / .97); border:1px solid var(--line); border-radius:9px; padding:5px 9px; font-size:12.5px; color:var(--text); opacity:0; pointer-events:none; transition:opacity .12s; z-index:20; box-shadow:0 8px 20px rgb(0 0 0 / .5)}
+.tsec .ts-i:hover::after,.tsec .ts-i:focus::after{opacity:1}
+.tsec .ts-same{color:var(--muted); opacity:.5}
+@media (max-width:480px){.tsec .ts-i{width:30px; height:30px}.tsec .ts-i img{width:24px; height:24px}}
+@media (prefers-reduced-motion:reduce){.tsec .ts-row,.tsec .ts-i::after{transition:none}}
