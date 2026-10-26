@@ -3023,3 +3023,4 @@ html:has(.overlay:not([hidden]):not(.acct-ov)) :is(.news-btn, .fb-btn), html:has
 .tsec .ts-same{color:var(--muted); opacity:.5}
 @media (max-width:480px){.tsec .ts-i{width:30px; height:30px}.tsec .ts-i img{width:24px; height:24px}}
 @media (prefers-reduced-motion:reduce){.tsec .ts-row,.tsec .ts-i::after{transition:none}}
+.tsec .ts-ph{border-style:dashed; color:var(--muted); font-weight:700; font-size:15px}
