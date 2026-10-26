@@ -18,7 +18,7 @@
           return {k:'Персонаж', h:c.n, p:t[0], q:t[1], av:sp || c.img, sp:!!sp, fit:(R.fit||{})[c.n], card:cd, skins:(R.skins||{})[c.n], ec:ELC[c.e], ek:{'Анемо':'anemo','Гео':'geo','Электро':'electro','Дендро':'dendro','Гидро':'hydro','Пиро':'pyro','Крио':'cryo'}[c.e], tags:[c.e, '★'.repeat(c.r||0), c.w].filter(Boolean)}; });
       }
       if (tab === 'curios') return (R.tabs.curios || []).map(x => ({k:'', h:x[0], p:x[1], q:x[2], pic:x[3], who:x[4]}));
-      return (R.tabs[tab] || []).map(x => ({k:'', h:x[0], p:x[1], q:x[2], pic:x[3], tr:x[4] === 't', drop:[].concat(x.slice(4)).find(v => Array.isArray(v)), res:x.slice(4).find(v => v && typeof v === 'object' && !Array.isArray(v))})).map(x => ({...x, gems: x.res && x.res.gems, rare: x.res && x.res.rare, rst: x.res && x.res.resist, dmg: x.res && x.res.dmg, dmgn: x.res && x.res.dmgn, tac: x.res && x.res.tac, pin: x.res && x.res.pin, need: x.res && x.res.need}));
+      return (R.tabs[tab] || []).map(x => ({k:'', h:x[0], p:x[1], q:x[2], pic:x[3], tr:x[4] === 't', drop:[].concat(x.slice(4)).find(v => Array.isArray(v)), res:x.slice(4).find(v => v && typeof v === 'object' && !Array.isArray(v))})).map(x => ({...x, gems: x.res && x.res.gems, rare: x.res && x.res.rare, rst: x.res && x.res.resist, dmg: x.res && x.res.dmg, dmgn: x.res && x.res.dmgn, tac: x.res && x.res.tac, pin: x.res && x.res.pin, need: x.res && x.res.need, sched: x.res && x.res.sched, schedn: x.res && x.res.schedn}));
     }
     // картинки слайда: одна или галерея (плавная смена, стрелки, точки, сама листается)
     // «Кому нужен дроп»: аватарки персонажей (клик — карточка персонажа)
@@ -69,6 +69,8 @@
     function galGo(g, i){ const n = +g.dataset.n; i = (i % n + n) % n; g.dataset.i = i;
       g.querySelectorAll('.rs-gw > .pic').forEach((im,k) => { im.classList.toggle('on', k === i); if (k !== i && im.tagName === 'VIDEO') im.pause(); }); g.classList.toggle('vcur', !!g.querySelector('.rs-gw > video.pic.on')); const gc = g.querySelector('.rs-gc'); if (gc) gc.textContent = (i + 1) + ' / ' + n; g.querySelectorAll('.rs-gd button').forEach((b,k) => b.setAttribute('aria-current', k === i ? 'true' : 'false')); }
     setInterval(() => { if (P.hidden) return; SL.querySelectorAll('.rs-pic[data-n]').forEach(g => { if (+g.dataset.n > 1 && !g.classList.contains('vcur') && !g.querySelector('.rs-gw').matches(':hover')) galGo(g, +g.dataset.i + 1); }); }, 4500);
+    // расписание подземелья: строки «дни · название · материалы по звёздам»
+    const schedHtml = x => `<div class="rs-sch"><div class="rs-dk">Расписание</div>${x.sched.map(r => `<div class="sch-r"><div class="sch-d"><b>${E(r[0])}</b><span>${E(r[1])}</span></div><div class="rs-dl">${r[2].map(d => `<span class="rs-di" tabindex="0" data-n="${E(d[0])}"><img src="${d[1]}" alt="${E(d[0])}" loading="lazy" decoding="async"></span>`).join('')}</div></div>`).join('')}${x.schedn ? `<div class="sch-n">${E(x.schedn)}</div>` : ''}</div>`;
     function render(tab){
       NAV.querySelectorAll('.rp-tab').forEach(b => b.setAttribute('aria-selected', b.dataset.t === tab ? 'true' : 'false'));
       const name = TABS.find(t => t[0] === tab)[1], list = slides(tab);
@@ -79,11 +81,11 @@
         ${x.skins ? `<div class="rs-skin" role="group" aria-label="Костюм"><span>Костюм</span>${x.skins.map((k,j) => `<button type="button" class="rs-skb" data-j="${j}" aria-pressed="${j ? 'false' : 'true'}">${E(k[0])}</button>`).join('')}</div>` : ''}
         <div class="rs-txt"><div class="rs-k">${E(name)} · ${i+1} / ${list.length}</div><h3>${E(x.h)}${x.dmg ? `<span class="rs-dmg" tabindex="0" data-n="Бьёт уроном: ${x.dmg.map(k => k === 'mirror' ? 'твоими же стихиями' : RN[k]).join(' + ')}${x.dmgn ? '. ' + E(x.dmgn) : ''}"><small>урон</small>${x.dmg.map(k => k === 'phys' ? PHYS : k === 'mirror' ? '<i class="dmg-rb" aria-hidden="true"><b>↺</b></i>' : `<img src="el_${k}.webp" alt="${RN[k]}">`).join('')}</span>` : ''}</h3>
           ${x.tags ? `<div class="tags">${x.tags.map((t,k)=>`<span class="tag" style="--tc:${k===0 && x.ec ? x.ec : k===1 ? 'var(--gold)' : 'var(--muted)'}">${E(t)}</span>`).join('')}</div>` : ''}
-          <div class="rs-meta">${x.res ? `<div class="rs-res" title="${x.res.res2 ? `Первородная смола: ${x.res.res} за первые 3 еженедельных босса за неделю, потом ${x.res.res2}` : 'Первородная смола'}"><img src="ic_resin.webp?v=1" alt="" aria-hidden="true"><b>${x.res.res}</b>${x.res.res2 ? `<span>первые 3 за неделю · потом <b>${x.res.res2}</b></span>` : `<span>за награду</span>`}</div>` : ''}${x.tac ? `<button type="button" class="rs-rbtn rs-tac" aria-expanded="false" title="Тактика против босса"><span aria-hidden="true">⚔</span> Как бить</button><div class="rs-rpop" hidden><div class="rs-say rs-say1"><h5>Как бить</h5>${x.tac.map(t => `<p>${E(t)}</p>`).join('')}</div></div>` : ''}${x.need ? `<button type="button" class="rs-rbtn rs-who" aria-expanded="false" title="Кому нужен дроп"><span aria-hidden="true">${WHO_IC}</span> Кому нужен</button><div class="rs-rpop" hidden>${whoHtml(x)}</div>` : ''}${x.pin && i >= 0 ? `<button type="button" class="rs-gpin" data-i="${i}" title="Показать на глобусе" aria-label="Показать на глобусе"><span aria-hidden="true">📍</span></button>` : ''}${x.rst ? (x.rst.groups ? `<button type="button" class="rs-rst rs-rbtn" aria-expanded="false" title="Сопротивление (резист) по фигурам и фазам"><span class="rs-rk">Резист</span><em>${x.rst.groups.length} фигуры</em><i class="rs-chev" aria-hidden="true">▾</i></button>
+          <div class="rs-meta">${x.res && x.res.res != null ? `<div class="rs-res" title="${x.res.res2 ? `Первородная смола: ${x.res.res} за первые 3 еженедельных босса за неделю, потом ${x.res.res2}` : 'Первородная смола'}"><img src="ic_resin.webp?v=1" alt="" aria-hidden="true"><b>${x.res.res}</b>${x.res.res2 ? `<span>первые 3 за неделю · потом <b>${x.res.res2}</b></span>` : `<span>за награду</span>`}</div>` : ''}${x.tac ? `<button type="button" class="rs-rbtn rs-tac" aria-expanded="false" title="Тактика против босса"><span aria-hidden="true">⚔</span> Как бить</button><div class="rs-rpop" hidden><div class="rs-say rs-say1"><h5>Как бить</h5>${x.tac.map(t => `<p>${E(t)}</p>`).join('')}</div></div>` : ''}${x.need ? `<button type="button" class="rs-rbtn rs-who" aria-expanded="false" title="Кому нужен дроп"><span aria-hidden="true">${WHO_IC}</span> Кому нужен</button><div class="rs-rpop" hidden>${whoHtml(x)}</div>` : ''}${x.pin && i >= 0 ? `<button type="button" class="rs-gpin" data-i="${i}" title="Показать на глобусе" aria-label="Показать на глобусе"><span aria-hidden="true">📍</span></button>` : ''}${x.rst ? (x.rst.groups ? `<button type="button" class="rs-rst rs-rbtn" aria-expanded="false" title="Сопротивление (резист) по фигурам и фазам"><span class="rs-rk">Резист</span><em>${x.rst.groups.length} фигуры</em><i class="rs-chev" aria-hidden="true">▾</i></button>
           <div class="rs-rpop" hidden>${x.rst.groups.map((g,gi) => `<details class="rs-rg" name="rsrg"${gi ? '' : ' open'}><summary><small>${E(g.ph)}</small>${E(g.n)}</summary><div class="rs-rtw"><table class="rs-rtab"><thead><tr><th></th>${x.rst.cols.map(c => `<th title="${RN[c]}">${c === 'phys' ? PHYS : `<img src="el_${c}.webp" alt="${RN[c]}">`}</th>`).join('')}</tr></thead><tbody>${g.rows.map(r => `<tr><th>${E(r[0])}</th>${r[1].map(v => `<td class="${v >= 300 ? 'vh' : v >= 50 ? 'vm' : v < 0 ? 'vl' : ''}">${v}<span class="pc">%</span></td>`).join('')}</tr>`).join('')}</tbody></table></div></details>`).join('')}</div><button type="button" class="rs-rbtn rs-qbtn" aria-expanded="false" aria-label="Что значат эти цифры?" title="Что значат эти цифры?">?</button>
           <div class="rs-rpop" hidden>${rsGroupsHelp(x.rst)}${RS_LEGEND}</div>` : `<button type="button" class="rs-rst rs-rbtn rs-rsim" aria-expanded="false" title="Что значат эти цифры?"><span class="rs-rk">Резист</span>${[['pyro','Пиро'],['hydro','Гидро'],['anemo','Анемо'],['electro','Электро'],['dendro','Дендро'],['cryo','Крио'],['geo','Гео']].map(([k,n]) => { const v = x.rst[k]; if (v == null) return ''; const im = v === 'imm';
             return `<span class="rs-rv${im ? ' imm' : ''}" data-n="${n}: ${im ? 'иммунитет' : v + '%'}"><img src="el_${k}.webp" alt="${n}"><i>${im ? 'имм' : v + '%'}</i></span>`; }).join('')}<i class="rs-q" aria-hidden="true">?</i></button>
-          <div class="rs-rpop" hidden><div class="rs-say rs-say1"><h5>Простыми словами</h5><p>${rsSay(Object.fromEntries(Object.entries(x.rst)))}</p></div>${RS_LEGEND}</div>`) : ''}</div><p>${E(x.p)}</p>${x.q ? `<q>${E(x.q)}</q>` : ''}${x.who ? `<div class="rs-curwho"><div class="who-k">Кому нужна</div><div class="who-l">${x.who.map(whoAv).join('')}</div><p class="who-f">Нажми на персонажа — откроется его карточка.</p></div>` : ''}${x.drop ? dropHtml(x, x.pic ? 'rs-dtxt' : '') : ''}${x.gems ? gemHtml(x, x.pic ? 'rs-dtxt' : '') : ''}${x.rare ? rareHtml(x, 'rs-dtxt rs-rtxt') : ''}</div>${x.rare ? rareHtml(x, 'rs-rside') : ''}</article>`).join('');
+          <div class="rs-rpop" hidden><div class="rs-say rs-say1"><h5>Простыми словами</h5><p>${rsSay(Object.fromEntries(Object.entries(x.rst)))}</p></div>${RS_LEGEND}</div>`) : ''}</div><p>${E(x.p)}</p>${x.q ? `<q>${E(x.q)}</q>` : ''}${x.who ? `<div class="rs-curwho"><div class="who-k">Кому нужна</div><div class="who-l">${x.who.map(whoAv).join('')}</div><p class="who-f">Нажми на персонажа — откроется его карточка.</p></div>` : ''}${x.drop ? dropHtml(x, x.pic ? 'rs-dtxt' : '') : ''}${x.gems ? gemHtml(x, x.pic ? 'rs-dtxt' : '') : ''}${x.rare ? rareHtml(x, 'rs-dtxt rs-rtxt') : ''}${x.sched ? schedHtml(x) : ''}</div>${x.rare ? rareHtml(x, 'rs-rside') : ''}</article>`).join('');
       DOTS.innerHTML = list.map((_,i) => `<button type="button" aria-label="Слайд ${i+1}" aria-current="${i ? 'false' : 'true'}"></button>`).join('') + (list.length > 1 ? '<span class="rp-more" aria-hidden="true">↓</span>' : '');
       SL.scrollTop = 0; IN.classList.remove('scrolled'); para(); hintUpd();
     }
@@ -223,7 +225,7 @@
     // открыть вкладку и пролистать к слайду (для меток боссов на глобусе)
     window.rpShow = (tab, i) => { render(tab); requestAnimationFrame(() => { const t = SL.children[i]; if (t) SL.scrollTop = t.offsetTop; }); };
     SL.addEventListener('click', e => { const b = e.target.closest('.rs-gpin'); if (!b) return; snd('sfx_pick.mp3');
-      window.gBossFocus && window.gBossFocus(+b.dataset.i); document.getElementById('rpClose').click(); });
+      const tbn = NAV.querySelector('.rp-tab[aria-selected="true"]'); window.gBossFocus && window.gBossFocus(+b.dataset.i, tbn && tbn.dataset.t); document.getElementById('rpClose').click(); });
     function close(){ if (P.hidden) return; window.uiClose && window.uiClose(); P.hidden = true; if (back && back.focus) back.focus(); }
     document.getElementById('rpClose').addEventListener('click', close);
     P.addEventListener('click', e => { if (e.target === P) close(); });
@@ -643,15 +645,18 @@
       // метки боссов (всегда на глобусе): данные из regiondata.<регион>.tabs.bosses → метаданные pin/pic
       const PL = document.createElement('div'); PL.className = 'gpins'; GV.appendChild(PL);
       const pins = [];
-      REG.forEach(([k, , c], ri) => { const B = (RD()[k] && RD()[k].tabs && RD()[k].tabs.bosses) || [];
+      // метка подземелья: иконка-ромб; при наведении всплывает карточка (картинка, название, награды 5★)
+      const dE = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+      const domPin = (x, m) => `<img class="gdi" src="${m.pic}" alt="" draggable="false"><span class="gdc" role="tooltip">${m.th ? `<i class="gdt" style="background-image:url(${m.th})"></i>` : ''}<b>${dE(x[0])}</b><em>${dE(m.sub || 'Подземелье')}</em>${m.hov ? `<span class="gdr">${m.hov.map(d => `<img src="${d[1]}" alt="${dE(d[0])}" title="${dE(d[0])}" draggable="false">`).join('')}</span>` : ''}</span>`;
+      REG.forEach(([k, , c], ri) => ['bosses', 'domains'].forEach(tb => { const B = (RD()[k] && RD()[k].tabs && RD()[k].tabs[tb]) || [];
         B.forEach((x, bi) => { const m = x[x.length - 1]; if (!m || !m.pin) return;
-          const e = document.createElement('button'); e.type = 'button'; e.className = 'gpin'; e.style.setProperty('--rc', c);
-          e.innerHTML = `<img src="${m.pic}" alt="" draggable="false"><span class="gpn">${x[0]}</span>`; e.setAttribute('aria-label', x[0]);
+          const e = document.createElement('button'); e.type = 'button'; e.className = tb === 'domains' ? 'gpin gdom' : 'gpin'; e.style.setProperty('--rc', c);
+          e.innerHTML = tb === 'domains' ? domPin(x, m) : `<img src="${m.pic}" alt="" draggable="false"><span class="gpn">${x[0]}</span>`; e.setAttribute('aria-label', x[0]);
           e.addEventListener('pointerdown', ev => ev.stopPropagation());
           e.addEventListener('click', ev => { ev.stopPropagation();
             if (!matchMedia('(hover:hover)').matches && !e.classList.contains('tap')){ pins.forEach(p => p.e.classList.remove('tap')); e.classList.add('tap'); return; }
             bossGo(pins.indexOf(P)); });
-          const P = {e, k, ri, bi, lo: SNL.inv(m.pin[0], m.pin[1])[0], la: SNL.inv(m.pin[0], m.pin[1])[1]}; pins.push(P); PL.appendChild(e); }); });
+          const P = {e, k, ri, bi, tab: tb, lo: SNL.inv(m.pin[0], m.pin[1])[0], la: SNL.inv(m.pin[0], m.pin[1])[1]}; pins.push(P); PL.appendChild(e); }); }));
       S = {T, ren, scene, cam, earth, clouds, fluff, fshadow, atm, lift, walls, aur, hiG, hiUpdate, U, lbls, pins, rid: () => RID, ray: new T.Raycaster(), w: 0, h: 0};
       let fired = false; const go = () => { if (fired) return; fired = true; cb(true); };
       mgr.onLoad = go; mgr.onError = () => {}; setTimeout(go, 15000);
@@ -694,7 +699,7 @@
         const v = new S.T.Vector3(Math.cos(P.la) * Math.sin(P.lo), Math.sin(P.la), Math.cos(P.la) * Math.cos(P.lo)).multiplyScalar(up).applyEuler(g);
         const face = v.clone().normalize().dot(cp.clone().sub(v).normalize()), p = v.clone().project(S.cam), vis = face > .15;
         P.e.style.transform = `translate(${(p.x + 1) / 2 * S.w}px,${(1 - p.y) / 2 * S.h}px) translate(-50%,-50%)`;
-        P.e.style.setProperty('--s', sz + 'px'); P.e.classList.toggle('big', big); P.e.classList.toggle('off', !vis || (far && !P.e.classList.contains('focus'))); });
+        P.e.style.setProperty('--s', sz + 'px'); P.e.classList.toggle('big', big); P.e.classList.toggle('below', (1 - p.y) / 2 * S.h < 300); P.e.classList.toggle('off', !vis || (far && !P.e.classList.contains('focus'))); });
     }
     function start(){ if (!raf){ last = 0; raf = requestAnimationFrame(frame); } }
     function stop(){ cancelAnimationFrame(raf); raf = 0; }
@@ -790,10 +795,10 @@
     function bossGo(n){ const P = S && S.pins[n]; if (!P || fly) return; const k = P.k; if (!RD()[k]) return;
       window.rpSnd && window.rpSnd('sfx_open.mp3'); flown = true; TIP.classList.remove('on'); P.e.classList.remove('tap');
       fly = {l0: lon, a0: lat, z0: zoom, lon: P.lo, lat: Math.max(-1, Math.min(1, P.la)), zoom: Math.max(zoom, 2.4), t0: performance.now(), dur: 850,
-        then: () => { window.rpOpen && window.rpOpen(k, true); window.rpShow && window.rpShow('bosses', P.bi); }}; }
+        then: () => { window.rpOpen && window.rpOpen(k, true); window.rpShow && window.rpShow(P.tab, P.bi); }}; }
     // кнопка «На глобусе» на слайде: после закрытия плашки летим к метке и подсвечиваем её
     let pend = null;
-    window.gBossFocus = bi => { const R = document.getElementById('rpanel'), k = R && R.dataset.region; pend = S ? S.pins.findIndex(p => p.k === k && p.bi === bi) : -1; };
+    window.gBossFocus = (bi, tb) => { const R = document.getElementById('rpanel'), k = R && R.dataset.region; pend = S ? S.pins.findIndex(p => p.k === k && p.bi === bi && p.tab === (tb || 'bosses')) : -1; };
     function focusPin(n){ const P = S.pins[n]; if (!P) return; hover = 0; S.U.hover.value = 0; idle = 0;
       fly = {l0: lon, a0: lat, z0: zoom, lon: P.lo, lat: Math.max(-1, Math.min(1, P.la)), zoom: 2.6, t0: performance.now(), dur: 900,
         then: () => { S.pins.forEach(p => p.e.classList.remove('focus', 'tap')); P.e.classList.add('focus', 'tap'); clearTimeout(focusPin.t);

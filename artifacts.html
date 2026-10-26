@@ -1,7 +1,7 @@
 <!doctype html><html data-sec="arts"><head>
 <meta charset=utf8>
 <script>/* звуки перехода (вшух, буль-буль) доигрываем с места обрыва сразу на старте страницы */(function(){try{var o=JSON.parse(sessionStorage.getItem('hv_sfx')||'null');sessionStorage.removeItem('hv_sfx');if(!o||!o.cut||Date.now()-o.cut>8000||!(o.vol>0))return;o.list.forEach(function(s){var off=Math.max(0,(o.cut-s[1])/1000),a=new Audio(s[0]);a.volume=Math.min(1,o.vol);a.preload='auto';a.addEventListener('canplay',function g(){a.removeEventListener('canplay',g);if(off>=(a.duration||0)-.05)return;try{a.currentTime=off}catch(e){}a.play().catch(function(){})});a.load()})}catch(e){}})();</script>
-<meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><link rel="stylesheet" href="style.css?v=112">
+<meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><link rel="stylesheet" href="style.css?v=113">
 <title>Геншин прокачка — Артефакты</title>
 <link rel="icon" type="image/png" sizes="64x64" href="favicon.png?v=3"><link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=3">
 <link rel="shortcut icon" href="favicon.ico?v=3">
@@ -165,9 +165,9 @@ s.forEach(function(x){var e=document.createElement('source');e.src=x[0];e.type=x
   <aside class="spanel" id="spanel" aria-hidden="true"><div class="sp-in"><div class="sp-head"><h3 id="spTitle"></h3><button type="button" class="sp-x" aria-label="Закрыть раздел">×</button></div><div class="sp-body" id="spBody"></div></div></aside>
 </div>
 
-<script src="data.js?v=166"></script>
-<script src="news.js?v=30"></script>
-<script src="app.js?v=86"></script>
+<script src="data.js?v=167"></script>
+<script src="news.js?v=31"></script>
+<script src="app.js?v=87"></script>
 <script src="search.js?v=1"></script>
 <script src="terms.js?v=1"></script>
 <button type="button" id="homeFloat" aria-label="На главную" tabindex="-1"><span class="hb-ar" aria-hidden="true">‹</span><span class="hb-tx">На главную</span></button>
