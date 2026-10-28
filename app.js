@@ -502,8 +502,9 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     $('fapply').textContent = `Показать ${list.length}`;
     $('count').innerHTML = `<b>${active.length ? esc(active.join(' · ')) : 'Все'}</b> · ${list.length} ${plural(list.length)}`;
     const nGot = CHARS.filter(ch=>['got','main'].includes(stOf(ch))).length, nWant = CHARS.filter(ch=>stOf(ch)==='want').length, mains = CHARS.filter(ch=>stOf(ch)==='main');
-    $('mystat').innerHTML = `Выбито <b>${nGot}</b> из ${CHARS.length}${nWant?` · хочу <b>${nWant}</b>`:''}${mains.length?` · <span style="color:${ST.main.c}">♛ ${mains.length>3?'мейнов '+mains.length:mains.map(c=>esc(c.n)).join(', ')}</span>`:''}`;
-    $('grid').innerHTML = list.length ? list.map(([ch,i])=>card(ch,i)).join('')
+    $('mystat').innerHTML = `Выбито <b>${nGot}</b> из ${CHARS.filter(ch=>!ch.last && !ch.legend).length}${nWant?` · хочу <b>${nWant}</b>`:''}${mains.length?` · <span style="color:${ST.main.c}">♛ ${mains.length>3?'мейнов '+mains.length:mains.map(c=>esc(c.n)).join(', ')}</span>`:''}`;
+    const sepAt = list.findIndex(([ch])=>ch.last || ch.legend);   // первый «не вышедший / не выйдет»: перед ним ставим разделитель
+    $('grid').innerHTML = list.length ? list.map(([ch,i],k)=>(k===sepAt ? '<div class="grid-sep" role="separator"><span>Ещё не вышли (или не выйдут)</span></div>' : '') + card(ch,i)).join('')
       : `<p class="empty">Никого не нашли. Проверь написание имени или выбери «Все».</p>`;
     fitAll();
   }
