@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Демо: слот «???» — К. · К.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Bad+Script&family=Reenie+Beanie&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;background:#0b1020;color:#cfd8ff;font-family:system-ui,sans-serif}
+.hint{position:sticky;top:0;z-index:5;padding:8px 16px;font-size:13px;background:#0b1020ee;border-bottom:1px solid #26305a;color:#9fb3ff}
+/* имитация сетки персонажей */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:48px 70px;padding:40px 6vw}
+.t{aspect-ratio:1.18;border-radius:14px;background:linear-gradient(135deg,#1c2750,#2c3a7a);display:flex;align-items:center;padding-left:14px;font-weight:700;color:#e8ecff}
+.sep{grid-column:1/-1;text-align:center;color:#9fb3ff;letter-spacing:.08em;text-transform:uppercase;font-weight:700;font-size:14px}
+/* зона прокрутки, внутри которой «вылезает из тени» К. · К. */
+.kk-zone{height:150vh}
+/* оверлей-тень: накрывает всё остальное */
+#kk{position:fixed;inset:0;z-index:20;pointer-events:none;opacity:0;visibility:hidden;
+    background:radial-gradient(ellipse at 50% 45%,#120708 0%,#050506 55%,#000 100%);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:34px}
+#kk.on{visibility:visible}
+.kk-box{position:relative;width:min(240px,56vw);aspect-ratio:1;opacity:0;transform:scale(.84) translateY(30px);filter:blur(14px) brightness(.3);transition:opacity .5s,transform .5s,filter .5s}
+.kk-box.show{opacity:1;transform:none;filter:none;transition:opacity 1.8s ease,transform 1.8s ease,filter 1.8s ease}
+.kk-glow{position:absolute;inset:-34px;border-radius:50px;pointer-events:none;background:radial-gradient(closest-side,rgb(255 25 25 / .75),rgb(255 0 0 / .3) 62%,transparent 100%);filter:blur(14px)}
+.kk-box.show .kk-glow{animation:kkGlow 3s ease-in-out infinite alternate,kkJit .17s steps(2) infinite}
+@keyframes kkGlow{from{opacity:.55;scale:.96}to{opacity:1;scale:1.06}}
+@keyframes kkJit{0%{translate:0 0}25%{translate:2px -1.5px}50%{translate:-2px 1.5px}75%{translate:1.5px 2px}100%{translate:-1.5px -2px}}
+.kk-card{position:relative;width:100%;height:100%;border-radius:20px;overflow:hidden;background:#000;
+    border:1px solid rgb(255 40 40 / .12);cursor:default;pointer-events:none;
+    transition:box-shadow .35s,border-color .35s}
+.kk-box.show .kk-card{pointer-events:auto}
+.kk-card:hover{border-color:rgb(255 50 50 / .95);box-shadow:0 0 14px rgb(255 40 40 / .8),0 0 46px rgb(255 20 20 / .55),0 0 110px rgb(255 0 0 / .3)}
+.kk-card img{display:block;width:100%;height:100%;object-fit:cover;user-select:none;-webkit-user-drag:none}
+.kk-card:hover{border-color:rgb(255 50 50 / .9);box-shadow:0 0 14px rgb(255 40 40 / .75),0 0 46px rgb(255 20 20 / .5),0 0 110px rgb(255 0 0 / .28)}
+.kk-quote{max-width:min(660px,88vw);text-align:center;font-family:'Reenie Beanie','Bad Script','Segoe Script',cursive;font-weight:400;font-size:clamp(28px,4vw,40px);line-height:1.25;letter-spacing:.02em;color:#cdb8b8;text-shadow:0 0 6px rgb(255 40 40 / .35);min-height:7.5em}
+.kk-quote{animation:kkFlick 7s linear infinite,kkGlitchQ 5.3s steps(1) infinite}
+@keyframes kkGlitchQ{0%,91%,100%{transform:none;text-shadow:none}
+ 92%{transform:translateX(5px) skewX(-8deg)}93%{transform:translateX(-6px) skewX(6deg)}94%{transform:translateX(3px)}95%{transform:none}
+ 97%{transform:translateX(-4px) skewX(5deg)}98%{transform:none}}
+.kk-quote .c.g{color:#7ff;transform:none;left:3px!important;top:-2px!important;text-shadow:-3px 0 #f22,3px 0 #22f,0 0 8px #f22!important;opacity:.85}
+.kk-quote .c.st{animation:kkSt .06s steps(2) 4!important}
+@keyframes kkSt{0%{left:0}50%{left:-5px;color:#f66}100%{left:4px}}
+.kk-quote .c.tear{left:9px!important;color:#9ff!important;text-shadow:-2px 0 #f00!important}
+.kk-quote.rgb .c{text-shadow:-4px 0 #f22,4px 0 #22f!important}
+.kk-card img.gl{translate:5px 0;filter:hue-rotate(60deg) saturate(1.6) contrast(1.3)}
+.kk-quote .c.g2{color:#f44;left:-3px!important;text-shadow:2px 0 #0ff,-2px 0 #f00!important;filter:blur(.6px)!important}
+@keyframes kkFlick{0%,86%,90%,100%{opacity:1}87%{opacity:.35}88%{opacity:1}89%{opacity:.5}}
+.kk-quote .c{opacity:0;position:relative;transition:opacity .6s,filter .6s;filter:blur(3px);text-shadow:0 0 6px rgb(255 40 40 / .35),1px 0 rgb(255 0 0 / .28),-1px 0 rgb(80 120 255 / .18)}
+.kk-quote .c.on{opacity:1;filter:none;animation:kkShake var(--d,.6s) steps(3) var(--dl,0s) infinite}
+@keyframes kkShake{0%{left:0;top:0}33%{left:var(--x,.8px);top:var(--y,-.6px)}66%{left:calc(var(--x,.8px)*-1);top:calc(var(--y,-.6px)*-1)}100%{left:0;top:0}}
+.kk-quote .c.r{color:#e23a3a;text-shadow:0 0 10px rgb(255 20 20 / .8),0 0 2px #500}
+.kk-sign{display:block;margin-top:.5em;text-align:right;color:#b04a4a;font-size:.85em}
+</style></head><body>
+<div class="hint">ДЕМО: крути вниз до конца. Когда тень накроет экран полностью, проявится карточка, потом пойдёт озвучка и текст в такт ей (если звук не включился — кликни по странице). Назад — всё прячется.</div>
+<div class="grid" id="grid"></div>
+<div class="kk-zone" id="zone"></div>
+
+<div id="kk" aria-hidden="true">
+  <div class="kk-box" id="box"><div class="kk-glow"></div><div class="kk-card"><img src="av/kk_demo.png" alt="" draggable="false"></div></div>
+  <div class="kk-quote" id="q"></div>
+</div>
+
+<script>
+// фейковая сетка
+const names='Альбедо Аято Бай Чжу Барбара Беннет Вареса Венти Диона Дилюк Ёимия Зонгли Кли Кэйа Лиза Мона Ноэль Ху Тао Фишль Чжун Ли Шэнь Хэ Эола'.split(' ');
+grid.innerHTML=names.map(n=>`<div class="t">${n}</div>`).join('')+'<div class="sep">Не завоз</div><div class="t">Алиса</div><div class="t">Панталоне</div>';
+
+// текст: каждая буква проявляется по прогрессу (обратимо)
+const TEXT='“The world you once knew is but dust, and the wonders you knew but rubble. Though you should have your own world, and your own people — lamenting what is already lost...”';
+const SIGN='— К. К.';
+const q=document.getElementById('q');
+const red=new Set(); for(const m of TEXT.matchAll(/dust|rubble|lost/g)) for(let i=m.index;i<m.index+m[0].length;i++) red.add(i);
+q.innerHTML=[...TEXT].map((ch,i)=>`<span class="c${red.has(i)?' r':''}">${ch}</span>`).join('')+`<span class="kk-sign">${[...SIGN].map(ch=>`<span class="c r">${ch}</span>`).join('')}</span>`;
+const letters=[...q.querySelectorAll('.c')];
+let seed=7;const rnd=()=>(seed=(seed*9301+49297)%233280)/233280;
+letters.forEach(el=>{ el.style.setProperty('--d',(.25+rnd()*.7).toFixed(2)+'s'); el.style.setProperty('--dl',(-rnd()).toFixed(2)+'s'); el.style.setProperty('--x',(rnd()*1.6).toFixed(2)+'px'); el.style.setProperty('--y',(rnd()*1.6-.8).toFixed(2)+'px'); });
+// тайминги слов в озвучке (сек): [начало, конец] для каждого из 31 слова, уже с учётом лагов
+const WT=[[0.23, 0.72], [1.639, 3.351], [3.788, 3.988], [4.098, 4.178], [4.475, 4.963], [5.078, 5.428], [6.728, 7.498], [7.606, 8.104], [9.385, 10.135], [10.455, 10.865], [11.015, 11.625], [12.105, 13.255], [13.472, 14.42], [14.599, 15.207], [15.257, 15.707], [16.247, 16.507], [16.987, 17.287], [17.677, 18.447], [18.637, 18.747], [18.957, 19.107], [19.353, 19.672], [20.135, 21.638], [21.805, 22.024], [22.174, 22.354], [22.523, 22.939], [23.324, 23.924], [24.129, 24.693], [25.112, 25.372], [25.802, 26.342], [26.682, 27.082], [27.452, 28.522]];
+// время появления каждой буквы: растягиваем по длине слова в озвучке
+const tokens=TEXT.split(' '); const LT=[]; let w=0, prevOff=0;
+tokens.forEach((tok,ti)=>{
+  const L=[...tok];
+  if(tok==='—'){ LT.push(prevOff); }
+  else { const on=WT[w][0], off=Math.max(WT[w][1],on+.25); L.forEach((c,j)=>LT.push(on+(off-on)*j/L.length)); prevOff=off; w++; }
+  if(ti<tokens.length-1) LT.push(null);          // пробел
+});
+for(let i=LT.length-1;i>=0;i--) if(LT[i]===null) LT[i]=LT[i+1]??prevOff;
+[...SIGN].forEach((c,j)=>LT.push(prevOff+.6+j*.18));   // подпись — после конца озвучки
+const kk=document.getElementById('kk'), box=document.getElementById('box'), zone=document.getElementById('zone');
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const ease=t=>t*t*(3-2*t);
+// озвучка: текст идёт по времени воспроизведения; если браузер не дал включить звук — по тихому таймеру, звук включится по первому клику/нажатию
+const au=new Audio('av/kk_voice.mp3'); au.preload='auto';
+// фоновый гул: зациклен, громкость 15%, плавно нарастает вместе с тенью и затихает при выходе
+const hum=new Audio('av/kk_hum.mp3'); hum.loop=true; hum.preload='auto'; const HUM_VOL=0.03; let humWant=false;
+function humUpdate(shade){
+  if(shade>0.02){ humWant=true; hum.volume=HUM_VOL*shade; if(hum.paused) hum.play().catch(()=>{}); }
+  else if(humWant){ humWant=false; hum.pause(); try{hum.currentTime=0;}catch(e){} }
+}
+let entered=false, startT=null, raf=null, t0=0, usingAudio=false, pendingUnlock=false, fallback=false, finished=false;
+au.addEventListener('playing',()=>{usingAudio=true;pendingUnlock=false;});
+au.addEventListener('pause',()=>{ if(!au.ended) usingAudio=false; });
+au.addEventListener('ended',()=>{ finished=true; });
+const vol=()=>{ try{ return window.gMusic&&window.gMusic.sfxVol ? window.gMusic.sfxVol() : .9; }catch(e){ return .9; } };
+const clock=()=> (finished||au.ended) ? Infinity : usingAudio ? au.currentTime : fallback ? Math.min((performance.now()-t0)/1000, 1e6) : -1;
+let glT=null;
+const NOISE='#@%&▓░01?!/\\|<>';
+const letEls=()=>[...document.querySelectorAll('.kk-quote .c.on')];
+const flash=(el,cls,ms)=>{ el.classList.add(cls); setTimeout(()=>el.classList.remove(cls),ms); };
+// подмена символов на время: хранит оригинал и надёжно возвращает
+function swap(els,fn,ms,cls){
+  const run=els.filter(e=>!e.dataset.sw && /\S/.test(e.textContent));
+  run.forEach(e=>{ e.dataset.sw=1; e.dataset.o=e.textContent; e.textContent=fn(e); if(cls) e.classList.add(cls); });
+  setTimeout(()=>run.forEach(e=>{ e.textContent=e.dataset.o; delete e.dataset.sw; if(cls) e.classList.remove(cls); }),ms);
+}
+const rndCh=()=>NOISE[Math.floor(Math.random()*NOISE.length)];
+const GL=[
+  function allNoise(){ swap(letEls(),rndCh,160+Math.random()*160,'g2'); },                                   // весь текст на миг превращается в символы
+  function blockout(){ swap(letEls().filter(e=>!e.classList.contains('r')),()=>'▓',280+Math.random()*220); },    // всё закрашено ▓, кроме красных букв
+  function split(){ const on=letEls(); for(let i=0;i<Math.min(on.length,2+Math.floor(Math.random()*4));i++) flash(on[Math.floor(Math.random()*on.length)],Math.random()<.5?'g':'g2',90+Math.random()*140); },   // RGB-раскол букв
+  function corrupt(){ const on=letEls().filter(e=>/\S/.test(e.textContent)); if(!on.length) return; const i=Math.floor(Math.random()*on.length); swap(on.slice(i,i+3+Math.floor(Math.random()*4)),rndCh,110+Math.random()*120,'g2'); },   // буквы на миг превращаются в мусор
+  function stutter(){ const on=letEls(); if(!on.length) return; const i=Math.floor(Math.random()*on.length); on.slice(i,i+5).forEach(e=>flash(e,'st',260)); },   // кусок дёргается туда-сюда
+  function rgb(){ const q=document.getElementById('q'); flash(q,'rgb',160); },   // весь текст с RGB-расколом
+  function dip(){ const q=document.getElementById('q'); q.style.visibility='hidden'; setTimeout(()=>q.style.visibility='',70); setTimeout(()=>{q.style.visibility='hidden';setTimeout(()=>q.style.visibility='',50);},160); },   // пропал и вернулся
+  function img(){ const im=document.querySelector('.kk-card img'); flash(im,'gl',150); },   // картинка на миг дёргается
+  function tear(){ const on=letEls(); if(!on.length) return; const i=Math.floor(Math.random()*on.length); on.slice(i,i+14).forEach(e=>flash(e,'tear',200)); }   // горизонтальный разрыв строки
+];
+let lastGl=-1;
+function glitchLoop(){
+  let k; do{ k=Math.floor(Math.random()*GL.length); }while(k===lastGl); lastGl=k;
+  try{ GL[k](); }catch(e){}
+  glT=setTimeout(glitchLoop,2800+Math.random()*1500);   // примерно раз в 3.5 с
+}
+function tick(){
+  if(!entered) return;
+  const t=clock();
+  letters.forEach((el,i)=>{ const on=t>=LT[i]; if(on!==el.classList.contains('on')) el.classList.toggle('on',on); });
+  raf=requestAnimationFrame(tick);
+}
+function startVoice(){
+  if(!entered) return;
+  au.currentTime=0; au.volume=vol(); fallback=false; finished=false;
+  au.play().catch(()=>{ usingAudio=false; pendingUnlock=true; fallback=true; t0=performance.now(); });   // не дали автозвук — идём по таймеру
+  tick(); clearTimeout(glT); glT=setTimeout(glitchLoop,1200);
+}
+['pointerdown','keydown','touchstart'].forEach(ev=>addEventListener(ev,()=>{ if(humWant && hum.paused) hum.play().catch(()=>{}); if(entered && pendingUnlock){ au.currentTime=Math.max(0,clock()); fallback=false; au.volume=vol(); au.play().catch(()=>{}); } },{passive:true}));
+function enter(){            // полностью зашли в тень: сначала карточка, потом озвучка + текст
+  entered=true; box.classList.add('show');
+  startT=setTimeout(startVoice,2300);
+}
+function leave(){            // вышли из тени: всё прячется, звук стоп
+  entered=false; clearTimeout(startT); cancelAnimationFrame(raf); clearTimeout(glT); pendingUnlock=false; fallback=false; finished=false;
+  au.pause(); try{au.currentTime=0;}catch(e){} usingAudio=false;
+  box.classList.remove('show'); letters.forEach(el=>el.classList.remove('on'));
+}
+function upd(){
+  const vh=innerHeight, top=zone.getBoundingClientRect().top;
+  const p=clamp((vh-top)/(vh*1.25));            // 0 — зона показалась снизу, 1 — полностью в тени
+  const shade=ease(clamp(p/.9));
+  humUpdate(shade); kk.style.opacity=shade; kk.classList.toggle('on',shade>0.001);
+  if(p>=0.99 && !entered) enter(); else if(p<0.95 && entered) leave();
+}
+addEventListener('scroll',upd,{passive:true});addEventListener('resize',upd);upd();
+</script>
+</body></html>

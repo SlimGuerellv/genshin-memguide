@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Синхронизация озвучки К. К.</title>
+<style>
+body{margin:0;background:#0b0d16;color:#d7defc;font-family:system-ui,sans-serif;padding:24px;max-width:820px;margin-inline:auto}
+h1{font-size:20px;margin:0 0 6px} p{color:#9aa6d6;line-height:1.5;margin:6px 0}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0}
+button{background:#1b2350;color:#e8ecff;border:1px solid #33407f;border-radius:10px;padding:10px 16px;font-size:15px;cursor:pointer}
+button:hover{background:#26316b} button.big{background:#7a1c1c;border-color:#c33;font-size:20px;padding:18px 28px}
+.words{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0;font-size:20px}
+.w{padding:5px 10px;border-radius:8px;background:#141a38;border:1px solid #232c5e}
+.w.done{background:#173a2a;border-color:#2a7a52}.w.cur{background:#5a1010;border-color:#f44;box-shadow:0 0 12px #f44;color:#fff}
+.w small{display:block;font-size:11px;color:#7fe0ae}
+textarea{width:100%;height:110px;background:#10142e;color:#cfe;border:1px solid #33407f;border-radius:10px;padding:10px;box-sizing:border-box;font-family:monospace}
+label{font-size:14px;color:#9aa6d6}
+</style></head><body>
+<h1>Синхронизация слов с озвучкой</h1>
+<p>1) Нажми «Играть». 2) Каждый раз, когда ЧУЕШЬ начало очередного слова (оно подсвечено красным), жми <b>Пробел</b> (или большую кнопку). Всего 31 слово. 3) В конце скопируй результат и отправь мне в чат.</p>
+<p>Если не успеваешь, поставь скорость 0.75× или 0.5×. Ошибся: <b>Backspace</b> отменяет последнюю отметку.</p>
+<div class="row">
+  <button id="play">▶ Играть с начала</button>
+  <label>Скорость <select id="rate"><option value="1">1×</option><option value="0.75" selected>0.75×</option><option value="0.5">0.5×</option></select></label>
+  <label>Реакция, мс <input id="react" type="number" value="120" min="0" max="400" step="10" style="width:64px"></label>
+</div>
+<div class="words" id="words"></div>
+<div class="row"><button class="big" id="tap">ОТМЕТИТЬ СЛОВО (Пробел)</button><button id="undo">↶ Отменить</button></div>
+<p>Результат (секунды начала каждого слова):</p>
+<textarea id="out" readonly></textarea>
+<div class="row"><button id="copy">Скопировать</button><span id="msg" style="color:#7fe0ae"></span></div>
+<script>
+const WORDS='The world you once knew is but dust and the wonders you knew but rubble Though you should have your own world and your own people lamenting what is already lost'.split(' ');
+const au=new Audio('av/kk_voice.mp3'); au.preservesPitch=true;
+const ws=document.getElementById('words'), out=document.getElementById('out');
+let marks=[];
+ws.innerHTML=WORDS.map((w,i)=>`<span class="w" id="w${i}">${w}<small></small></span>`).join('');
+function draw(){ WORDS.forEach((w,i)=>{const el=document.getElementById('w'+i); el.className='w'+(i<marks.length?' done':i===marks.length?' cur':''); el.querySelector('small').textContent=i<marks.length?marks[i].toFixed(2):'';});
+  out.value=JSON.stringify(marks.map(x=>+x.toFixed(3))); if(marks.length===WORDS.length) document.getElementById('msg').textContent='Готово — скопируй и отправь в чат'; else document.getElementById('msg').textContent=''; }
+function tap(){ if(au.paused||marks.length>=WORDS.length) return; const react=(+document.getElementById('react').value||0)/1000*au.playbackRate; marks.push(Math.max(0,au.currentTime-react)); draw(); }
+document.getElementById('play').onclick=()=>{ marks=[]; au.pause(); au.currentTime=0; au.playbackRate=+document.getElementById('rate').value; au.play(); draw(); };
+document.getElementById('tap').onclick=tap;
+document.getElementById('undo').onclick=()=>{marks.pop();draw();};
+addEventListener('keydown',e=>{ if(e.code==='Space'){e.preventDefault();tap();} if(e.code==='Backspace'){e.preventDefault();marks.pop();draw();} });
+document.getElementById('copy').onclick=()=>{ out.select(); document.execCommand('copy'); document.getElementById('msg').textContent='Скопировано'; };
+draw();
+</script></body></html>
