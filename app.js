@@ -497,19 +497,20 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
   const patchOf = c => { const m = c.last && /(\d+)\.(\d+)/.exec(c.flag||''); return m ? +m[1]*100 + +m[2] : 1e9; };   // «Скоро 7.2» → по порядку патчей; без патча — после них
   function render(){ if (PAGE === 'map') return;   // на карте нет сетки персонажей
     syncChips();
-    const list = CHARS.map((ch,i)=>[ch,i]).filter(([ch])=>pass(ch) && (!query || ch.n.toLowerCase().includes(query)))
-      .sort((a,b)=>{ return (secOf(a[0]) - secOf(b[0])) || ((a[0].end?1:0) - (b[0].end?1:0)) || (patchOf(a[0]) - patchOf(b[0])) || ((b[0].legend?1:0) - (a[0].legend?1:0)) || a[0].n.localeCompare(b[0].n,'ru'); });   // по алфавиту; внизу секции: 1 «ещё не вышли» (last), 2 «не завоз» (sec:'nz'), 3 «Легенды» (legend / sec:'legend'); в «Легендах» Капитано (legend) всегда первый
+    const base = CHARS.map((ch,i)=>[ch,i,secOf(ch)]).filter(([ch])=>pass(ch) && (!query || ch.n.toLowerCase().includes(query)));
+    const list = base.concat(base.filter(([ch,i,sc])=>sc===1 && ch.flag==='Не завоз').map(([ch,i])=>[ch,i,3,1]))   // легенды с плашкой «Не завоз» (Капитано, Дотторе) показываем и в «Легендах», и в «Не завоз»
+      .sort((a,b)=>{ return (a[2] - b[2]) || ((a[0].end?1:0) - (b[0].end?1:0)) || (patchOf(a[0]) - patchOf(b[0])) || ((b[0].legend?1:0) - (a[0].legend?1:0)) || a[0].n.localeCompare(b[0].n,'ru'); });   // по алфавиту; внизу секции: 1 «ещё не вышли» (last), 2 «не завоз» (sec:'nz'), 3 «Легенды» (legend / sec:'legend'); в «Легендах» Капитано (legend) всегда первый
     const active = GROUPS.flatMap(g=>g.opts.filter(o=>sel[g.id].has(o.v)).map(o=>o.label));
     const nSel = Object.values(sel).reduce((a,s)=>a+s.size,0);
     $('fbadge').hidden = !nSel; $('fbadge').textContent = nSel;
-    $('fapply').textContent = `Показать ${list.length}`;
-    $('count').innerHTML = `<b>${active.length ? esc(active.join(' · ')) : 'Все'}</b> · ${list.length} ${plural(list.length)}`;
+    $('fapply').textContent = `Показать ${base.length}`;
+    $('count').innerHTML = `<b>${active.length ? esc(active.join(' · ')) : 'Все'}</b> · ${base.length} ${plural(base.length)}`;
     const nGot = CHARS.filter(ch=>['got','main'].includes(stOf(ch))).length, nWant = CHARS.filter(ch=>stOf(ch)==='want').length, mains = CHARS.filter(ch=>stOf(ch)==='main');
     $('mystat').innerHTML = `Выбито <b>${nGot}</b> из ${CHARS.filter(ch=>!secOf(ch)).length}${nWant?` · хочу <b>${nWant}</b>`:''}${mains.length?` · <span style="color:${ST.main.c}">♛ ${mains.length>3?'мейнов '+mains.length:mains.map(c=>esc(c.n)).join(', ')}</span>`:''}`;
     let prevSec = 0;
-    const sepOf = ch => { const s = secOf(ch);   // end:1 (Дайнслейф) — последний внутри своей секции («Ещё не вышли»)
+    const sepOf = (ch,s) => {   // end:1 (Дайнслейф) — последний внутри своей секции («Ещё не вышли»)
       const r = (s && s !== prevSec) ? `<div class="grid-sep" role="separator"><span>${SEC_TITLES[s]}</span></div>` : ''; prevSec = s; return r; };
-    $('grid').innerHTML = list.length ? list.map(([ch,i])=>sepOf(ch) + card(ch,i)).join('')
+    $('grid').innerHTML = list.length ? list.map(([ch,i,sc,dup])=>sepOf(ch,sc) + (dup ? card(ch,i).replace('class="lg-wrap"','class="lg-wrap lg-dup"') : card(ch,i))).join('')
       : `<p class="empty">Никого не нашли. Проверь написание имени или выбери «Все».</p>`;
     fitAll();
   }

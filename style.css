@@ -3058,4 +3058,4 @@ html:has(.overlay:not([hidden]):not(.acct-ov)) :is(.news-btn, .fb-btn), html:has
 .grid > .grid-sep span{white-space:nowrap; text-shadow:0 0 8px rgb(74 107 255 / .6)}
 
 /* Капитано: всегда первый в «Легендах», по центру отдельной строкой; остальные легенды под ним обычной сеткой */
-.grid > .lg-wrap{grid-column:1 / -1; justify-self:center; width:var(--lgw,210px)}
+.grid > .lg-wrap:not(.lg-dup){grid-column:1 / -1; justify-self:center; width:var(--lgw,210px)}
