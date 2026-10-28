@@ -38,3 +38,6 @@
 @keyframes kkShake{0%{left:0;top:0}33%{left:var(--x,.8px);top:var(--y,-.6px)}66%{left:calc(var(--x,.8px)*-1);top:calc(var(--y,-.6px)*-1)}100%{left:0;top:0}}
 .kk-quote .c.r{color:#e23a3a;text-shadow:0 0 10px rgb(255 20 20 / .8),0 0 2px #500}
 .kk-sign{display:block;margin-top:.5em;text-align:right;color:#b04a4a;font-size:.85em}
+/* в тени К. · К.: все плавающие кнопки еле заметны и проявляются только при наведении мыши */
+html.kk-in :is(.news-btn,.fb-btn,.lk-btn,#acctBtn,#homeFloat,.snd){opacity:.07!important;transition:opacity .35s ease!important}
+html.kk-in :is(.news-btn,.fb-btn,.lk-btn,#acctBtn,#homeFloat,.snd):is(:hover,:focus-within){opacity:1!important}

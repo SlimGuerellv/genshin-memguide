@@ -3059,3 +3059,13 @@ html:has(.overlay:not([hidden]):not(.acct-ov)) :is(.news-btn, .fb-btn), html:has
 
 /* Капитано: всегда первый в «Легендах», по центру отдельной строкой; остальные легенды под ним обычной сеткой */
 .grid > .lg-wrap:not(.lg-dup){grid-column:1 / -1; justify-self:center; width:var(--lgw,210px)}
+
+/* Верхний ряд кнопок на десктопе: позиции считает topbarGap() в app.js — зазор между всеми одинаковый */
+@media (min-width:761px){
+  html:not(.v-map) .news-btn{right:var(--tb-newsBtn,126px)!important}
+  html:not(.v-map) .fb-btn{right:var(--tb-fbBtn,250px)!important}
+  html:not(.v-map) .lk-btn{right:var(--tb-lkBtn,400px)!important}
+}
+/* «Сейчас играет»: сверху по центру, выезжает сверху вниз (скрывается через 2.5 сек — таймер в app.js) */
+.snd-toast{top:14px!important; left:50%!important; right:auto!important; align-items:center; text-align:center; max-width:min(60vw,340px); transform:translate(-50%,-160%); transition:opacity .4s ease, transform .5s cubic-bezier(.22,1,.36,1)}
+.snd-toast.show{transform:translate(-50%,0)}

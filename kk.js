@@ -93,11 +93,11 @@ function startVoice(){
 }
 ['pointerdown','keydown','touchstart'].forEach(ev=>addEventListener(ev,()=>{ if(humWant && hum.paused) hum.play().catch(()=>{}); if(entered && pendingUnlock){ au.currentTime=Math.max(0,clock()); fallback=false; au.volume=vol(); au.play().catch(()=>{}); } },{passive:true}));
 function enter(){            // полностью зашли в тень: сначала карточка, потом озвучка + текст
-  entered=true; box.classList.add('show');
+  entered=true; document.documentElement.classList.add('kk-in'); box.classList.add('show');
   startT=setTimeout(startVoice,2300);
 }
 function leave(){            // вышли из тени: всё прячется, звук стоп
-  entered=false; clearTimeout(startT); cancelAnimationFrame(raf); clearTimeout(glT); pendingUnlock=false; fallback=false; finished=false;
+  entered=false; document.documentElement.classList.remove('kk-in'); clearTimeout(startT); cancelAnimationFrame(raf); clearTimeout(glT); pendingUnlock=false; fallback=false; finished=false;
   au.pause(); try{au.currentTime=0;}catch(e){} usingAudio=false;
   box.classList.remove('show'); letters.forEach(el=>el.classList.remove('on'));
 }
