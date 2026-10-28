@@ -71,14 +71,16 @@ q.innerHTML=[...TEXT].map((ch,i)=>`<span class="c${red.has(i)?' r':''}">${ch}</s
 const letters=[...q.querySelectorAll('.c')];
 let seed=7;const rnd=()=>(seed=(seed*9301+49297)%233280)/233280;
 letters.forEach(el=>{ el.style.setProperty('--d',(.25+rnd()*.7).toFixed(2)+'s'); el.style.setProperty('--dl',(-rnd()).toFixed(2)+'s'); el.style.setProperty('--x',(rnd()*1.6).toFixed(2)+'px'); el.style.setProperty('--y',(rnd()*1.6-.8).toFixed(2)+'px'); });
-// тайминги слов в озвучке (сек): [начало, конец] для каждого из 31 слова, уже с учётом лагов
-const WT=[[0.23, 0.72], [1.639, 3.351], [3.788, 3.988], [4.098, 4.178], [4.475, 4.963], [5.078, 5.428], [6.728, 7.498], [7.606, 8.104], [9.385, 10.135], [10.455, 10.865], [11.015, 11.625], [12.105, 13.255], [13.472, 14.42], [14.599, 15.207], [15.257, 15.707], [16.247, 16.507], [16.987, 17.287], [17.677, 18.447], [18.637, 18.747], [18.957, 19.107], [19.353, 19.672], [20.135, 21.638], [21.805, 22.024], [22.174, 22.354], [22.523, 22.939], [23.324, 23.924], [24.129, 24.693], [25.112, 25.372], [25.802, 26.342], [26.682, 27.082], [27.452, 28.522]];
+// тайминги слов: Бро отметил на слух начало каждого из 31 слова в kk_voice.mp3 (сек). Конец слова считаем сами.
+const MARKS=[0.029,0.346,0.813,1.526,2.735,3.702,4.005,4.373,6.803,7.001,7.143,7.601,9.81,10.259,10.989,12.089,12.383,12.58,12.894,13.541,14.525,14.873,16.404,17.939,18.192,18.479,22.065,24.123,26.495,27.191,27.839];
+const WORDS=TEXT.split(' ').filter(t=>t!=='—');
+const WT=MARKS.map((on,i)=>{ const next=i+1<MARKS.length?MARKS[i+1]:on+1.2; return [on, Math.min(next-.04, on+.2+.09*WORDS[i].length)]; });
 // время появления каждой буквы: растягиваем по длине слова в озвучке
 const tokens=TEXT.split(' '); const LT=[]; let w=0, prevOff=0;
 tokens.forEach((tok,ti)=>{
   const L=[...tok];
   if(tok==='—'){ LT.push(prevOff); }
-  else { const on=WT[w][0], off=Math.max(WT[w][1],on+.25); L.forEach((c,j)=>LT.push(on+(off-on)*j/L.length)); prevOff=off; w++; }
+  else { const on=WT[w][0], off=Math.max(WT[w][1],on+.1); L.forEach((c,j)=>LT.push(on+(off-on)*j/L.length)); prevOff=off; w++; }
   if(ti<tokens.length-1) LT.push(null);          // пробел
 });
 for(let i=LT.length-1;i>=0;i--) if(LT[i]===null) LT[i]=LT[i+1]??prevOff;
