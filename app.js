@@ -494,10 +494,11 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
 
   const SEC_TITLES = {1:'Легенды', 2:'Ещё не вышли', 3:'Не завоз (или временный не завоз)'};   // порядок секций: обычные → легенды → ещё не вышли → не завоз
   const secOf = c => (c.legend || c.sec==='legend') ? 1 : c.last ? 2 : c.sec==='nz' ? 3 : 0;   // 0 — обычные персонажи   // 0 — обычные персонажи
+  const patchOf = c => { const m = c.last && /(\d+)\.(\d+)/.exec(c.flag||''); return m ? +m[1]*100 + +m[2] : 1e9; };   // «Скоро 7.2» → по порядку патчей; без патча — после них
   function render(){ if (PAGE === 'map') return;   // на карте нет сетки персонажей
     syncChips();
     const list = CHARS.map((ch,i)=>[ch,i]).filter(([ch])=>pass(ch) && (!query || ch.n.toLowerCase().includes(query)))
-      .sort((a,b)=>{ return (secOf(a[0]) - secOf(b[0])) || ((a[0].end?1:0) - (b[0].end?1:0)) || ((b[0].legend?1:0) - (a[0].legend?1:0)) || a[0].n.localeCompare(b[0].n,'ru'); });   // по алфавиту; внизу секции: 1 «ещё не вышли» (last), 2 «не завоз» (sec:'nz'), 3 «Легенды» (legend / sec:'legend'); в «Легендах» Капитано (legend) всегда первый
+      .sort((a,b)=>{ return (secOf(a[0]) - secOf(b[0])) || ((a[0].end?1:0) - (b[0].end?1:0)) || (patchOf(a[0]) - patchOf(b[0])) || ((b[0].legend?1:0) - (a[0].legend?1:0)) || a[0].n.localeCompare(b[0].n,'ru'); });   // по алфавиту; внизу секции: 1 «ещё не вышли» (last), 2 «не завоз» (sec:'nz'), 3 «Легенды» (legend / sec:'legend'); в «Легендах» Капитано (legend) всегда первый
     const active = GROUPS.flatMap(g=>g.opts.filter(o=>sel[g.id].has(o.v)).map(o=>o.label));
     const nSel = Object.values(sel).reduce((a,s)=>a+s.size,0);
     $('fbadge').hidden = !nSel; $('fbadge').textContent = nSel;
