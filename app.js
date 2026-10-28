@@ -492,19 +492,23 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     return ch.legend ? `<div class="lg-wrap">${legendFx()}${html}${legendTop()}</div>` : html;
   }
 
+  const SEC_TITLES = {1:'Ещё не вышли', 2:'Не завоз (или временный не завоз)', 3:'Легенды'};
+  const secOf = c => (c.legend || c.sec==='legend') ? 3 : c.sec==='nz' ? 2 : c.last ? 1 : 0;   // 0 — обычные персонажи
   function render(){ if (PAGE === 'map') return;   // на карте нет сетки персонажей
     syncChips();
     const list = CHARS.map((ch,i)=>[ch,i]).filter(([ch])=>pass(ch) && (!query || ch.n.toLowerCase().includes(query)))
-      .sort((a,b)=>{ const w = c => c.legend ? 2 : c.last ? 1 : 0; return (w(a[0]) - w(b[0])) || a[0].n.localeCompare(b[0].n,'ru'); });   // по алфавиту; внизу «ещё не вышедшие» (last) и после них Капитано (legend)
+      .sort((a,b)=>{ return ((a[0].end?1:0) - (b[0].end?1:0)) || (secOf(a[0]) - secOf(b[0])) || ((b[0].legend?1:0) - (a[0].legend?1:0)) || a[0].n.localeCompare(b[0].n,'ru'); });   // по алфавиту; внизу секции: 1 «ещё не вышли» (last), 2 «не завоз» (sec:'nz'), 3 «Легенды» (legend / sec:'legend'); в «Легендах» Капитано (legend) всегда первый
     const active = GROUPS.flatMap(g=>g.opts.filter(o=>sel[g.id].has(o.v)).map(o=>o.label));
     const nSel = Object.values(sel).reduce((a,s)=>a+s.size,0);
     $('fbadge').hidden = !nSel; $('fbadge').textContent = nSel;
     $('fapply').textContent = `Показать ${list.length}`;
     $('count').innerHTML = `<b>${active.length ? esc(active.join(' · ')) : 'Все'}</b> · ${list.length} ${plural(list.length)}`;
     const nGot = CHARS.filter(ch=>['got','main'].includes(stOf(ch))).length, nWant = CHARS.filter(ch=>stOf(ch)==='want').length, mains = CHARS.filter(ch=>stOf(ch)==='main');
-    $('mystat').innerHTML = `Выбито <b>${nGot}</b> из ${CHARS.filter(ch=>!ch.last && !ch.legend).length}${nWant?` · хочу <b>${nWant}</b>`:''}${mains.length?` · <span style="color:${ST.main.c}">♛ ${mains.length>3?'мейнов '+mains.length:mains.map(c=>esc(c.n)).join(', ')}</span>`:''}`;
-    const sepAt = list.findIndex(([ch])=>ch.last || ch.legend);   // первый «не вышедший / не выйдет»: перед ним ставим разделитель
-    $('grid').innerHTML = list.length ? list.map(([ch,i],k)=>(k===sepAt ? '<div class="grid-sep" role="separator"><span>Ещё не вышли (или не выйдут)</span></div>' : '') + card(ch,i)).join('')
+    $('mystat').innerHTML = `Выбито <b>${nGot}</b> из ${CHARS.filter(ch=>!secOf(ch)).length}${nWant?` · хочу <b>${nWant}</b>`:''}${mains.length?` · <span style="color:${ST.main.c}">♛ ${mains.length>3?'мейнов '+mains.length:mains.map(c=>esc(c.n)).join(', ')}</span>`:''}`;
+    let prevSec = 0;
+    const sepOf = ch => { if (ch.end) return ''; const s = secOf(ch);   // end:1 (Дайнслейф) всегда самый последний, без своего заголовка
+      const r = (s && s !== prevSec) ? `<div class="grid-sep" role="separator"><span>${SEC_TITLES[s]}</span></div>` : ''; prevSec = s; return r; };
+    $('grid').innerHTML = list.length ? list.map(([ch,i])=>sepOf(ch) + card(ch,i)).join('')
       : `<p class="empty">Никого не нашли. Проверь написание имени или выбери «Все».</p>`;
     fitAll();
   }
