@@ -128,3 +128,8 @@
 #kn.on #knx{opacity:.75}
 #knx:hover{opacity:1;background:rgba(80,10,10,.7);border-color:rgba(255,80,80,.7)}
 @media(prefers-reduced-motion:reduce){#kn .quote.on,#kn .quote.on .w,#kn .quote.on .w::before,#kn .quote.on .w::after{animation:none}#kn .eye img,#kn .glow,.kpin::before,.kpin::after,#kn.who-on .who img{animation:none}}
+
+/* шифр: усі літери → код */
+#kn .quote.cp .w{font-size:.4em}
+#kn .quote.cp .w.fail{font-size:.46em}
+#kn .quote.on .w.g-cp{color:#d9c6ff!important;letter-spacing:.06em;text-shadow:0 0 8px rgba(160,90,255,.9),0 0 2px #fff!important}

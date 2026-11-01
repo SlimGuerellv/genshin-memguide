@@ -80,6 +80,14 @@
     const run = els.filter(w => !w._b); run.forEach(w => { w._b = 1; txt(w, fn(w)); if (cls) w.classList.add(cls); });
     timers.push(setTimeout(() => run.forEach(w => rest(w)), ms)); }
   const kkFlash = (w, cls, ms) => { if (w._b) return; w._b = 1; w.classList.add(cls); timers.push(setTimeout(() => rest(w), ms)); };
+  /* шифр: 36 груп коду розкладаються по 51 літері пропорційно довжині слів */
+  const CODE = '3.2-..3-.23-.32-32.-3..-..2-223-.32-322-..3-..2-2.2-3..-232-223-..2-.32-3.2-..3-.23-3.3-..3-.32-32.-322-.3.-.3.-33.-22.-23.-..3-.23-..2-3..-.2.'.split('-');
+  const CP = (() => { let tot = 0, acc = 0, prev = 0, gi = 0; const L = WL.map(w => (w.dataset.o.match(/[A-Za-z]/g) || []).length); L.forEach(n => tot += n);
+    return L.map(n => { acc += n; const end = Math.round(acc * CODE.length / tot), s = CODE.slice(prev, end).join('-'); prev = end; return s; }); })();
+  function cipher(){
+    const run = WL.filter((w, i) => !w._b && free().includes(w) && CP[i]); if (!run.length) return;
+    KQ.classList.add('cp'); run.forEach(w => { w._b = 1; txt(w, CP[WL.indexOf(w)]); w.classList.add('g-cp'); });
+    timers.push(setTimeout(() => { run.forEach(w => rest(w)); KQ.classList.remove('cp'); }, 750 + Math.random() * 450)); }
   const KK = [
     function allNoise(){ kkSwap(free(), w => Array.from({length: w.dataset.o.length}, rndCh).join(''), 160 + Math.random() * 160, 'g-kr'); },                 // весь текст на мить — символи
     function blockout(){ kkSwap(free(w => w.classList.contains('fail')), w => '▓'.repeat(w.dataset.o.length), 280 + Math.random() * 220, 'g-bk'); },         // усе закрашено ▓, крім червоного
@@ -89,8 +97,10 @@
     function rgb(){ KQ.classList.add('rgb'); timers.push(setTimeout(() => KQ.classList.remove('rgb'), 160)); },                                           // весь текст з RGB-розколом
     function dip(){ KQ.style.visibility = 'hidden'; timers.push(setTimeout(() => KQ.style.visibility = '', 70), setTimeout(() => { KQ.style.visibility = 'hidden'; timers.push(setTimeout(() => KQ.style.visibility = '', 50)); }, 160)); },   // зник і повернувся
     function img(){ const im = KN.querySelector('.who img'); im.classList.add('kgl'); timers.push(setTimeout(() => im.classList.remove('kgl'), 150)); },    // картинка смикається
-    function tear(){ const f = free(), i = rnd(Math.max(1, f.length)); f.slice(i, i + 3 + rnd(3)).forEach(w => kkFlash(w, 'g-tear', 380)); }                // розрив рядка
+    function tear(){ const f = free(), i = rnd(Math.max(1, f.length)); f.slice(i, i + 3 + rnd(3)).forEach(w => kkFlash(w, 'g-tear', 380)); },               // розрив рядка
+    cipher                                                                                                                                              // усі літери → код 3.2-..3-…
   ];
+  KK.push(cipher);   // двічі — щоб траплявся частіше
 
   /* глюки слів у такт лагам голосу: the — заїкання, can't — зависання, skyborne — сповільнення, power — ABYSS, failed — заїкання+дрож */
   const LAG = [[1, w => kkFlash(w, 'g-jit', 380)], [4, w => kkFlash(w, 'g-tear', 420)], [7, w => kkFlash(w, 'g-st', 700)], [8, () => powerCycle()], [11, w => kkFlash(w, 'g-jit', 900)]];
