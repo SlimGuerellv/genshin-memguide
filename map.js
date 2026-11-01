@@ -657,6 +657,14 @@
             if (!matchMedia('(hover:hover)').matches && !e.classList.contains('tap')){ pins.forEach(p => p.e.classList.remove('tap')); e.classList.add('tap'); return; }
             bossGo(pins.indexOf(P)); });
           const P = {e, k, ri, bi, tab: tb, lo: SNL.inv(m.pin[0], m.pin[1])[0], la: SNL.inv(m.pin[0], m.pin[1])[1]}; pins.push(P); PL.appendChild(e); }); }));
+      // секретна точка Каэнри'ах над Сумеру (flat-карта 918,1008 → координати старої текстури); клік відкриває сцену з kn.js
+      { const e = document.createElement('button'); e.type = 'button'; e.className = 'gpin gdom gkn'; e.style.setProperty('--rc', '#ff3030'); e.setAttribute('aria-label', "Каэнри'ах");
+        e.innerHTML = `<img class="gdi" src="kn_icon.png?v=1" alt="" draggable="false"><span class="gdc" role="tooltip"><i class="gdt" style="background-image:url(kn_door.webp?v=1)"></i><b>Каэнри'ах</b><em>Скрыто от глаз</em></span>`;
+        e.addEventListener('pointerdown', ev => ev.stopPropagation());
+        e.addEventListener('click', ev => { ev.stopPropagation();
+          if (!matchMedia('(hover:hover)').matches && !e.classList.contains('tap')){ pins.forEach(p => p.e.classList.remove('tap')); e.classList.add('tap'); return; }
+          e.classList.remove('tap'); if (window.knOpen) window.knOpen(); });
+        const q = SNL.inv(-0.7475, -0.2835); pins.push({e, k: 'kn', ri: 3, bi: -1, tab: 'kn', keep: 1, lo: q[0], la: q[1]}); PL.appendChild(e); }
       S = {T, ren, scene, cam, earth, clouds, fluff, fshadow, atm, lift, walls, aur, hiG, hiUpdate, U, lbls, pins, rid: () => RID, ray: new T.Raycaster(), w: 0, h: 0};
       let fired = false; const go = () => { if (fired) return; fired = true; cb(true); };
       mgr.onLoad = go; mgr.onError = () => {}; setTimeout(go, 15000);
@@ -699,10 +707,11 @@
         const v = new S.T.Vector3(Math.cos(P.la) * Math.sin(P.lo), Math.sin(P.la), Math.cos(P.la) * Math.cos(P.lo)).multiplyScalar(up).applyEuler(g);
         const face = v.clone().normalize().dot(cp.clone().sub(v).normalize()), p = v.clone().project(S.cam), vis = face > .15;
         P.e.style.transform = `translate(${(p.x + 1) / 2 * S.w}px,${(1 - p.y) / 2 * S.h}px) translate(-50%,-50%)`;
-        P.e.style.setProperty('--s', sz + 'px'); P.e.classList.toggle('big', big); P.e.classList.toggle('below', (1 - p.y) / 2 * S.h < 300); P.e.classList.toggle('off', !vis || (far && !P.e.classList.contains('focus'))); });
+        P.e.style.setProperty('--s', sz + 'px'); P.e.classList.toggle('big', big); P.e.classList.toggle('below', (1 - p.y) / 2 * S.h < 300); P.e.classList.toggle('off', !vis || (far && !P.keep && !P.e.classList.contains('focus'))); });
     }
     function start(){ if (!raf){ last = 0; raf = requestAnimationFrame(frame); } }
     function stop(){ cancelAnimationFrame(raf); raf = 0; }
+    addEventListener('kn:open', stop); addEventListener('kn:close', () => { if (S && !document.hidden) start(); });   // сцена Каэнри'ах (kn.js) на весь екран: глобус на паузі
 
     // выбор региона лучом → id 1..8 (0 — море)
     function pick(cx, cy){ const R = S && S.rid(); if (!R) return 0; const r = GV.getBoundingClientRect();
