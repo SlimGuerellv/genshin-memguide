@@ -11,8 +11,9 @@
   KN.innerHTML = HTML; document.body.appendChild(KN);
   const $ = s => KN.querySelector(s), cv = $('#knfx'), cx = cv.getContext('2d');
   const QT = "For the nation, we can't forgo this skyborne power, but we failed", KQ = $('#knq');
+  const WT = [0, .4, 1.165, 2.345, 2.775, 3.625, 4.525, 5.015, 5.858, 7.378, 7.858, 8.248];   // старт кожного слова в обробленому голосі (с), оцінка за паузами
   const WS = QT.split(' ');
-  KQ.innerHTML = WS.map((w, i) => '<span class="w' + (i === WS.length - 1 ? ' fail' : '') + '" data-t="' + w + '" aria-hidden="true" style="transition-delay:' + (i * .3 + Math.random() * .2).toFixed(2) + 's;--td:' + (2.8 + Math.random() * 2.6).toFixed(2) + 's;--tl:-' + (Math.random() * 4).toFixed(2) + 's;--ed:' + (2.4 + Math.random() * 2.2).toFixed(2) + 's;--gd:' + (6 + Math.random() * 9).toFixed(2) + 's;--gl:-' + (Math.random() * 8).toFixed(2) + 's">' + w + '</span>').join(' ');
+  KQ.innerHTML = WS.map((w, i) => '<span class="w' + (i === WS.length - 1 ? ' fail' : '') + '" data-t="' + w + '" aria-hidden="true" style="transition-delay:' + 0 + 's;--td:' + (2.8 + Math.random() * 2.6).toFixed(2) + 's;--tl:-' + (Math.random() * 4).toFixed(2) + 's;--ed:' + (2.4 + Math.random() * 2.2).toFixed(2) + 's;--gd:' + (6 + Math.random() * 9).toFixed(2) + 's;--gl:-' + (Math.random() * 8).toFixed(2) + 's">' + w + '</span>').join(' ');
   const RM = matchMedia('(prefers-reduced-motion:reduce)').matches;
 
   /* фоновий гул як у К. К. (av/kk_hum.mp3, 3%, зациклений); музика сайту на час сцени приглушується; без голосу */
@@ -90,12 +91,23 @@
     function img(){ const im = KN.querySelector('.who img'); im.classList.add('kgl'); timers.push(setTimeout(() => im.classList.remove('kgl'), 150)); },    // картинка смикається
     function tear(){ const f = free(), i = rnd(Math.max(1, f.length)); f.slice(i, i + 3 + rnd(3)).forEach(w => kkFlash(w, 'g-tear', 380)); }                // розрив рядка
   ];
+
+  /* глюки слів у такт лагам голосу: the — заїкання, can't — зависання, skyborne — сповільнення, power — ABYSS, failed — заїкання+дрож */
+  const LAG = [[1, w => kkFlash(w, 'g-jit', 380)], [4, w => kkFlash(w, 'g-tear', 420)], [7, w => kkFlash(w, 'g-st', 700)], [8, () => powerCycle()], [11, w => kkFlash(w, 'g-jit', 900)]];
   let lastKK = -1;
   function kkLoop(){
     let k; do { k = rnd(KK.length); } while (k === lastKK); lastKK = k;
     try { KK[k](); } catch (e) {}
     timers.push(setTimeout(kkLoop, 2800 + Math.random() * 1500));   // приблизно раз на 3,5 с, як у К. К.
   }
+
+  /* голос (оброблений: заїкання/сповільнення на the, can't, skyborne, power, failed); стартує разом з написом */
+  const voice = new Audio('av/kn_voice.mp3?v=1'); voice.preload = 'auto'; let voiceT0 = 0, voiceWant = false;
+  const VDUR = 11;
+  function voiceOn(){ voiceWant = true; voiceT0 = performance.now(); try { voice.currentTime = 0; } catch (e) {} voice.volume = muted() ? 0 : .9; voice.play().catch(() => {}); }
+  function voiceOff(){ voiceWant = false; voice.pause(); try { voice.currentTime = 0; } catch (e) {} }
+  ['pointerdown', 'keydown', 'touchstart'].forEach(ev => addEventListener(ev, () => { const t = (performance.now() - voiceT0) / 1000;
+    if (voiceWant && voice.paused && t < VDUR){ try { voice.currentTime = t; } catch (e) {} voice.play().catch(() => {}); } }, {passive: true}));
   const T_DARK = 5000, T_WHO = 2600;   // 5 с на оці, далі темніє; персонаж за 2,6 с після початку вогню
   let timers = [], raf = 0, fireOn = false, parts = [], last = 0, W = 0, H = 0, dpr = 1;
 
@@ -132,14 +144,16 @@
   function open(){
     if (KN.classList.contains('on')) return;
     size(); parts = []; fireOn = false; last = 0;
-    KN.classList.remove('dark', 'fire', 'who-on'); KQ.classList.remove('on'); restoreW(); KN.setAttribute('aria-hidden', 'false'); void KN.offsetWidth; KN.classList.add('on');
+    KN.classList.remove('dark', 'fire', 'who-on'); KQ.classList.remove('on'); WL.forEach(w => w.classList.remove('sh')); restoreW(); KN.setAttribute('aria-hidden', 'false'); void KN.offsetWidth; KN.classList.add('on');
     timers.push(setTimeout(() => { KN.classList.add('dark'); }, T_DARK));
     timers.push(setTimeout(() => { KN.classList.add('fire'); fireOn = !RM; }, T_DARK + 500));
     timers.push(setTimeout(() => { KN.classList.add('who-on'); }, T_DARK + 500 + T_WHO));
-    timers.push(setTimeout(() => { KQ.classList.add('on'); }, T_DARK + 500 + T_WHO + 900));
-    timers.push(setTimeout(glitchTick, T_DARK + 500 + T_WHO + 900 + 4500));
-    timers.push(setTimeout(kkLoop, T_DARK + 500 + T_WHO + 900 + 5500));
-    timers.push(setTimeout(powerCycle, T_DARK + 500 + T_WHO + 900 + 7500));
+    const TQ = T_DARK + 500 + T_WHO + 900;   // напис і голос стартують разом
+    timers.push(setTimeout(() => { KQ.classList.add('on'); voiceOn(); }, TQ));
+    WL.forEach((w, i) => timers.push(setTimeout(() => w.classList.add('sh'), TQ + WT[i] * 1000 + 30)));
+    LAG.forEach(([i, f]) => timers.push(setTimeout(() => f(WL[i]), TQ + WT[i] * 1000 + 60)));
+    timers.push(setTimeout(glitchTick, TQ + 9500));
+    timers.push(setTimeout(kkLoop, TQ + 10500));
     if (!RM) raf = requestAnimationFrame(loop);
     humOn();
     window.dispatchEvent(new Event('kn:open'));
@@ -147,9 +161,9 @@
   }
   function close(){
     timers.forEach(clearTimeout); timers = []; restoreW(); restoreAll(); cancelAnimationFrame(raf); fireOn = false;
-    humOff();
+    humOff(); voiceOff();
     KN.classList.remove('on'); KN.setAttribute('aria-hidden', 'true');
-    setTimeout(() => { if (!KN.classList.contains('on')){ KN.classList.remove('dark', 'fire', 'who-on'); KQ.classList.remove('on'); cx.clearRect(0, 0, W, H); parts = []; } }, 950);
+    setTimeout(() => { if (!KN.classList.contains('on')){ KN.classList.remove('dark', 'fire', 'who-on'); KQ.classList.remove('on'); WL.forEach(w => w.classList.remove('sh')); cx.clearRect(0, 0, W, H); parts = []; } }, 950);
     window.dispatchEvent(new Event('kn:close'));
   }
 

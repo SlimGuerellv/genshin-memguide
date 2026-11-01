@@ -664,7 +664,7 @@
         e.addEventListener('click', ev => { ev.stopPropagation();
           if (!matchMedia('(hover:hover)').matches && !e.classList.contains('tap')){ pins.forEach(p => p.e.classList.remove('tap')); e.classList.add('tap'); return; }
           e.classList.remove('tap'); if (window.knOpen) window.knOpen(); });
-        const q = SNL.inv(-0.7475, -0.2835); pins.push({e, k: 'kn', ri: 3, bi: -1, tab: 'kn', keep: 1, lo: q[0], la: q[1]}); PL.appendChild(e); }
+        const q = SNL.inv(-0.7475, -0.2835); pins.push({e, k: 'kn', ri: 3, bi: -1, tab: 'kn', lo: q[0], la: q[1]}); PL.appendChild(e); }
       S = {T, ren, scene, cam, earth, clouds, fluff, fshadow, atm, lift, walls, aur, hiG, hiUpdate, U, lbls, pins, rid: () => RID, ray: new T.Raycaster(), w: 0, h: 0};
       let fired = false; const go = () => { if (fired) return; fired = true; cb(true); };
       mgr.onLoad = go; mgr.onError = () => {}; setTimeout(go, 15000);

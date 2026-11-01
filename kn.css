@@ -54,19 +54,20 @@
 /* темна імла за текстом: щоб читалось і було тісно */
 #kn .quote::before{content:"";position:absolute;inset:-34px -70px -26px;z-index:-1;background:radial-gradient(closest-side,rgba(0,0,0,.82),rgba(0,0,0,.45) 60%,transparent);filter:blur(6px)}
 #kn .quote .w{position:relative;display:inline-block;margin:0 .22em;opacity:0;filter:blur(9px);transform:translateY(14px) scale(1.12) skewX(-6deg);
-  transition:opacity 2s ease,filter 2s ease,transform 2s cubic-bezier(.2,.8,.2,1)}
+  transition:opacity .55s ease,filter .55s ease,transform .8s cubic-bezier(.2,.8,.2,1)}
 /* привид слова: зсунута тінь, що дихає */
 #kn .quote .w::before{content:attr(data-t);position:absolute;left:0;top:0;z-index:-1;color:#7b2cff;opacity:0;filter:blur(2.5px);pointer-events:none}
-#kn .quote.on .w{opacity:1;filter:blur(0);transform:none;animation:wtrem var(--td,3.7s) linear var(--tl,0s) infinite,wgone var(--gd,9s) steps(1) var(--gl,0s) infinite}
-#kn .quote.on .w::before{animation:wecho var(--ed,3.2s) ease-in-out var(--tl,0s) infinite alternate}
+#kn .quote.on .w.sh{opacity:1;filter:blur(0);transform:none;animation:wshow .55s ease both,wtrem var(--td,3.7s) linear var(--tl,0s) infinite,wgone var(--gd,9s) steps(1) .6s infinite}
+@keyframes wshow{from{opacity:0}to{opacity:1}}
+#kn .quote.on .w.sh::before{animation:wecho var(--ed,3.2s) ease-in-out var(--tl,0s) infinite alternate}
 @keyframes wtrem{0%,100%{translate:0 0;rotate:0deg}12%{translate:.8px -1px;rotate:-.25deg}27%{translate:-1px .6px;rotate:.3deg}43%{translate:.5px 1px;rotate:0deg}58%{translate:-.7px -.8px;rotate:-.35deg}74%{translate:1.2px .4px;rotate:.2deg}88%{translate:-.4px -.5px;rotate:0deg}}
 @keyframes wecho{from{opacity:.0;translate:0 0}to{opacity:.55;translate:-5px 3px}}
 @keyframes wgone{0%,94%,100%{opacity:1}95%{opacity:.08}96%{opacity:1}97%{opacity:.25}98%{opacity:1}}
 /* останнє слово: кривавіє, тріщить, кровоточить */
 #kn .quote .w.fail{margin-left:.25em;font-size:1.14em;color:#b3101a}
 #kn .quote .w.fail::before{color:#ff2a3a;filter:blur(4px)}
-#kn .quote.on .w.fail{animation:wtrem 1.1s linear infinite,failpulse 2.8s ease-in-out infinite,wgone 6s steps(1) 2s infinite;text-shadow:0 0 6px rgba(255,20,40,.95),0 0 24px rgba(220,0,20,.8),0 0 48px rgba(120,0,10,.7),0 2px 0 #200,0 5px 3px rgba(150,0,10,.9)}
-#kn .quote.on .w.fail::before{animation:wecho 1.6s ease-in-out infinite alternate;opacity:.7}
+#kn .quote.on .w.fail.sh{animation:wshow .55s ease both,wtrem 1.1s linear infinite,failpulse 2.8s ease-in-out infinite,wgone 6s steps(1) 2.5s infinite;text-shadow:0 0 6px rgba(255,20,40,.95),0 0 24px rgba(220,0,20,.8),0 0 48px rgba(120,0,10,.7),0 2px 0 #200,0 5px 3px rgba(150,0,10,.9)}
+#kn .quote.on .w.fail.sh::before{animation:wecho 1.6s ease-in-out infinite alternate;opacity:.7}
 @keyframes failpulse{0%,100%{color:#a30d18;filter:brightness(.9)}50%{color:#e0202e;filter:brightness(1.25)}}
 #kn .quote .w.fail::after{content:"";position:absolute;left:0;right:0;top:78%;height:2.4em;pointer-events:none;transform-origin:top;transform:scaleY(0);opacity:0;
   background:linear-gradient(#c0101c,rgba(120,0,10,.8) 55%,transparent) 10% 0/.07em 70% no-repeat,
@@ -74,7 +75,7 @@
              linear-gradient(#c0101c,rgba(120,0,10,.8) 55%,transparent) 55% 0/.07em 55% no-repeat,
              linear-gradient(#c0101c,rgba(120,0,10,.8) 60%,transparent) 76% 0/.05em 85% no-repeat,
              linear-gradient(#c0101c,rgba(120,0,10,.8) 55%,transparent) 92% 0/.06em 62% no-repeat}
-#kn .quote.on .w.fail::after{animation:drip 9s ease-in infinite 3s}
+#kn .quote.on .w.fail.sh::after{animation:drip 9s ease-in infinite 3s}
 @keyframes drip{0%{transform:scaleY(0);opacity:0}8%{opacity:1}70%{transform:scaleY(1);opacity:1}92%{transform:scaleY(1.04);opacity:0}100%{transform:scaleY(0);opacity:0}}
 /* весь рядок: золото ↔ фіолет з чорним, мерехтіння, рідкісний розрив */
 #kn .quote.on{animation:qcol 11s ease-in-out infinite,qflick 8s linear infinite,qtear 6.7s steps(1) infinite}
@@ -95,7 +96,7 @@
 #kn .quote.on .w.gl{animation:wglit .09s steps(2) infinite!important;text-shadow:-4px 0 rgba(255,0,60,.95),4px 0 rgba(0,220,255,.85),0 0 10px rgba(255,0,60,.5)!important}
 @keyframes wglit{0%{translate:-5px 1px;skew:-8deg}50%{translate:6px -2px}100%{translate:-2px 0}}
 #kn .quote .w.abyss{letter-spacing:.09em}
-#kn .quote.on .w.abyss::after{animation:drip 2.6s ease-out infinite 0s}
+#kn .quote.on .w.abyss.sh::after{animation:drip 2.6s ease-out infinite 0s}
 
 
 /* загальні глюки слів (g-*): без filter/opacity/transform, щоб не тягнулась transition */
