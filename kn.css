@@ -28,10 +28,11 @@
 /* вогонь знизу */
 #kn .glow{position:absolute;left:0;right:0;bottom:0;height:75%;opacity:0;transition:opacity 2.6s ease;pointer-events:none;
   background:
-   radial-gradient(70% 55% at 50% 108%,rgba(255,40,30,.75),rgba(255,40,30,0) 70%),
-   radial-gradient(90% 70% at 20% 112%,rgba(150,50,255,.55),rgba(150,50,255,0) 65%),
-   radial-gradient(90% 70% at 82% 112%,rgba(150,50,255,.5),rgba(150,50,255,0) 65%),
-   linear-gradient(to top,rgba(110,30,200,.28),rgba(110,30,200,0) 80%);
+   radial-gradient(60% 34% at 50% 112%,rgba(255,170,60,.7),rgba(255,170,60,0) 70%),
+   radial-gradient(75% 60% at 50% 110%,rgba(255,50,25,.7),rgba(255,50,25,0) 70%),
+   radial-gradient(80% 62% at 18% 112%,rgba(210,25,20,.5),rgba(210,25,20,0) 65%),
+   radial-gradient(80% 62% at 84% 112%,rgba(210,25,20,.5),rgba(210,25,20,0) 65%),
+   linear-gradient(to top,rgba(130,12,12,.32),rgba(130,12,12,0) 80%);
   animation:flick 2.3s ease-in-out infinite;mix-blend-mode:screen}
 #kn.fire .glow{opacity:1}
 @keyframes flick{0%,100%{filter:brightness(1);transform:scaleY(1)}20%{filter:brightness(1.18);transform:scaleY(1.04)}45%{filter:brightness(.88);transform:scaleY(.97)}70%{filter:brightness(1.12);transform:scaleY(1.03)}}

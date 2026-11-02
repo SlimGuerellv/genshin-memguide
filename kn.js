@@ -121,34 +121,78 @@
   const T_DARK = 5000, T_WHO = 2600;   // 5 с на оці, далі темніє; персонаж за 2,6 с після початку вогню
   let timers = [], raf = 0, fireOn = false, parts = [], last = 0, W = 0, H = 0, dpr = 1;
 
-  /* спрайти вогню */
-  const spr = (r, g, b) => { const c = document.createElement('canvas'); c.width = c.height = 64; const x = c.getContext('2d'), gr = x.createRadialGradient(32, 32, 0, 32, 32, 32);
-    gr.addColorStop(0, `rgba(${r},${g},${b},1)`); gr.addColorStop(.35, `rgba(${r},${g},${b},.45)`); gr.addColorStop(1, `rgba(${r},${g},${b},0)`); x.fillStyle = gr; x.fillRect(0, 0, 64, 64); return c; };
-  const SP = [spr(255, 50, 30), spr(255, 90, 40), spr(200, 50, 200), spr(140, 60, 255)];
+  /* ===== вогонь: язики полум'я (білий жар → жовтий → оранжевий → червоний → темно-багряний) + іскри. Без фіолету. ===== */
+  const fr = (a, b) => a + Math.random() * (b - a);
+  // 4 «температури» × 5 форм; кожен язик — кривий краплеподібний контур з рваним краєм + світле ядро всередині
+  const HEAT = [  // [зовнішній край, середина, ядро]
+    ['255,70,20',  '255,120,35', '255,195,110'],
+    ['235,35,18',  '255,75,25',  '255,140,60'],
+    ['200,16,16',  '240,38,22',  '255,85,35'],
+    ['95,6,10',    '165,14,14',  '230,45,22']];
+  function tongue(heat, seed){
+    const w = 96, h = 224, c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d');
+    const rs = (() => { let s = seed * 9301 + 49297; return () => (s = (s * 9301 + 49297) % 233280) / 233280; })();
+    const shape = (sw, top, lean, jag) => {   // контур язика: низ — широкий, верх — загострений і зігнутий
+      const cx0 = w / 2, bot = h - 6, n = 9; const L = [], R = [];
+      for (let i = 0; i <= n; i++){ const t = i / n, y = bot - (bot - top) * t;
+        const half = sw * Math.pow(1 - t, .6) * (1 + Math.sin(t * 3.1) * .18) + (rs() - .5) * jag * (1 - t);
+        const off = lean * t * t * 26; L.push([cx0 - half + off, y]); R.push([cx0 + half + off, y]); }
+      x.beginPath(); x.moveTo(L[0][0], L[0][1]);
+      for (let i = 1; i <= n; i++){ const p = L[i], q = L[i - 1]; x.quadraticCurveTo(q[0], (q[1] + p[1]) / 2, p[0], p[1]); }
+      for (let i = n; i >= 0; i--){ const p = R[i], q = R[Math.min(n, i + 1)]; x.quadraticCurveTo(q[0], (q[1] + p[1]) / 2, p[0], p[1]); }
+      x.closePath(); };
+    const lean = rs() * 2 - 1, [o, m, k] = HEAT[heat];
+    x.filter = 'blur(3px)';
+    let g = x.createLinearGradient(0, h, 0, 0);
+    g.addColorStop(0, `rgba(${o},.55)`); g.addColorStop(.12, `rgba(${m},.85)`); g.addColorStop(.5, `rgba(${o},.6)`); g.addColorStop(1, `rgba(${o},0)`);
+    x.fillStyle = g; shape(44, 24, lean, 12); x.fill();
+    g = x.createLinearGradient(0, h, 0, 40);
+    g.addColorStop(0, `rgba(${k},.4)`); g.addColorStop(.15, `rgba(${k},.85)`); g.addColorStop(.6, `rgba(${m},.45)`); g.addColorStop(1, `rgba(${m},0)`);
+    x.fillStyle = g; shape(20, 70, lean * .8, 5); x.fill();
+    return c;
+  }
+  const TG = HEAT.map((_, hi) => Array.from({length: 5}, (_, i) => tongue(hi, hi * 7 + i + 1)));
+  const EMB = (() => { const c = document.createElement('canvas'); c.width = c.height = 32; const x = c.getContext('2d'), g = x.createRadialGradient(16, 16, 0, 16, 16, 16);
+    g.addColorStop(0, 'rgba(255,250,210,1)'); g.addColorStop(.18, 'rgba(255,190,70,.95)'); g.addColorStop(.5, 'rgba(255,90,25,.35)'); g.addColorStop(1, 'rgba(255,50,20,0)'); x.fillStyle = g; x.fillRect(0, 0, 32, 32); return c; })();
 
   function size(){ dpr = Math.min(2, devicePixelRatio || 1); W = innerWidth; H = innerHeight; cv.width = W * dpr; cv.height = H * dpr; cx.setTransform(dpr, 0, 0, dpr, 0, 0); }
+  let tt = 0;
   function spawn(){
-    const x = Math.random() * W, big = Math.random() < .18;
-    // ближче до низу — червоний, вище — фіолетовий (колір міняється з висотою в draw)
-    parts.push({x, y: H + 20, vx: (Math.random() - .5) * 26, vy: -(70 + Math.random() * 170), s: big ? 80 + Math.random() * 90 : 22 + Math.random() * 42,
-      life: 0, max: 1.6 + Math.random() * 2.4, ph: Math.random() * 6.28, w: 18 + Math.random() * 40});
+    // язики з нерівною «стіною»: щільність хвилями вздовж низу, центр трохи вище/густіше
+    let x = 0; for (let tries = 0; tries < 4; tries++){ x = Math.random() * W; const f = .55 + .45 * Math.sin(x / W * 11 + tt * .9) * Math.sin(x / W * 5.3 - tt * .6); if (Math.random() < f) break; }
+    const mid = 1 - Math.abs(x / W - .5) * 2, big = Math.random() < .2, base = Math.min(W, 1600) / 1600;
+    parts.push({x, y: H + 40, vx: fr(-14, 14), vy: -fr(110, 260) * (.8 + mid * .5), h: (big ? fr(230, 360) : fr(110, 230)) * (.8 + base * .3) * (.75 + mid * .45),
+      wd: (big ? fr(70, 120) : fr(36, 78)) * (.8 + base * .3), life: 0, max: fr(1.1, 2.3), ph: fr(0, 6.28), sw: fr(14, 38), sp: fr(1.6, 3.2), shape: (Math.random() * 5) | 0, ember: false});
+  }
+  function spawnEmber(){
+    parts.push({x: Math.random() * W, y: H - fr(0, H * .12), vx: fr(-20, 35), vy: -fr(90, 320), h: 0, wd: fr(5, 15), life: 0, max: fr(1.6, 4.2), ph: fr(0, 6.28), sw: fr(20, 60), sp: fr(2, 5), shape: 0, ember: true});
   }
   function loop(ts){
     raf = requestAnimationFrame(loop);
-    const dt = Math.min(.05, (ts - (last || ts)) / 1000); last = ts;
+    const dt = Math.min(.05, (ts - (last || ts)) / 1000); last = ts; tt += dt;
     cx.clearRect(0, 0, W, H); cx.globalCompositeOperation = 'lighter';
-    if (fireOn){ const n = parts.length < 420 ? 8 : 0; for (let i = 0; i < n * (dt * 60 / 2 + .5) | 0; i++) spawn(); }
+    if (fireOn){
+      const nt = W / 1200 * 15 * dt * 60 / 2, ne = W / 1200 * 2.2 * dt * 60 / 2;
+      let T = 0, E = 0; for (const p of parts) p.ember ? E++ : T++;
+      for (let i = 0, n = (nt + Math.random()) | 0; i < n && T < 360; i++) spawn();
+      for (let i = 0, n = (ne + Math.random()) | 0; i < n && E < 90; i++) spawnEmber();
+    }
     parts = parts.filter(p => p.life < p.max);
     for (const p of parts){
-      p.life += dt; const k = p.life / p.max;
-      p.x += (p.vx + Math.sin(p.ph + p.life * 2.4) * p.w) * dt; p.y += p.vy * dt; p.vy *= (1 - .12 * dt);
-      const h = 1 - Math.max(0, Math.min(1, p.y / H));            // 0 знизу … 1 вгорі
-      const idx = h < .25 ? (Math.random() < .5 ? 0 : 1) : h < .5 ? 1 : h < .7 ? 2 : 3;
-      const a = Math.sin(Math.PI * Math.min(1, k * 1.15)) * (.5 - h * .3);
-      cx.globalAlpha = Math.max(0, a); const s = p.s * (1 - k * .5);
-      cx.drawImage(SP[idx], p.x - s * .3, p.y - s * .95, s * .6, s * 1.9);   // витягнуті язики
+      p.life += dt; const k = p.life / p.max, sway = Math.sin(p.ph + p.life * p.sp) * p.sw;
+      p.x += (p.vx + sway) * dt; p.y += p.vy * dt; p.vy *= (1 - (p.ember ? .25 : .55) * dt);
+      if (p.ember){   // іскра: мерехтить і гасне
+        const tw = .55 + .45 * Math.sin(p.life * 22 + p.ph), a = Math.sin(Math.PI * Math.min(1, k * 1.05)) * tw, s = p.wd * (1 - k * .5);
+        cx.globalAlpha = Math.max(0, a); cx.drawImage(EMB, p.x - s, p.y - s, s * 2, s * 2); continue;
+      }
+      const heat = k < .12 ? 0 : k < .42 ? 1 : k < .75 ? 2 : 3, fl = .82 + .18 * Math.sin(p.life * 31 + p.ph * 3);
+      const a = Math.sin(Math.PI * Math.min(1, k * 1.1)) * (heat === 3 ? .5 : .95) * fl;
+      const hh = p.h * (.55 + Math.sin(Math.min(1, k * 1.4) * Math.PI * .5) * .6) , ww = p.wd * (1 - k * .55);
+      cx.globalAlpha = Math.max(0, Math.min(1, a));
+      cx.save(); cx.translate(p.x, p.y); cx.rotate(Math.cos(p.ph + p.life * p.sp) * .12 + sway * .004);
+      cx.drawImage(TG[heat][p.shape], -ww / 2, -hh, ww, hh); cx.restore();
     }
-    cx.globalAlpha = 1;
+    cx.globalAlpha = 1; cx.globalCompositeOperation = 'source-over';
   }
 
   function open(){
