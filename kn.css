@@ -34,9 +34,10 @@
    radial-gradient(80% 62% at 84% 112%,rgba(210,25,20,.5),rgba(210,25,20,0) 65%),
    linear-gradient(to top,rgba(130,12,12,.32),rgba(130,12,12,0) 80%);
   animation:flick 2.3s ease-in-out infinite;mix-blend-mode:screen}
-#kn.fire .glow{opacity:1}
+#kn.fire .glow{opacity:0}   /* вогонь вимкнено; щоб повернути: opacity:1 */
 @keyframes flick{0%,100%{filter:brightness(1);transform:scaleY(1)}20%{filter:brightness(1.18);transform:scaleY(1.04)}45%{filter:brightness(.88);transform:scaleY(.97)}70%{filter:brightness(1.12);transform:scaleY(1.03)}}
 #kn canvas{position:absolute;inset:0;width:100%;height:100%;mix-blend-mode:screen;pointer-events:none}
+#kn #knfx2{filter:blur(7px);opacity:.85}   /* куби перед королем — не в фокусі */
 
 /* персонаж */
 #kn .who{mix-blend-mode:screen;position:absolute;left:50%;bottom:0;height:min(80vh,100vw,780px);aspect-ratio:1;transform:translate(-50%,40px);opacity:0;filter:blur(10px) brightness(.6);pointer-events:none;

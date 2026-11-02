@@ -3,13 +3,13 @@
    Файли: kn.js, kn.css, kn_icon.png, kn_door.webp, kn_eye.webp, kn_avatar.webp, kn_font.ttf, av/kk_hum.mp3 */
 (() => {
   'use strict';
-  const HTML = '<div class="eye"><img src="kn_eye.webp?v=1" alt="" draggable="false"></div>\n  <div class="glow"></div>\n  <canvas id="knfx"></canvas>\n  <div class="quote" id="knq" aria-label="For the nation, we can\'t forgo this skyborne power, but we failed"></div>\n  <div class="who"><img src="kn_avatar.webp?v=1" alt="" draggable="false"></div>\n  <button id="knx" type="button" aria-label="Закрыть">×</button>';
+  const HTML = '<div class="eye"><img src="kn_eye.webp?v=1" alt="" draggable="false"></div>\n  <div class="glow"></div>\n  <canvas id="knfx"></canvas>\n  <div class="quote" id="knq" aria-label="For the nation, we can\'t forgo this skyborne power, but we failed"></div>\n  <div class="who"><img src="kn_avatar.webp?v=1" alt="" draggable="false"></div>\n  <canvas id="knfx2"></canvas>\n  <button id="knx" type="button" aria-label="Закрыть">×</button>';
   let API = null;
   function build(){
 
   const KN = document.createElement('div'); KN.id = 'kn'; KN.setAttribute('role', 'dialog'); KN.setAttribute('aria-modal', 'true'); KN.setAttribute('aria-label', "Каэнри'ах"); KN.setAttribute('aria-hidden', 'true');
   KN.innerHTML = HTML; document.body.appendChild(KN);
-  const $ = s => KN.querySelector(s), cv = $('#knfx'), cx = cv.getContext('2d');
+  const $ = s => KN.querySelector(s), cv = $('#knfx'), cx = cv.getContext('2d'), cv2 = $('#knfx2'), cx2 = cv2.getContext('2d');
   const QT = "For the nation, we can't forgo this skyborne power, but we failed", KQ = $('#knq');
   const WT = [0, .4, 1.165, 2.345, 2.775, 3.625, 4.525, 5.015, 5.858, 7.378, 7.858, 8.248];   // старт кожного слова в обробленому голосі (с), оцінка за паузами
   const WS = QT.split(' ');
@@ -121,83 +121,96 @@
   const T_DARK = 5000, T_WHO = 2600;   // 5 с на оці, далі темніє; персонаж за 2,6 с після початку вогню
   let timers = [], raf = 0, fireOn = false, parts = [], last = 0, W = 0, H = 0, dpr = 1;
 
-  /* ===== вогонь: язики полум'я (білий жар → жовтий → оранжевий → червоний → темно-багряний) + іскри. Без фіолету. ===== */
+  /* ===== червоні куби: темні грані, неоновий червоний контур, гравіювання на гранях, повільне обертання + іскри ===== */
   const fr = (a, b) => a + Math.random() * (b - a);
-  // 4 «температури» × 5 форм; кожен язик — кривий краплеподібний контур з рваним краєм + світле ядро всередині
-  const HEAT = [  // [зовнішній край, середина, ядро]
-    ['255,70,20',  '255,120,35', '255,195,110'],
-    ['235,35,18',  '255,75,25',  '255,140,60'],
-    ['200,16,16',  '240,38,22',  '255,85,35'],
-    ['95,6,10',    '165,14,14',  '230,45,22']];
-  function tongue(heat, seed){
-    const w = 96, h = 224, c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d');
-    const rs = (() => { let s = seed * 9301 + 49297; return () => (s = (s * 9301 + 49297) % 233280) / 233280; })();
-    const shape = (sw, top, lean, jag) => {   // контур язика: низ — широкий, верх — загострений і зігнутий
-      const cx0 = w / 2, bot = h - 6, n = 9; const L = [], R = [];
-      for (let i = 0; i <= n; i++){ const t = i / n, y = bot - (bot - top) * t;
-        const half = sw * Math.pow(1 - t, .6) * (1 + Math.sin(t * 3.1) * .18) + (rs() - .5) * jag * (1 - t);
-        const off = lean * t * t * 26; L.push([cx0 - half + off, y]); R.push([cx0 + half + off, y]); }
-      x.beginPath(); x.moveTo(L[0][0], L[0][1]);
-      for (let i = 1; i <= n; i++){ const p = L[i], q = L[i - 1]; x.quadraticCurveTo(q[0], (q[1] + p[1]) / 2, p[0], p[1]); }
-      for (let i = n; i >= 0; i--){ const p = R[i], q = R[Math.min(n, i + 1)]; x.quadraticCurveTo(q[0], (q[1] + p[1]) / 2, p[0], p[1]); }
-      x.closePath(); };
-    const lean = rs() * 2 - 1, [o, m, k] = HEAT[heat];
-    x.filter = 'blur(3px)';
-    let g = x.createLinearGradient(0, h, 0, 0);
-    g.addColorStop(0, `rgba(${o},.55)`); g.addColorStop(.12, `rgba(${m},.85)`); g.addColorStop(.5, `rgba(${o},.6)`); g.addColorStop(1, `rgba(${o},0)`);
-    x.fillStyle = g; shape(44, 24, lean, 12); x.fill();
-    g = x.createLinearGradient(0, h, 0, 40);
-    g.addColorStop(0, `rgba(${k},.4)`); g.addColorStop(.15, `rgba(${k},.85)`); g.addColorStop(.6, `rgba(${m},.45)`); g.addColorStop(1, `rgba(${m},0)`);
-    x.fillStyle = g; shape(20, 70, lean * .8, 5); x.fill();
-    return c;
-  }
-  const TG = HEAT.map((_, hi) => Array.from({length: 5}, (_, i) => tongue(hi, hi * 7 + i + 1)));
+  const CV = [[-1,-1,-1],[1,-1,-1],[1,1,-1],[-1,1,-1],[-1,-1,1],[1,-1,1],[1,1,1],[-1,1,1]];
+  const CF = [[0,1,2,3],[4,5,6,7],[0,1,5,4],[3,2,6,7],[0,3,7,4],[1,2,6,5]];   // кожна грань — по колу
   const EMB = (() => { const c = document.createElement('canvas'); c.width = c.height = 32; const x = c.getContext('2d'), g = x.createRadialGradient(16, 16, 0, 16, 16, 16);
-    g.addColorStop(0, 'rgba(255,250,210,1)'); g.addColorStop(.18, 'rgba(255,190,70,.95)'); g.addColorStop(.5, 'rgba(255,90,25,.35)'); g.addColorStop(1, 'rgba(255,50,20,0)'); x.fillStyle = g; x.fillRect(0, 0, 32, 32); return c; })();
-
-  function size(){ dpr = Math.min(2, devicePixelRatio || 1); W = innerWidth; H = innerHeight; cv.width = W * dpr; cv.height = H * dpr; cx.setTransform(dpr, 0, 0, dpr, 0, 0); }
-  let tt = 0;
-  function spawn(){
-    // язики з нерівною «стіною»: щільність хвилями вздовж низу, центр трохи вище/густіше
-    let x = 0; for (let tries = 0; tries < 4; tries++){ x = Math.random() * W; const f = .55 + .45 * Math.sin(x / W * 11 + tt * .9) * Math.sin(x / W * 5.3 - tt * .6); if (Math.random() < f) break; }
-    const mid = 1 - Math.abs(x / W - .5) * 2, big = Math.random() < .2, base = Math.min(W, 1600) / 1600;
-    parts.push({x, y: H + 40, vx: fr(-14, 14), vy: -fr(110, 260) * (.8 + mid * .5), h: (big ? fr(230, 360) : fr(110, 230)) * (.8 + base * .3) * (.75 + mid * .45),
-      wd: (big ? fr(70, 120) : fr(36, 78)) * (.8 + base * .3), life: 0, max: fr(1.1, 2.3), ph: fr(0, 6.28), sw: fr(14, 38), sp: fr(1.6, 3.2), shape: (Math.random() * 5) | 0, ember: false});
+    g.addColorStop(0, 'rgba(255,215,200,1)'); g.addColorStop(.2, 'rgba(255,70,55,.95)'); g.addColorStop(.55, 'rgba(255,25,25,.3)'); g.addColorStop(1, 'rgba(255,20,20,0)'); x.fillStyle = g; x.fillRect(0, 0, 32, 32); return c; })();
+  let cubes = [], tt = 0, nextCube = 0, X = cx, whoK = 0;
+  const MASK = new Image(); MASK.src = 'kn_king_mask.webp?v=1';   // силует короля: куби «за ним» ховаються
+  let maskC = null, maskSz = 0;
+  function maskFor(sz){   // силует × те саме згасання по краях, що в CSS-масці .who — щоб виріз не мав різкого краю
+    sz = Math.round(sz); if (maskC && maskSz === sz) return maskC;
+    maskC = document.createElement('canvas'); maskC.width = maskC.height = maskSz = sz; const m = maskC.getContext('2d');
+    m.drawImage(MASK, 0, 0, sz, sz); m.globalCompositeOperation = 'destination-in';
+    m.save(); m.translate(sz * .5, sz * .55); m.scale(sz * .47, sz * .8);
+    const g = m.createRadialGradient(0, 0, 0, 0, 0, 1); g.addColorStop(.52, 'rgba(0,0,0,1)'); g.addColorStop(.7, 'rgba(0,0,0,.7)'); g.addColorStop(.86, 'rgba(0,0,0,.25)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+    m.fillStyle = g; m.fillRect(-3, -3, 6, 6); m.restore();
+    const l = m.createLinearGradient(0, 0, 0, sz); l.addColorStop(0, 'rgba(0,0,0,0)'); l.addColorStop(.07, 'rgba(0,0,0,1)'); l.addColorStop(1, 'rgba(0,0,0,1)'); m.fillStyle = l; m.fillRect(0, 0, sz, sz);
+    return maskC; }
+  function size(){ dpr = Math.min(2, devicePixelRatio || 1); W = innerWidth; H = innerHeight; cv.width = cv2.width = W * dpr; cv.height = cv2.height = H * dpr; cx.setTransform(dpr, 0, 0, dpr, 0, 0); cx2.setTransform(dpr, 0, 0, dpr, 0, 0); }
+  function mkCube(anywhere){
+    const sc = Math.max(.5, Math.min(1.3, W / 1500)), front = Math.random() < .26, big = Math.random() < (front ? .45 : .22), s = (big ? fr(85, 150) : fr(22, 80)) * sc;
+    let x = 0, best = -1; for (let i = 0; i < 10; i++){ const cxp = fr(-.02, 1.02) * W; let d = Math.min(...cubes.map(q => Math.abs(q.x - cxp)), 1e9);
+      if (Math.abs(cxp / W - .5) < .2) d *= front ? .08 : (Math.random() < .7 ? .45 : 1);   // перед королем куби майже не літають; позаду — рідко
+      if (d > best){ best = d; x = cxp; } }
+    const y = anywhere ? fr(.05, 1.05) * H : H + s * 1.8;
+    const pats = Array.from({length: 6}, () => ({k: (Math.random() * 4) | 0, d: Array.from({length: 7}, () => [fr(.12, .88), fr(.12, .88), fr(.4, 1)])}));
+    cubes.push({x, y, s, front, z: front ? -fr(220, 420) : fr(40, 320), rx: fr(0, 6.28), ry: fr(0, 6.28), rz: fr(0, 6.28), wx: fr(-.35, .35), wy: fr(-.4, .4), wz: fr(-.25, .25),
+      vx: fr(-9, 9), vy: -fr(8, 26), age: 0, pats});
+  }
+  const rot = (v, rx, ry, rz) => { let [x, y, z] = v, c = Math.cos(rx), s = Math.sin(rx), t = y * c - z * s; z = y * s + z * c; y = t;
+    c = Math.cos(ry); s = Math.sin(ry); t = x * c + z * s; z = -x * s + z * c; x = t; c = Math.cos(rz); s = Math.sin(rz); t = x * c - y * s; y = x * s + y * c; x = t; return [x, y, z]; };
+  const bil = (P, u, v) => [(1 - u) * (1 - v) * P[0][0] + u * (1 - v) * P[1][0] + u * v * P[2][0] + (1 - u) * v * P[3][0], (1 - u) * (1 - v) * P[0][1] + u * (1 - v) * P[1][1] + u * v * P[2][1] + (1 - u) * v * P[3][1]];
+  function line(P, u0, v0, u1, v1){ const a = bil(P, u0, v0), b = bil(P, u1, v1); X.moveTo(a[0], a[1]); X.lineTo(b[0], b[1]); }
+  function quad(P){ X.moveTo(P[0][0], P[0][1]); for (let i = 1; i < 4; i++) X.lineTo(P[i][0], P[i][1]); X.closePath(); }
+  function glowStroke(al){   // тришаровий неон: широкий м'який ореол → червоне ядро → гарячий центр
+    X.lineJoin = 'round'; X.lineCap = 'round';
+    X.globalAlpha = al * .16; X.strokeStyle = '#ff1f1f'; X.lineWidth = 9; X.stroke();
+    X.globalAlpha = al * .9;  X.strokeStyle = '#ff2b2b'; X.lineWidth = 2.4; X.stroke();
+    X.globalAlpha = al * .8;  X.strokeStyle = '#ffb4a8'; X.lineWidth = .8; X.stroke(); }
+  function drawCube(c){
+    const al = Math.min(1, c.age / 1.6), f = 1500, V = CV.map(v => { const r = rot(v, c.rx, c.ry, c.rz), Z = r[2] * c.s + c.z, k = f / (f + Z);
+      return [c.x + r[0] * c.s * k, c.y + r[1] * c.s * k, r[2]]; });
+    const faces = CF.map((fc, i) => ({i, P: fc.map(j => V[j]), cz: fc.reduce((q, j) => q + V[j][2], 0) / 4}));
+    // задні грані — лише тьмяний контур, видно крізь куб
+    X.beginPath(); for (const fc of faces) if (fc.cz >= 0) quad(fc.P); glowStroke(al * .22);
+    for (const fc of faces){ if (fc.cz >= 0) continue;
+      const P = fc.P, lit = .55 + .45 * (-fc.cz);   // грань, що дивиться на глядача, трохи яскравіша
+      X.globalAlpha = al; X.fillStyle = `rgba(${70 + 50 * lit | 0},0,10,${.32 + .2 * lit})`; X.beginPath(); quad(P); X.fill();
+      const pt = c.pats[fc.i]; X.beginPath();   // гравіювання: рамка + візерунок
+      line(P, .1, .1, .9, .1); line(P, .9, .1, .9, .9); line(P, .9, .9, .1, .9); line(P, .1, .9, .1, .1);
+      if (pt.k === 0){ line(P, .5, .1, .5, .9); line(P, .1, .5, .9, .5); }
+      else if (pt.k === 1){ for (let q = 0; q <= 16; q++){ const an = q / 16 * 6.283, p = bil(P, .5 + Math.cos(an) * .26, .5 + Math.sin(an) * .26); q ? X.lineTo(p[0], p[1]) : X.moveTo(p[0], p[1]); } line(P, .5, .1, .5, .24); line(P, .5, .76, .5, .9); }
+      else if (pt.k === 2){ line(P, .1, .5, .35, .5); line(P, .35, .5, .35, .25); line(P, .35, .25, .7, .25); line(P, .7, .25, .7, .7); line(P, .7, .7, .9, .7); line(P, .5, .9, .5, .6); }
+      else { line(P, .1, .1, .5, .5); line(P, .9, .1, .5, .5); line(P, .5, .5, .5, .9); }
+      X.globalAlpha = al * .5 * lit; X.strokeStyle = '#ff2f2f'; X.lineWidth = 1; X.stroke();
+      X.fillStyle = '#ff5a48'; for (const d of pt.d){ const p = bil(P, d[0], d[1]); X.globalAlpha = al * d[2] * .55 * lit; X.fillRect(p[0], p[1], 1.5, 1.5); }   // «іскри» всередині грані
+    }
+    X.beginPath(); for (const fc of faces) if (fc.cz < 0) quad(fc.P); glowStroke(al);   // яскравий неоновий контур передніх граней
   }
   function spawnEmber(){
-    parts.push({x: Math.random() * W, y: H - fr(0, H * .12), vx: fr(-20, 35), vy: -fr(90, 320), h: 0, wd: fr(5, 15), life: 0, max: fr(1.6, 4.2), ph: fr(0, 6.28), sw: fr(20, 60), sp: fr(2, 5), shape: 0, ember: true});
+    parts.push({x: Math.random() * W, y: H + 10, vx: fr(-20, 30), vy: -fr(40, 170), wd: fr(3, 9), life: 0, max: fr(2.5, 6), ph: fr(0, 6.28), sw: fr(15, 45), sp: fr(2, 5)});
   }
   function loop(ts){
     raf = requestAnimationFrame(loop);
     const dt = Math.min(.05, (ts - (last || ts)) / 1000); last = ts; tt += dt;
     cx.clearRect(0, 0, W, H); cx.globalCompositeOperation = 'lighter';
-    if (fireOn){
-      const nt = W / 1200 * 15 * dt * 60 / 2, ne = W / 1200 * 2.2 * dt * 60 / 2;
-      let T = 0, E = 0; for (const p of parts) p.ember ? E++ : T++;
-      for (let i = 0, n = (nt + Math.random()) | 0; i < n && T < 360; i++) spawn();
-      for (let i = 0, n = (ne + Math.random()) | 0; i < n && E < 90; i++) spawnEmber();
+    if (fireOn){   // fireOn = «ефект увімкнено»
+      const N = Math.min(18, 9 + (W / 170 | 0)); nextCube -= dt;
+      if (cubes.length < N && nextCube <= 0){ mkCube(true); nextCube = fr(.15, .4); }
+      if (parts.length < 90 && Math.random() < dt * 22) spawnEmber();
     }
+    for (let i = cubes.length - 1; i >= 0; i--){ const c = cubes[i]; c.age += dt; c.rx += c.wx * dt; c.ry += c.wy * dt; c.rz += c.wz * dt; c.x += c.vx * dt; c.y += c.vy * dt;
+      if (c.y < -c.s * 2 || c.x < -c.s * 2 || c.x > W + c.s * 2){ cubes.splice(i, 1); if (fireOn) mkCube(false); } }
+    whoK = KN.classList.contains('who-on') ? Math.min(1, whoK + dt / 2) : 0;
+    cubes.sort((p, q) => q.z - p.z);   // далекі першими
+    cx2.clearRect(0, 0, W, H); cx2.globalCompositeOperation = 'lighter';
+    X = cx; for (const c of cubes) if (!c.front) drawCube(c);
+    X = cx2; for (const c of cubes) if (c.front) drawCube(c);   // передній план: окремий шар поверх короля, розмитий CSS-ом (як поза фокусом)
+    X = cx;
     parts = parts.filter(p => p.life < p.max);
-    for (const p of parts){
-      p.life += dt; const k = p.life / p.max, sway = Math.sin(p.ph + p.life * p.sp) * p.sw;
-      p.x += (p.vx + sway) * dt; p.y += p.vy * dt; p.vy *= (1 - (p.ember ? .25 : .55) * dt);
-      if (p.ember){   // іскра: мерехтить і гасне
-        const tw = .55 + .45 * Math.sin(p.life * 22 + p.ph), a = Math.sin(Math.PI * Math.min(1, k * 1.05)) * tw, s = p.wd * (1 - k * .5);
-        cx.globalAlpha = Math.max(0, a); cx.drawImage(EMB, p.x - s, p.y - s, s * 2, s * 2); continue;
-      }
-      const heat = k < .12 ? 0 : k < .42 ? 1 : k < .75 ? 2 : 3, fl = .82 + .18 * Math.sin(p.life * 31 + p.ph * 3);
-      const a = Math.sin(Math.PI * Math.min(1, k * 1.1)) * (heat === 3 ? .5 : .95) * fl;
-      const hh = p.h * (.55 + Math.sin(Math.min(1, k * 1.4) * Math.PI * .5) * .6) , ww = p.wd * (1 - k * .55);
-      cx.globalAlpha = Math.max(0, Math.min(1, a));
-      cx.save(); cx.translate(p.x, p.y); cx.rotate(Math.cos(p.ph + p.life * p.sp) * .12 + sway * .004);
-      cx.drawImage(TG[heat][p.shape], -ww / 2, -hh, ww, hh); cx.restore();
-    }
-    cx.globalAlpha = 1; cx.globalCompositeOperation = 'source-over';
+    for (const p of parts){ p.life += dt; const k = p.life / p.max; p.x += (p.vx + Math.sin(p.ph + p.life * p.sp) * p.sw) * dt; p.y += p.vy * dt;
+      const tw = .55 + .45 * Math.sin(p.life * 20 + p.ph), s = p.wd * (1 - k * .5); cx.globalAlpha = Math.max(0, Math.sin(Math.PI * k) * tw); cx.drawImage(EMB, p.x - s, p.y - s, s * 2, s * 2); }
+    cx.globalAlpha = 1;
+    if (whoK > 0 && MASK.complete && MASK.naturalWidth){ const sz = Math.min(H * .8, W, 780); cx.globalCompositeOperation = 'destination-out'; cx.globalAlpha = whoK; cx.drawImage(maskFor(sz), Math.round(W / 2 - sz / 2), Math.round(H - sz)); }   // задній шар: вирізаємо силует короля
+    cx.globalAlpha = 1; cx.globalCompositeOperation = 'source-over'; cx2.globalAlpha = 1; cx2.globalCompositeOperation = 'source-over';
   }
 
   function open(){
     if (KN.classList.contains('on')) return;
-    size(); parts = []; fireOn = false; last = 0;
+    size(); parts = []; cubes = []; nextCube = 0; fireOn = false; last = 0;
     KN.classList.remove('dark', 'fire', 'who-on'); KQ.classList.remove('on'); WL.forEach(w => w.classList.remove('sh')); restoreW(); KN.setAttribute('aria-hidden', 'false'); void KN.offsetWidth; KN.classList.add('on');
     timers.push(setTimeout(() => { KN.classList.add('dark'); }, T_DARK));
     timers.push(setTimeout(() => { KN.classList.add('fire'); fireOn = !RM; }, T_DARK + 500));
