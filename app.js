@@ -50,7 +50,7 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     {id:'r',   title:'Редкость', opts:[{v:5,label:'5★',rc:'#F2C55C'},{v:4,label:'4★',rc:'#B98CFF'}]},
     {id:'w',   title:'Тип', opts:['Одноручное','Катализатор','Двуручное','Стрелковое','Древковое'].map(v=>({v,label:v}))},
     {id:'reg', title:'Регион', opts:['Мондштадт','Ли Юэ','Игрок','Инадзума','Другое','Сумеру','Фонтейн','Натлан','Нод-Край','Снежная'].map(v=>({v,label:v}))},
-    {id:'f',   title:'Фракция', opts:[...['Архонт','Фатуи','Ордо Фавониус','Адепты','Драконы','Комиссия Инадзумы','Академия Сумеру','Суд Фонтейна'].map(v=>({v,label:v})),
+    {id:'f',   title:'Фракция', opts:[...['Архонт','Фатуи','Ордо Фавониус','Адепты','Драконы','Комиссия Инадзумы','Академия Сумеру','Суд Фонтейна','Северная разведсеть'].map(v=>({v,label:v})),
                                       {v:'ЛЕГЕНДА КОТОРУЮ МЫ НЕ ЗАСЛУЖИЛИ', label:'ЛЕГЕНДА КОТОРУЮ МЫ НЕ ЗАСЛУЖИЛИ', legend:true}]},
     {id:'o',   title:'Происхождение', opts:[{v:'Иномирец',label:'Иномирец'},{v:'Бездна',label:'Из Бездны'},{v:'Селестия',label:'Селестия'},{v:'Ангелы',label:'Ангелы'},{v:'Каэнриах',label:"Каэнри'ах"}]},   // ch.o — массив меток (Скирк: Иномирец + Бездна)
     {id:'my',  title:'Моя коллекция', opts:['main','got','want','none'].map(v=>({v, label:ST[v].label, my:true}))},
@@ -536,12 +536,12 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
   const SLOTN = {flower:'Цветок',plume:'Перо',sands:'Часы',goblet:'Кубок',circlet:'Корона'};
   function artSec(ch){
     const c = ARTS.chars && ARTS.chars[ch.n]; if (!c) return '';
-    const names = [c.s, c.s2].filter(n => n && ARTS.sets[n]); if (!names.length) return '';
+    const ra = (RR(ch) || {}).arts, names = (ra ? [ra.s] : [c.s, c.s2]).filter(n => n && ARTS.sets[n]); if (!names.length) return '';
     const multi = names.length > 1;
     const tile = (n, sub) => { const a = ARTS.sets[n], ic = a.img ? `<img src="${esc(a.img)}?v=1" alt="" loading="lazy" decoding="async">` : '';
       return `<button type="button" class="artlink" data-set="${esc(n)}" data-who="${esc(ch.n)}"><span class="artlink-ic">${ic}</span><span class="artlink-tx"><b>${esc(n)}</b><i>${sub}Статы и почему этот сет</i></span><span class="artlink-ar" aria-hidden="true">›</span></button>`; };
-    const alt = c.alt && ARTS.sets[c.alt] ? `<div class="art-sep art-or">или</div>${tile(c.alt, 'Полный сет · 4 части · ')}` : '';
-    return `<div class="sec asec"><h3>Артефакты${multi ? ' · 2+2' : ''}</h3><div class="artlinks">${names.map(n => tile(n, multi ? '2 части · ' : '')).join('<div class="art-sep art-plus">+</div>')}${alt}</div></div>`;
+    const altN = ra ? ra.alt : c.alt, alt = altN && ARTS.sets[altN] ? `<div class="art-sep art-or">или</div>${tile(altN, (ra && ra.as) || 'Полный сет · 4 части · ')}` : '';
+    return `<div class="sec asec"><h3>Артефакты${multi ? ' · 2+2' : ''}</h3><div class="artlinks">${names.map(n => tile(n, multi ? '2 части · ' : (ra ? 'Полный сет · 4 части · ' : ''))).join('<div class="art-sep art-plus">+</div>')}${alt}</div></div>`;
   }
   // сворачиваемые разделы карточки (Команды, Навыки): состояние помним
   const FOLD = (() => { try { return new Set(JSON.parse(localStorage.getItem('sheetFold') || '[]')); } catch(e){ return new Set(); } })();
@@ -563,25 +563,37 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     const tsetsHtml = ts => { if (!ts || !ts.length) return '';
       const cell = n => { const s = n && ARTS.sets[n]; return s && s.img ? `<span class="ts-i" tabindex="0" data-n="${esc(n)}"><img src="${esc(s.img)}?v=1" alt="${esc(n)}" loading="lazy" decoding="async"></span>` : n ? `<span class="ts-i ts-ph" tabindex="0" data-n="${esc(n)}">?</span>` : '<span class="ts-same" aria-hidden="true">·</span>'; };
       return `<div class="tsets" aria-label="Варианты сетов артефактов">${ts.map((row, i) => `<div class="ts-row" tabindex="0"><span class="ts-n">${i + 1}</span>${row.map(cell).join('')}</div>`).join('')}</div>`; };
-    const team = (tm, k) => { const top = (c.top || []).indexOf(k) + 1, tg = (c.tags || [])[k]; return `<div class="team${top ? ' top' : ''}${tg ? ' tagged' : ''}">${top ? `<span class="team-top">★ TOP ${top}</span>` : ''}${tg ? `<span class="team-tag${tg === 'Лунные реакции' ? ' lunar' : ''}">${esc(tg)}</span>` : ''}${tm.map(slot).join('')}${tsetsHtml((c.tsets || [])[k])}</div>`; };
-    return `<div class="teams">${c.teams.map(team).join('')}</div>${c.tn && c.tn.length ? `<ul class="sk-notes">${c.tn.map(n => `<li>${esc(n)}</li>`).join('')}</ul>` : ''}`;
+    const team = (tm, k, tops) => { const top = (tops || c.top || []).indexOf(k) + 1, tg = (c.tags || [])[k]; return `<div class="team${top ? ' top' : ''}${tg ? ' tagged' : ''}">${top ? `<span class="team-top">★ TOP ${top}</span>` : ''}${tg ? `<span class="team-tag${tg === 'Лунные реакции' ? ' lunar' : ''}">${esc(tg)}</span>` : ''}${tm.map(slot).join('')}${tsetsHtml((c.tsets || [])[k])}</div>`; };
+    const rr = RR(ch); let idx = c.teams.map((t, i) => i), tn = c.tn || [], tops = null;
+    if (rr && rr.tm){ idx = idx.filter(i => { const m = c.teams[i].find(s => !Array.isArray(s[0]) && s[0] === ch.n); return m && m[1] === rr.tm; });
+      const tp = (c.top || []).filter(j => idx.includes(j)); tops = idx.map((k, n) => tp.includes(k) ? tp.indexOf(k) : -1); tops = tp;
+      if (rr.tni) tn = rr.tni.map(i => c.tn[i]).filter(Boolean); }
+    return `<div class="teams">${idx.map(k => team(c.teams[k], k, tops)).join('')}</div>${tn.length ? `<ul class="sk-notes">${tn.map(n => `<li>${esc(n)}</li>`).join('')}</ul>` : ''}`;
   }
   $('sheet').addEventListener('keydown', ev => { if ((ev.key === 'Enter' || ev.key === ' ') && ev.target.matches('.fold > h3')){ ev.preventDefault(); foldToggle(ev.target); } });
   // раздел справа: кнопки в карточке (Команды / Навыки / Ротация), панель выезжает справа, карточка уезжает влево
   let spKey = null, spCh = null, spSkills = '';
-  const SPT = {team:'Команды', skills:'Навыки', rot:'Ротация', wp:'Оружие', con:'Созвездия', syn:'Синергия'};
+  const SPT = {team:'Команды', skills:'Навыки', mech:'Механика', lvl:'Прокачка', rot:'Ротация', wp:'Оружие', con:'Созвездия', syn:'Синергия'};
+  // роли персонажа (ch.roles + ch.rr[роль]): выбранная роль помнится в localStorage, часть разделов берёт значения из ch.rr[роль]
+  const roleOf = ch => { if (!ch.roles || !ch.roles.length) return null; let k = null; try { k = localStorage.getItem('role:' + ch.n); } catch(e){} return (ch.roles.find(r => r.k === k) || ch.roles[0]).k; };
+  const RR = ch => { const k = roleOf(ch); return (k && ch.rr && ch.rr[k]) || null; };
+  const roleSec = ch => { if (!ch.roles || ch.roles.length < 2) return ''; const k = roleOf(ch), i = ch.roles.findIndex(r => r.k === k);
+    return `<div class="sec rolesec"><h3>Роль в отряде</h3><div class="roleseg" style="--n:${ch.roles.length};--i:${i}" role="group" aria-label="Роль в отряде"><i aria-hidden="true"></i>${ch.roles.map(r => `<button type="button" class="rolebtn" data-k="${esc(r.k)}" aria-pressed="${r.k === k}">${esc(r.n)}<small>${esc(r.s || '')}</small></button>`).join('')}</div></div>`; };
+  const mechBody = ch => `<div class="syn">${ch.mech.map(m => `<div class="syn-c"><h4>${esc(m[0])}</h4><p>${esc(m[1])}</p></div>`).join('')}</div>`;
+  const lvlBody = ch => { const rr = RR(ch); if (!rr || !rr.lvl) return '';
+    return `<div class="tiles">${rr.lvl.map(x => `<div class="tile"><small>${esc(x[0])}</small><b>${esc(x[1])}</b><span>${esc(x[2])}</span></div>`).join('')}</div>${rr.lvlx ? `<div class="syn">${rr.lvlx.map(x => `<div class="syn-c"><h4>${esc(x[0])}</h4><p>${esc(x[1])}</p></div>`).join('')}</div>` : ''}`; };
   const isNat = ch => ch.reg === 'Натлан' || ch.reg2 === 'Натлан';
-  const spHas = (k, ch) => k === 'team' ? !!teamBody(ch) : k === 'rot' ? !!(ch.rot && ch.rot.length) : k === 'wp' ? !!((ch.wp && ch.wp.length) || WEAP.sig[ch.n]) : k === 'con' ? !!(ch.con && ch.con.length) : k === 'syn' ? isNat(ch) : true;
-  const spBtns = ch => `<div class="sbtns" role="group" aria-label="Разделы">${['team','skills','rot','wp','con','syn'].filter(k => spHas(k, ch)).map(k =>
+  const spHas = (k, ch) => k === 'team' ? !!teamBody(ch) : k === 'rot' ? !!((RR(ch) && RR(ch).rot || ch.rot || []).length) : k === 'wp' ? !!((ch.wp && ch.wp.length) || WEAP.sig[ch.n]) : k === 'con' ? !!(ch.con && ch.con.length) : k === 'mech' ? !!ch.mech : k === 'lvl' ? !!(RR(ch) && RR(ch).lvl) : k === 'syn' ? isNat(ch) : true;
+  const spBtns = ch => `<div class="sbtns" role="group" aria-label="Разделы">${(ch.roles ? ['skills','mech','lvl','rot','wp','con','team','syn'] : ['team','skills','rot','wp','con','syn']).filter(k => spHas(k, ch)).map(k =>
     `<button type="button" class="sbtn${k === 'syn' ? ' ns' : ''}" data-sp="${k}" aria-pressed="false"><span>${SPT[k]}</span><i class="sbtn-ar" aria-hidden="true"></i></button>`).join('')}</div>`;
-  const spBody = (k, ch) => k === 'team' ? `<div class="sec tsec">${teamBody(ch)}</div>` : k === 'rot' ? rotBody(ch) : k === 'wp' ? wpBody(ch) : k === 'con' ? conBody(ch) : k === 'syn' ? synBody(ch) : spSkills;
+  const spBody = (k, ch) => k === 'team' ? `<div class="sec tsec">${teamBody(ch)}</div>` : k === 'rot' ? rotBody(ch) : k === 'wp' ? wpBody(ch) : k === 'con' ? conBody(ch) : k === 'syn' ? synBody(ch) : k === 'mech' ? mechBody(ch) : k === 'lvl' ? lvlBody(ch) : spSkills;
   function spRender(ch){
     const ov = $('overlay'), p = $('spanel'); if (!p) return;
     if (spKey && !spHas(spKey, ch)) spKey = null;
     $('sheet').querySelectorAll('.sbtn').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.sp === spKey)));
     if (!spKey){ ov.classList.remove('sp-open'); p.setAttribute('aria-hidden', 'true'); return; }
     p.style.setProperty('--c', elOf(ch).c); p.classList.toggle('syn-mode', spKey === 'syn');
-    $('spTitle').textContent = SPT[spKey]; $('spBody').innerHTML = spBody(spKey, ch); $('spBody').scrollTop = 0;
+    $('spTitle').innerHTML = esc(SPT[spKey]) + (ch.roles && spKey !== 'syn' ? `<span class="role-tag">${esc((ch.roles.find(r => r.k === roleOf(ch)) || {}).n || '')}</span>` : ''); $('spBody').innerHTML = spBody(spKey, ch); $('spBody').scrollTop = 0;
     p.style.setProperty('--sph', $('sheet').offsetHeight + 'px');
     ov.classList.add('sp-open'); p.setAttribute('aria-hidden', 'false');
   }
@@ -649,20 +661,25 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     const sgOf = x => sgs.find(v => wpNorm(x.n) === v.toLowerCase()) || (sgs.length === 1 && /сигнатур/i.test(x.n) ? sgs[0] : null);
     const isSig = x => !!sgOf(x);
     sgs.slice().reverse().forEach(v => { if (!list.some(x => sgOf(x) === v)) list.unshift({n: v, sg: 1, t: 'Описание для этого персонажа пока не написано.'}); });
-    return `<div class="syn">${list.map(x => { const sg = sgOf(x), k = wpKey(x) || (sg && WEAP.weapons[sg] ? sg : null), w = k && WEAP.weapons[k];
+    const rr = RR(ch); if (rr && rr.wpo){ const o = rr.wpo.map(i => list[i]).filter(Boolean); list.forEach(x => { if (!o.includes(x)) o.push(x); }); list.splice(0, list.length, ...o); }
+    return `<div class="syn">${list.map((x, xi) => { const sg = sgOf(x), k = wpKey(x) || (sg && WEAP.weapons[sg] ? sg : null), w = k && WEAP.weapons[k];
       const cd = w && (w.card || w.img), ic = cd ? `<img class="wp-ic" src="${esc(cd)}" alt="" loading="lazy">` : '';
       const tag = (x.sg || isSig(x)) ? `<span class="wp-sg">${(WEAP.rec || []).includes(ch.n) ? 'Рекомендуемое' : 'Сигнатурное'}</span>` : '';
-      return `<div class="syn-c${k ? ' wp-link' : ''}${ic ? ' wp-has' : ''}"${k ? ` role="button" tabindex="0" data-wp="${esc(k)}"` : ''}>${ic}<div class="wp-tx"><h4>${x.r ? x.r + '. ' : ''}${esc(tag ? x.n.replace(/\s*\(сигнатурное\)\s*/i, '') : x.n)}${tag}</h4><p>${esc(x.t)}</p>${k ? '<span class="wp-go">Карточка оружия ›</span>' : ''}</div></div>`; }).join('')}${ch.wpn ? `<div class="syn-c syn-key"><h4>Разрыв между оружием</h4><p>${esc(ch.wpn)}</p></div>` : ''}</div>`; }
+      return `<div class="syn-c${k ? ' wp-link' : ''}${ic ? ' wp-has' : ''}"${k ? ` role="button" tabindex="0" data-wp="${esc(k)}"` : ''}>${ic}<div class="wp-tx"><h4>${rr && rr.wpo ? (xi + 1) + '. ' : x.r ? x.r + '. ' : ''}${esc(tag ? x.n.replace(/\s*\(сигнатурное\)\s*/i, '') : x.n)}${tag}</h4><p>${esc(x.t)}</p>${k ? '<span class="wp-go">Карточка оружия ›</span>' : ''}</div></div>`; }).join('')}${ch.wpn ? `<div class="syn-c syn-key"><h4>Разрыв между оружием</h4><p>${esc(ch.wpn)}</p></div>` : ''}${rr && rr.wph ? `<div class="syn-c syn-key"><h4>${esc(rr.wph[0])}</h4><p>${esc(rr.wph[1])}</p></div>` : ''}</div>`; }
   // созвездия: фон по стихии, 6 кружков; по клику на кружок показывается описание (ch.con = [{c:'C0',t}, {c:'C1',t,n?,ic?}, ...])
   const CNSLUG = {'Пиро':'pyro','Гидро':'hydro','Анемо':'anemo','Гео':'geo','Электро':'electro','Дендро':'dendro','Крио':'cryo'};
   const CNPOS = [[1525,277],[1580,389],[1616,500],[1616,611],[1580,722],[1508,832]].map(([x,y]) => [((x-1380)/520*100).toFixed(2), ((y-215)/680*100).toFixed(2)]);
+  const cnGain = (ch, n) => { const rr = RR(ch); return rr && rr.cg ? rr.cg[n - 1] : null; };
   const cnInfo = (ch, i) => { const x = ch.con.find(y => y.c === (i < 0 ? 'C0' : 'C' + (i+1))); if (!x) return '';
-    return `<h4>${i < 0 ? 'Общее' : esc(x.c) + (x.n ? ' · ' + esc(x.n) : '')}</h4><p>${esc(x.t)}</p>`; };
+    const rr = RR(ch), rn = rr && rr.cg ? (ch.roles.find(r => r.k === roleOf(ch)) || {}).n : '';
+    const gain = !rn ? '' : i < 0 ? `<div class="gain">${rr.cg.map((g, j) => `<span class="${g[1] ? 'on' : 'off'}">C${j + 1}: ${esc(g[0])}</span>`).join('')}</div>` : `<div class="gain"><span class="${rr.cg[i][1] ? 'on' : 'off'}">Для роли «${esc(rn)}»: ${esc(rr.cg[i][0])}</span></div>`;
+    return `<h4>${i < 0 ? 'Общее' : esc(x.c) + (x.n ? ' · ' + esc(x.n) : '')}</h4><p>${esc(x.t)}</p>${gain}`; };
   function conBody(ch){
     const slug = CNSLUG[ch.e];
     if (!slug) return `<div class="syn">${ch.con.map(x => `<div class="syn-c"><h4>${esc(x.c)}</h4><p>${esc(x.t)}</p></div>`).join('')}</div>`;
     const nodes = CNPOS.map(([l,t], i) => { const x = ch.con.find(y => y.c === 'C' + (i+1)); if (!x) return '';
-      return `<button type="button" class="cn-node" data-i="${i}" aria-pressed="false" aria-label="Созвездие ${i+1}" style="left:${l}%;top:${t}%"><span class="cn-ic">${x.ic ? `<img src="${esc(x.ic)}" alt="" loading="lazy">` : ''}</span><b>C${i+1}</b></button>`; }).join('');
+      const g = cnGain(ch, i + 1);
+      return `<button type="button" class="cn-node${g && !g[1] ? ' dim' : ''}" data-i="${i}" aria-pressed="false" aria-label="Созвездие ${i+1}" style="left:${l}%;top:${t}%"><span class="cn-ic">${x.ic ? `<img src="${esc(x.ic)}" alt="" loading="lazy">` : ''}</span><b>C${i+1}</b></button>`; }).join('');
     return `<div class="cn"><div class="cn-sky" style="background-image:url('con_${slug}.webp?v=1')">${nodes}</div><p class="cn-hint">Нажми на созвездие, чтобы увидеть, что оно даёт</p><div class="syn"><div class="syn-c" id="cnInfo">${cnInfo(ch, -1)}</div></div></div>`;
   }
   if ($('spBody')) $('spBody').addEventListener('click', ev => { const n = ev.target.closest('.cn-node'); if (!n || !spCh) return;
@@ -671,11 +688,12 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
     if (on) n.setAttribute('aria-pressed', 'true');
     $('cnInfo').innerHTML = cnInfo(spCh, on ? +n.dataset.i : -1); });
   function rotBody(ch){
-    if (!ch.rot || !ch.rot.length) return '';
+    const rr = RR(ch), rot = (rr && rr.rot) || ch.rot, rotn = rr && rr.rotn != null ? rr.rotn : ch.rotn;
+    if (!rot || !rot.length) return '';
     const ric = ch.ric || (ch.n === 'Вареса' ? ROTIC : null);   // иконки навыков для ротации: ch.ric или (пока) только у Вареси, иначе подписи
     const chip = k => (k === 'pl' || !ric || !ric[k]) ? `<span class="rot-pl">${k==='pl'?'Планж':k==='e'?'Е':k==='q'?'Q':k==='a'?'Атака':esc(k)}</span>` : `<img class="rot-ic" src="${ric[k]}" alt="${k==='e'?'Е':k==='q'?'Q':'Тычка'}">`;
-    const steps = ch.rot.map((r,i)=>`<li><span class="rot-n">${i+1}</span><span class="rot-ch">${(r.s||[]).map(chip).join('<i class="rot-ar">›</i>')}</span><span class="rot-t">${esc(r.t)}</span></li>`).join('');
-    return `<ol class="rot">${steps}</ol>${ch.rotn ? `<p class="rot-note">${esc(ch.rotn)}</p>` : ''}`;
+    const steps = rot.map((r,i)=>`<li><span class="rot-n">${i+1}</span><span class="rot-ch">${(r.s||[]).map(chip).join('<i class="rot-ar">›</i>')}</span><span class="rot-t">${esc(r.t)}</span></li>`).join('');
+    return `<ol class="rot">${steps}</ol>${rotn ? `<p class="rot-note">${esc(rotn)}</p>` : ''}`;
   }
   // «Хо-хо-хо» при открытии карточки Венти: только звук, музыка на это время замолкает, потом играет дальше
   let hoBusy = false;
@@ -711,7 +729,9 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
       ? ELEMENTS.slice(1).map(e=>`<span class="tag" style="--tc:${e.c}">${icon(e)}${e.name}</span>`).join('')
       : ch.e ? `<span class="tag">${icon(el)}${esc(ch.e)}</span>` : '';   // без элемента (ещё не вышел) — тега нет
     const skills = ch.skx && ch.skx.length
-      ? `<ul class="skills skx">${ch.skx.map(s=>`<li>${s.ic ? `<img class="sk-ic" src="${esc(s.ic)}" alt="" loading="lazy">` : ''}<span class="sk-tx"><b>${esc(s.n)}</b><span>${esc(s.t||'')}</span></span>${s.pas ? `<span class="prio pas"><small>ПАССИВ</small></span>` : `<span class="prio"><small>ПРИОР.</small>${s.p}</span>`}</li>`).join('')}</ul>`
+      ? `<ul class="skills skx">${ch.skx.map((s,i)=>{ const rr = RR(ch), dim = rr && rr.dim && rr.dim[i], pv = rr && rr.p && rr.p[i] != null ? rr.p[i] : s.p;
+        const bd = s.sh ? `<span>${esc(s.sh)}</span><details class="more"><summary>Подробнее</summary><span>${esc(s.t||'')}</span></details>` : `<span>${esc(s.t||'')}</span>`;
+        return `<li${dim ? ' class="sk-dim"' : ''}>${s.ic ? `<img class="sk-ic" src="${esc(s.ic)}" alt="" loading="lazy">` : ''}<span class="sk-tx"><b>${esc(s.n)}${dim ? `<span class="sk-flag">${esc(dim)}</span>` : ''}</b>${bd}</span>${s.pas ? `<span class="prio pas"><small>ПАССИВ</small></span>` : `<span class="prio"><small>ПРИОР.</small>${pv}</span>`}</li>`; }).join('')}</ul>`
         + (ch.skn && ch.skn.length ? `<ul class="sk-notes">${ch.skn.map(n=>`<li>${esc(n)}</li>`).join('')}</ul>` : '')
       : ch.sk && ch.sk.length
       ? `<ul class="skills">${ch.sk.map(s=>{ const m = s.match(/^(.*?)\s*—\s*(\d+)\s*$/);
@@ -732,7 +752,8 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
       </div>
       <div class="sheet-body">
         <div class="sec"><h3>Моя коллекция</h3><div class="mypick" role="group" aria-label="Моя коллекция">${['want','got','main','none'].map(k=>`<button type="button" class="mypb" data-st="${k}" style="--mc:${ST[k].c}" aria-pressed="${stOf(ch)===k}">${ST[k].ic?`<i>${ST[k].ic}</i>`:''}${ST[k].label}</button>`).join('')}</div></div>
-        ${ch.memo ? memoBody() : (ch.no ? `<div class="sec"><h3>Примечание</h3><p>${esc(ch.no)}</p></div>` : '')}
+        ${roleSec(ch)}
+        ${ch.memo ? memoBody() : ((RR(ch) && RR(ch).no) || ch.no ? `<div class="sec"><h3>Примечание</h3><p>${esc((RR(ch) && RR(ch).no) || ch.no)}</p></div>` : '')}
         ${sec('Нужные статы', ch.st)}
          ${artSec(ch)}
         ${ch.memo ? '' : spBtns(ch)}
@@ -757,6 +778,8 @@ const HVJ = id => JSON.parse(JSON.stringify(window.HVD[id]));   // копия д
   }
   $('sheet').addEventListener('click', ev=>{
     const fh = ev.target.closest('.fold > h3'); if (fh){ foldToggle(fh); return; }
+    const rb = ev.target.closest('.rolebtn'); if (rb && spCh){ sfx(SFX_PICK); try { localStorage.setItem('role:' + spCh.n, rb.dataset.k); } catch(e){}
+      const sc0 = $('sheet').querySelector('.sheet-sc'), top0 = sc0 ? sc0.scrollTop : 0; openSheet(CHARS.indexOf(spCh), lastFocus, true); const sc1 = $('sheet').querySelector('.sheet-sc'); if (sc1) sc1.scrollTop = top0; return; }
     const sb = ev.target.closest('.sbtn'); if (sb){ sfx(SFX_PICK); spKey = spKey === sb.dataset.sp ? null : sb.dataset.sp; spRender(spCh); return; }
     const tb = ev.target.closest('.tm'); if (tb && !tb.disabled){ const j = CHARS.findIndex(c => c.n === tb.dataset.tm); if (j >= 0){ sfx(SFX_OPEN); openSheet(j, tb); } return; }
     const b = ev.target.closest('.mypb'); if (!b) return;
